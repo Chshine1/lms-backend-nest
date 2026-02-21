@@ -32,7 +32,12 @@ export default tseslint.config(
       import: importPlugin,
     },
     rules: {
-      'import/no-extraneous-dependencies': 'error',
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          packageDir: import.meta.dirname,
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',

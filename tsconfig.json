@@ -8,11 +8,11 @@
             "jest"
         ],
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": "./apps",
         "baseUrl": "./",
         "paths": {
             "@/*": [
-                "src/*"
+                "apps/*"
             ]
         },
         "strict": true,
@@ -38,6 +38,6 @@
         "skipLibCheck": true
     },
     "include": [
-        "src/**/*"
+        "apps/**/*"
     ]
 }
