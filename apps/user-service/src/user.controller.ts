@@ -3,47 +3,29 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ValidateUserDto } from './dto/validate-user.dto';
+import { User } from '@/user-service/src/entities/user.entity';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @MessagePattern('user.create')
-  async createUser(@Payload() createUserDto: CreateUserDto) {
-    const user = await this.userService.create(createUserDto);
-    const { password, ...result } = user;
-    return result;
+  async createUser(@Payload() createUserDto: CreateUserDto): Promise<User> {
+    return await this.userService.create(createUserDto);
   }
 
   @MessagePattern('user.validate')
-  async validateUser(@Payload() data: ValidateUserDto) {
-    const user = await this.userService.validateUser(
-      data.username,
-      data.password,
-    );
-    if (user) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+  async validateUser(@Payload() data: ValidateUserDto): Promise<User | null> {
+    return await this.userService.validateUser(data.username, data.password);
   }
 
   @MessagePattern('user.findById')
-  async findUserById(@Payload() data: { id: number }) {
-    const user = await this.userService.findById(data.id);
-    if (user) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+  async findUserById(@Payload() data: { id: number }): Promise<User | null> {
+    return await this.userService.findById(data.id);
   }
 
   @MessagePattern('user.findByTenant')
-  async findByTenant(@Payload() data: { tenantId: number }) {
-    const users = await this.userService.findByTenant(data.tenantId);
-    return users.map((u) => {
-      const { password, ...result } = u;
-      return result;
-    });
+  async findByTenant(@Payload() data: { tenantId: number }): Promise<User[]> {
+    return await this.userService.findByTenant(data.tenantId);
   }
 }

@@ -16,17 +16,20 @@ export class TenantService {
     return this.tenantRepository.save(tenant);
   }
 
-  async findById(id: number): Promise<Tenant | undefined> {
+  async findById(id: number): Promise<Tenant | null> {
     return this.tenantRepository.findOne({ where: { id } });
   }
 
-  async findByName(name: string): Promise<Tenant | undefined> {
+  async findByName(name: string): Promise<Tenant | null> {
     return this.tenantRepository.findOne({ where: { name } });
   }
 
-  async update(id: number, updateData: Partial<Tenant>): Promise<Tenant> {
-    await this.tenantRepository.update(id, updateData);
-    return this.findById(id);
+  async update(
+    id: number,
+    updateData: Partial<Tenant>,
+  ): Promise<number | undefined> {
+    const result = await this.tenantRepository.update(id, updateData);
+    return result.affected;
   }
 
   async delete(id: number): Promise<void> {

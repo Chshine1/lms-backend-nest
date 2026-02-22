@@ -1,39 +1,57 @@
 {
-    "collection": "@nestjs/schematics",
-    "sourceRoot": "apps/gateway/src",
-    "monorepo": true,
-    "root": "apps/gateway",
-    "compilerOptions": {
-        "webpack": true,
-        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/gateway/src",
+  "monorepo": true,
+  "root": "apps/gateway",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/gateway/tsconfig.app.json"
+  },
+  "projects": {
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
     },
-    "projects": {
-        "gateway": {
-            "type": "application",
-            "root": "apps/gateway",
-            "entryFile": "main",
-            "sourceRoot": "apps/gateway/src",
-            "compilerOptions": {
-                "tsConfigPath": "apps/gateway/tsconfig.app.json"
-            }
-        },
-        "user-service": {
-            "type": "application",
-            "root": "apps/user-service",
-            "entryFile": "main",
-            "sourceRoot": "apps/user-service/src",
-            "compilerOptions": {
-                "tsConfigPath": "apps/user-service/tsconfig.app.json"
-            }
-        },
-        "tenant-service": {
-            "type": "application",
-            "root": "apps/tenant-service",
-            "entryFile": "main",
-            "sourceRoot": "apps/tenant-service/src",
-            "compilerOptions": {
-                "tsConfigPath": "apps/tenant-service/tsconfig.app.json"
-            }
-        }
+    "gateway": {
+      "type": "application",
+      "root": "apps/gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
+    "tenant-service": {
+      "type": "application",
+      "root": "apps/tenant-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/tenant-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/tenant-service/tsconfig.app.json"
+      }
+    },
+    "typed-client": {
+      "type": "library",
+      "root": "libs/typed-client",
+      "entryFile": "index",
+      "sourceRoot": "libs/typed-client/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/typed-client/tsconfig.lib.json"
+      }
+    },
+    "user-service": {
+      "type": "application",
+      "root": "apps/user-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/user-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user-service/tsconfig.app.json"
+      }
     }
+  }
 }

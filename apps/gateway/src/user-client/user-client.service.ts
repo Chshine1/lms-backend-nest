@@ -1,24 +1,28 @@
-﻿import { Injectable, Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import { Injectable } from '@nestjs/common';
+import {
+  SharedCreateUserDto,
+  SharedUser,
+  SharedValidateUserDto,
+} from '../../../../libs/common';
+import { UserTypedClient } from '@app/typed-client/user.typed-client';
 
 @Injectable()
 export class UserClientService {
-  constructor(@Inject('USER_SERVICE') private client: ClientProxy) {}
+  constructor(private readonly client: UserTypedClient) {}
 
-  async createUser(data: any) {
-    return lastValueFrom(this.client.send('user.create', data));
+  createUser(data: SharedCreateUserDto): Promise<SharedUser> {
+    return this.client.createUser(data);
   }
 
-  async validateUser(data: { username: string; password: string }) {
-    return lastValueFrom(this.client.send('user.validate', data));
+  validateUser(data: SharedValidateUserDto): Promise<SharedUser | null> {
+    return this.client.validateUser(data);
   }
 
-  async findUserById(id: number) {
-    return lastValueFrom(this.client.send('user.findById', { id }));
+  findUserById(id: number): Promise<SharedUser | null> {
+    return this.client.findUserById(id);
   }
 
-  async findUsersByTenant(tenantId: number) {
-    return lastValueFrom(this.client.send('user.findByTenant', { tenantId }));
+  findUsersByTenant(tenantId: number): Promise<SharedUser[]> {
+    return this.client.findUsersByTenant(tenantId);
   }
 }

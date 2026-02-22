@@ -1,43 +1,64 @@
 {
-    "compilerOptions": {
-        "target": "ES2023",
-        "module": "nodenext",
-        "moduleResolution": "nodenext",
-        "types": [
-            "node",
-            "jest"
-        ],
-        "outDir": "./dist",
-        "rootDir": "./apps",
-        "baseUrl": "./",
-        "paths": {
-            "@/*": [
-                "apps/*"
-            ]
-        },
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitOverride": true,
-        "noImplicitReturns": true,
-        "noUncheckedIndexedAccess": true,
-        "noPropertyAccessFromIndexSignature": true,
-        "exactOptionalPropertyTypes": true,
-        "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "isolatedModules": true,
-        "resolveJsonPackageExports": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "declaration": true,
-        "removeComments": true,
-        "sourceMap": true,
-        "incremental": true,
-        "skipLibCheck": true
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": [
+      "node",
+      "jest"
+    ],
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "apps/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/contracts": [
+        "libs/contracts",
+        "libs/contracts/src"
+      ],
+      "@app/contracts/*": [
+        "libs/contracts/*",
+        "libs/contracts/src/*"
+      ],
+      "@app/typed-client": [
+        "libs/typed-client/src"
+      ],
+      "@app/typed-client/*": [
+        "libs/typed-client/src/*"
+      ]
     },
-    "include": [
-        "apps/**/*"
-    ]
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "resolvePackageJsonExports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "incremental": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "apps/**/*",
+    "libs/**/*"
+  ]
 }
