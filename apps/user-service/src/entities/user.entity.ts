@@ -5,9 +5,10 @@
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserContract } from '@app/contracts/user/entities/user.contract';
 
 @Entity()
-export class User {
+export class User implements UserContract {
   @PrimaryGeneratedColumn()
   id!: number;
 

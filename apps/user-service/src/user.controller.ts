@@ -1,31 +1,31 @@
 ﻿import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { ValidateUserDto } from './dto/validate-user.dto';
-import { User } from '@/user-service/src/entities/user.entity';
+import { UserContract } from '@app/contracts/user/entities/user.contract';
+import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
+import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @MessagePattern('user.create')
-  async createUser(@Payload() createUserDto: CreateUserDto): Promise<User> {
-    return await this.userService.create(createUserDto);
+  createUser(@Payload() createUserDto: CreateUserDto): Promise<UserContract> {
+    return this.userService.create(createUserDto);
   }
 
   @MessagePattern('user.validate')
-  async validateUser(@Payload() data: ValidateUserDto): Promise<User | null> {
-    return await this.userService.validateUser(data.username, data.password);
+  validateUser(@Payload() data: ValidateUserDto): Promise<UserContract | null> {
+    return this.userService.validateUser(data.username, data.password);
   }
 
   @MessagePattern('user.findById')
-  async findUserById(@Payload() data: { id: number }): Promise<User | null> {
-    return await this.userService.findById(data.id);
+  findUserById(@Payload() data: { id: number }): Promise<UserContract | null> {
+    return this.userService.findById(data.id);
   }
 
   @MessagePattern('user.findByTenant')
-  async findByTenant(@Payload() data: { tenantId: number }): Promise<User[]> {
-    return await this.userService.findByTenant(data.tenantId);
+  findByTenant(@Payload() data: { tenantId: number }): Promise<UserContract[]> {
+    return this.userService.findByTenant(data.tenantId);
   }
 }

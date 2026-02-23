@@ -2,7 +2,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TypedClientBase } from '@app/typed-client/typed-client.base';
 import { ClientProxy } from '@nestjs/microservices';
-import { SharedCreateTenantDto, SharedTenant } from '../../common';
+import { TenantContract } from '@app/contracts/tenant/entities/tenant.contract';
+import { CreateTenantDto } from '@app/contracts/tenant/dto/create-tenant.dto';
 
 @Injectable()
 export class TenantTypedClient extends TypedClientBase<TenantServicePatterns> {
@@ -10,11 +11,11 @@ export class TenantTypedClient extends TypedClientBase<TenantServicePatterns> {
     super(client);
   }
 
-  createTenant(data: SharedCreateTenantDto): Promise<SharedTenant> {
+  createTenant(data: CreateTenantDto): Promise<TenantContract> {
     return this.send('tenant.create', data);
   }
 
-  findTenantById(id: number): Promise<SharedTenant | null> {
+  findTenantById(id: number): Promise<TenantContract | null> {
     return this.send('tenant.findById', { id });
   }
 

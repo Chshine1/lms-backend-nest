@@ -1,31 +1,31 @@
 ﻿import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TenantService } from './tenant.service';
-import { CreateTenantDto } from './dto/create-tenant.dto';
-import { Tenant } from '@/tenant-service/src/entities/tenant.entity';
+import { TenantContract } from '@app/contracts/tenant/entities/tenant.contract';
+import { CreateTenantDto } from '@app/contracts/tenant/dto/create-tenant.dto';
 
 @Controller()
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 
   @MessagePattern('tenant.create')
-  async createTenant(
+  createTenant(
     @Payload() createTenantDto: CreateTenantDto,
-  ): Promise<Tenant> {
+  ): Promise<TenantContract> {
     return this.tenantService.create(createTenantDto);
   }
 
   @MessagePattern('tenant.findById')
-  async findTenantById(
+  findTenantById(
     @Payload() data: { id: number },
-  ): Promise<Tenant | null> {
+  ): Promise<TenantContract | null> {
     return this.tenantService.findById(data.id);
   }
 
   @MessagePattern('tenant.findByName')
-  async findTenantByName(
+  findTenantByName(
     @Payload() data: { name: string },
-  ): Promise<Tenant | null> {
+  ): Promise<TenantContract | null> {
     return this.tenantService.findByName(data.name);
   }
 
@@ -36,8 +36,8 @@ export class TenantController {
   }
 
   @MessagePattern('tenant.update')
-  async updateTenant(
-    @Payload() data: { id: number; updateData: Partial<Tenant> },
+  updateTenant(
+    @Payload() data: { id: number; updateData: Partial<TenantContract> },
   ): Promise<number | undefined> {
     return this.tenantService.update(data.id, data.updateData);
   }

@@ -5,9 +5,10 @@
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { TenantContract } from '@app/contracts/tenant/entities/tenant.contract';
 
 @Entity()
-export class Tenant {
+export class Tenant implements TenantContract {
   @PrimaryGeneratedColumn()
   id!: number;
 

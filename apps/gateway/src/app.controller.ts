@@ -13,6 +13,8 @@ import { UserClientService } from './user-client/user-client.service';
 import { TenantClientService } from './tenant-client/tenant-client.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
+import { TenantContract } from '@app/contracts/tenant/entities/tenant.contract';
+import { UserContract } from '@app/contracts/user/entities/user.contract';
 
 @Controller()
 export class AppController {
@@ -33,7 +35,7 @@ export class AppController {
     },
   ): Promise<{
     access_token: string;
-    user: import('../../../libs/common').SharedUser;
+    user: UserContract;
   }> {
     if (body.tenantId) {
       const tenantExists = await this.tenantClient.validateTenant(
@@ -54,7 +56,7 @@ export class AppController {
   @Post('auth/login')
   async login(@Body() body: { username: string; password: string }): Promise<{
     access_token: string;
-    user: import('../../../libs/common').SharedUser;
+    user: UserContract;
   }> {
     const user = await this.userClient.validateUser(body);
     if (!user) {
@@ -69,9 +71,7 @@ export class AppController {
 
   @Get('users/:id')
   @UseGuards(AuthGuard('jwt'))
-  async getUser(
-    @Param('id') id: string,
-  ): Promise<import('../../../libs/common').SharedUser> {
+  async getUser(@Param('id') id: string): Promise<UserContract> {
     const user = await this.userClient.findUserById(parseInt(id));
     if (!user) {
       throw new NotFoundException('User not found');
@@ -88,15 +88,13 @@ export class AppController {
       description?: string;
       subscriptionPlan?: string;
     },
-  ): Promise<import('../../../libs/common').SharedTenant> {
+  ): Promise<TenantContract> {
     return await this.tenantClient.createTenant(body);
   }
 
   @Get('tenants/:id')
   @UseGuards(AuthGuard('jwt'))
-  async getTenant(
-    @Param('id') id: string,
-  ): Promise<import('../../../libs/common').SharedTenant> {
+  async getTenant(@Param('id') id: string): Promise<TenantContract> {
     const tenant = await this.tenantClient.findTenantById(parseInt(id));
     if (!tenant) {
       throw new NotFoundException('Tenant not found');
@@ -108,7 +106,7 @@ export class AppController {
   @UseGuards(AuthGuard('jwt'))
   async getTenantUsers(
     @Param('tenantId') tenantId: string,
-  ): Promise<import('../../../libs/common').SharedUser[]> {
+  ): Promise<UserContract[]> {
     return await this.userClient.findUsersByTenant(parseInt(tenantId));
   }
 }

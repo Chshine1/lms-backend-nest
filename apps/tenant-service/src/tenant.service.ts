@@ -2,7 +2,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tenant } from './entities/tenant.entity';
-import { CreateTenantDto } from './dto/create-tenant.dto';
+import { TenantContract } from '@app/contracts/tenant/entities/tenant.contract';
+import { plainToInstance } from 'class-transformer';
+import { CreateTenantDto } from '@app/contracts/tenant/dto/create-tenant.dto';
 
 @Injectable()
 export class TenantService {
@@ -11,22 +13,33 @@ export class TenantService {
     private tenantRepository: Repository<Tenant>,
   ) {}
 
-  async create(createTenantDto: CreateTenantDto): Promise<Tenant> {
+  async create(createTenantDto: CreateTenantDto): Promise<TenantContract> {
     const tenant = this.tenantRepository.create(createTenantDto);
-    return this.tenantRepository.save(tenant);
+    const createResult = await this.tenantRepository.save(tenant);
+    return plainToInstance(TenantContract, createResult, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async findById(id: number): Promise<Tenant | null> {
-    return this.tenantRepository.findOne({ where: { id } });
+  async findById(id: number): Promise<TenantContract | null> {
+    const findResult = await this.tenantRepository.findOne({ where: { id } });
+    if (findResult === null) return null;
+    return plainToInstance(TenantContract, findResult, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async findByName(name: string): Promise<Tenant | null> {
-    return this.tenantRepository.findOne({ where: { name } });
+  async findByName(name: string): Promise<TenantContract | null> {
+    const findResult = await this.tenantRepository.findOne({ where: { name } });
+    if (findResult === null) return null;
+    return plainToInstance(TenantContract, findResult, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async update(
     id: number,
-    updateData: Partial<Tenant>,
+    updateData: Partial<TenantContract>,
   ): Promise<number | undefined> {
     const result = await this.tenantRepository.update(id, updateData);
     return result.affected;
