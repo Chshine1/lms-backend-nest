@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-ssm": "^3.995.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -31,8 +32,11 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "bcrypt": "^6.0.0",
+    "change-case": "^5.4.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "js-yaml": "^4.1.1",
+    "lodash": "^4.17.23",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -48,6 +52,8 @@
     "@types/bcrypt": "^6",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/js-yaml": "^4",
+    "@types/lodash": "^4",
     "@types/node": "^22.10.7",
     "@types/passport": "^0",
     "@types/passport-jwt": "^4",
@@ -90,6 +96,7 @@
     ],
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/config-lib(|/.*)$": "<rootDir>/libs/config-lib/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }

@@ -3,9 +3,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tenant } from './entities/tenant.entity';
 import { TenantController } from './tenant.controller';
 import { TenantService } from './tenant.service';
+import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 
 @Module({
   imports: [
+    ConfigLibModule.forRoot({
+      order: ['env', 'yaml', 'aws'],
+      initial: {
+        environment: process.env['NODE_ENV'] || 'production',
+        serviceName: 'tenant-service',
+      },
+    }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'data/tenant-service.db',

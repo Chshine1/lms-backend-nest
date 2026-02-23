@@ -6,16 +6,35 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserClientModule } from './user-client/user-client.module';
 import { TenantClientModule } from './tenant-client/tenant-client.module';
-import { ConfigModule } from '@nestjs/config';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
+import { ConfigLibModule } from '@app/config-lib/config-lib.module';
+import { Config } from '@app/config-lib/interfaces/raw-config.interface';
+import {
+  getNumber,
+  getRequiredString,
+} from '@app/config-lib/utils/extract.utils';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigLibModule.forRoot({
+      order: ['env', 'yaml', 'aws'],
+      initial: {
+        environment: process.env['NODE_ENV'] || 'production',
+        serviceName: 'gateway',
+      },
+    }),
     PassportModule,
-    JwtModule.register({
-      secret: process.env['JWT_SECRET'] || 'secretKey',
-      signOptions: { expiresIn: '1d' },
+    JwtModule.registerAsync({
+      imports: [],
+      inject: ['CONFIG'],
+      useFactory: (config: Config) => {
+        return {
+          secret: getRequiredString(config, 'jwtSecret'),
+          signOptions: {
+            expiresIn: getNumber(config, 'jwtExpiresIn') || '1d',
+          },
+        };
+      },
     }),
     UserClientModule,
     TenantClientModule,

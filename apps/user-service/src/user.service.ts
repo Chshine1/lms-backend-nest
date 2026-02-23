@@ -2,7 +2,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import bcrypt from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
@@ -16,7 +16,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<UserContract> {
     const { password, ...rest } = createUserDto;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hash(password, 10);
     const user = this.userRepository.create({
       ...rest,
       password: hashedPassword,
@@ -42,10 +42,7 @@ export class UserService {
     const findResult = await this.userRepository.findOne({
       where: { username },
     });
-    if (
-      findResult === null ||
-      !(await bcrypt.compare(pass, findResult.password))
-    ) {
+    if (findResult === null || !(await compare(pass, findResult.password))) {
       return null;
     }
     return plainToInstance(UserContract, findResult, {

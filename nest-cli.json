@@ -8,6 +8,15 @@
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
+    "config-lib": {
+      "type": "library",
+      "root": "libs/config-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/config-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/config-lib/tsconfig.lib.json"
+      }
+    },
     "contracts": {
       "type": "library",
       "root": "libs/contracts",

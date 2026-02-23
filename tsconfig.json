@@ -20,6 +20,12 @@
       "@app/common/*": [
         "libs/common/src/*"
       ],
+      "@app/config-lib": [
+        "libs/config-lib/src"
+      ],
+      "@app/config-lib/*": [
+        "libs/config-lib/src/*"
+      ],
       "@app/contracts": [
         "libs/contracts",
         "libs/contracts/src"
