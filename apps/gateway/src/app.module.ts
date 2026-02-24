@@ -8,30 +8,23 @@ import { UserClientModule } from './user-client/user-client.module';
 import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
-import { Config } from '@app/config-lib/interfaces/raw-config.interface';
-import {
-  getNumber,
-  getRequiredString,
-} from '@app/config-lib/utils/extract.utils';
+import { ConfigHolder } from '@app/config-lib/config-holder';
+import { ConfigSchema } from '@app/config-lib/config-loader.service';
 
 @Module({
   imports: [
     ConfigLibModule.forRoot({
-      order: ['env', 'yaml', 'aws'],
-      initial: {
-        environment: process.env['NODE_ENV'] || 'production',
-        serviceName: 'gateway',
-      },
+      order: ['env', 'yaml', 'aws'] as const,
     }),
     PassportModule,
     JwtModule.registerAsync({
       imports: [],
-      inject: ['CONFIG'],
-      useFactory: (config: Config) => {
+      inject: [ConfigHolder],
+      useFactory: (configHolder: ConfigHolder<ConfigSchema>) => {
         return {
-          secret: getRequiredString(config, 'jwtSecret'),
+          secret: configHolder.config.jwtSecret,
           signOptions: {
-            expiresIn: getNumber(config, 'jwtExpiresIn') || '1d',
+            expiresIn: configHolder.config.jwtExpiry,
           },
         };
       },

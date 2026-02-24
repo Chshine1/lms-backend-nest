@@ -2,17 +2,20 @@
 import { ConfigLoaderService } from './config-loader.service';
 import { defaultLoaderOptions } from '@app/config-lib/constants/default-loader.options';
 import type { LoaderOptions } from '@app/config-lib/interfaces/loader-options.interface';
-import { Config } from '@app/config-lib/interfaces/raw-config.interface';
+import { ConfigHolder } from '@app/config-lib/config-holder';
 
-export interface ConfigLibModuleOptions {
-  order: (keyof LoaderOptions)[];
-  initial: Config;
+export interface ConfigLibModuleOptions<
+  TOrder extends readonly (keyof LoaderOptions)[],
+> {
+  order: TOrder;
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigLibModule {
-  static forRoot(options: ConfigLibModuleOptions): DynamicModule {
+  static forRoot<TOrder extends readonly (keyof LoaderOptions)[]>(
+    options: ConfigLibModuleOptions<TOrder>,
+  ): DynamicModule {
     const loadersProvider: Provider = {
       provide: 'LOADERS',
       useValue: defaultLoaderOptions,
@@ -20,18 +23,19 @@ export class ConfigLibModule {
 
     const loaderServiceProvider: Provider = ConfigLoaderService;
 
-    const configProvider: Provider = {
-      provide: 'CONFIG',
-      useFactory: (loaderService: ConfigLoaderService) => {
-        return loaderService.load(options.order, options.initial);
+    const configHolderProvider: Provider = {
+      provide: ConfigHolder,
+      useFactory: async (loaderService: ConfigLoaderService) => {
+        const config = await loaderService.load(options.order);
+        return new ConfigHolder(config);
       },
       inject: [ConfigLoaderService],
     };
 
     return {
       module: ConfigLibModule,
-      providers: [loadersProvider, loaderServiceProvider, configProvider],
-      exports: ['CONFIG'],
+      providers: [loadersProvider, loaderServiceProvider, configHolderProvider],
+      exports: [ConfigHolder],
     };
   }
 }

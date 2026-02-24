@@ -1,27 +1,27 @@
-﻿import { ClassConstructor } from 'class-transformer';
-import { Config } from './raw-config.interface';
+import { ClassConstructor } from 'class-transformer';
 import { ConfigLoader } from './loader.interface';
-import { YamlLoader } from '@app/config-lib/loaders/yaml.loader';
-import { EnvLoader } from '@app/config-lib/loaders/env.loader';
-import { AwsLoader } from '@app/config-lib/loaders/aws.loader';
+import { EnvSchema } from '@app/config-lib/schemas/env.schema';
+import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
+import { AwsSchema } from '@app/config-lib/schemas/aws.schema';
 
-export interface LoaderOptionSection<
-  TLoader extends ConfigLoader<TOptions>,
-  TOptions,
+type ClassConstructorList<T extends unknown[]> = T extends [
+  infer First,
+  ...infer Rest,
+]
+  ? [ClassConstructor<First>, ...ClassConstructorList<Rest>]
+  : [];
+
+export interface LoaderDefinition<
+  TSchema extends object,
+  TDeps extends unknown[],
 > {
-  loader: ClassConstructor<TLoader>;
-  skip: (last: Config) => boolean;
-  config: (last: Config) => TOptions;
+  loader: ClassConstructor<ConfigLoader>;
+  deps: ClassConstructorList<TDeps>;
+  schema: ClassConstructor<TSchema>;
 }
 
-export interface LoaderOptions extends Record<
-  string,
-  LoaderOptionSection<ConfigLoader<unknown>, unknown>
-> {
-  env: LoaderOptionSection<EnvLoader, void>;
-  yaml: LoaderOptionSection<YamlLoader, { paths: string[] }>;
-  aws: LoaderOptionSection<
-    AwsLoader,
-    { paths: string[]; region: string; withDecryption: boolean }
-  >;
+export interface LoaderOptions {
+  env: LoaderDefinition<EnvSchema, []>;
+  yaml: LoaderDefinition<YamlSchema, [EnvSchema]>;
+  aws: LoaderDefinition<AwsSchema, [EnvSchema, YamlSchema]>;
 }

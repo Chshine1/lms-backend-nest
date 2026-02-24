@@ -1,44 +1,55 @@
 ﻿import { Inject, Injectable } from '@nestjs/common';
-import { Config, ConfigObject } from './interfaces/raw-config.interface';
-import { type LoaderOptions } from './interfaces/loader-options.interface';
+import {
+  LoaderDefinition,
+  type LoaderOptions,
+} from './interfaces/loader-options.interface';
 import { ConfigError } from '@app/config-lib/utils/errors';
+
+type ExtractReturnSchema<TOrder extends readonly (keyof LoaderOptions)[]> =
+  TOrder extends []
+    ? unknown
+    : TOrder extends [infer First, ...infer Rest]
+      ? First extends keyof LoaderOptions
+        ? LoaderOptions[First] extends LoaderDefinition<
+            infer TSchema,
+            unknown[]
+          >
+          ? TSchema &
+              (Rest extends (keyof LoaderOptions)[]
+                ? ExtractReturnSchema<Rest>
+                : never)
+          : never
+        : never
+      : never;
+
+export type ConfigSchema = ExtractReturnSchema<['env', 'yaml', 'aws']>;
 
 @Injectable()
 export class ConfigLoaderService {
   constructor(@Inject('LOADERS') private readonly loaders: LoaderOptions) {}
 
-  async load(order: (keyof LoaderOptions)[], initial: Config): Promise<Config> {
-    let currentConfig = { ...initial };
+  async load<TOrder extends readonly (keyof LoaderOptions)[]>(
+    order: TOrder,
+  ): Promise<ExtractReturnSchema<TOrder>> {
+    let currentConfig: object = {};
 
-    for (const loaderName of order) {
+    for (let i = 0; i < order.length; i++) {
+      const loaderName = order[i];
+      if (loaderName === undefined) throw new Error('Unexpected out of range!');
       const section = this.loaders[loaderName];
-      if (!section) {
-        throw new Error(
-          `Loader "${String(loaderName)}" not defined in options.`,
-        );
-      }
 
-      if (section.skip(currentConfig)) {
-        continue;
-      }
-
-      const loaderConfig = section.config(currentConfig);
-      const loaderInstance = new section.loader();
-
-      let loadedPart: ConfigObject;
+      let loadedPart: object;
       try {
-        loadedPart = await loaderInstance.load(loaderConfig);
+        loadedPart = await new section.loader().load(
+          currentConfig,
+          section.deps,
+          section.schema,
+        );
       } catch (err) {
         if (err instanceof ConfigError) {
-          continue;
+          throw err;
         }
         throw err;
-      }
-
-      if ('environment' in loadedPart || 'serviceName' in loadedPart) {
-        throw new Error(
-          `Loader "${String(loaderName)}" attempted to override protected keys.`,
-        );
       }
 
       currentConfig = {
@@ -47,6 +58,6 @@ export class ConfigLoaderService {
       };
     }
 
-    return currentConfig;
+    return currentConfig as ExtractReturnSchema<TOrder>;
   }
 }

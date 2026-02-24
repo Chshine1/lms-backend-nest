@@ -8,11 +8,7 @@ import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 @Module({
   imports: [
     ConfigLibModule.forRoot({
-      order: ['env', 'yaml', 'aws'],
-      initial: {
-        environment: process.env['NODE_ENV'] || 'production',
-        serviceName: 'user-service',
-      },
+      order: ['env', 'yaml', 'aws'] as const,
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',

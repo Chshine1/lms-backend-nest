@@ -1,5 +1,9 @@
-﻿import { ConfigObject } from '@app/config-lib/interfaces/raw-config.interface';
+﻿import { ClassConstructor } from 'class-transformer';
 
-export interface ConfigLoader<TOptions> {
-  load(options: TOptions): Promise<ConfigObject>;
+export interface ConfigLoader {
+  load(
+    last: unknown,
+    depSchemas: ClassConstructor<unknown>[],
+    returnSchema: ClassConstructor<unknown>,
+  ): Promise<object>;
 }
