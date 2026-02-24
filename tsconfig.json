@@ -34,6 +34,12 @@
         "libs/contracts/*",
         "libs/contracts/src/*"
       ],
+      "@app/logger": [
+        "libs/logger/src"
+      ],
+      "@app/logger/*": [
+        "libs/logger/src/*"
+      ],
       "@app/typed-client": [
         "libs/typed-client/src"
       ],

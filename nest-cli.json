@@ -35,6 +35,15 @@
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
       }
     },
+    "logger": {
+      "type": "library",
+      "root": "libs/logger",
+      "entryFile": "index",
+      "sourceRoot": "libs/logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/logger/tsconfig.lib.json"
+      }
+    },
     "tenant-service": {
       "type": "application",
       "root": "apps/tenant-service",
