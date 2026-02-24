@@ -34,6 +34,12 @@
         "libs/contracts/*",
         "libs/contracts/src/*"
       ],
+      "@app/core": [
+        "libs/core/src"
+      ],
+      "@app/core/*": [
+        "libs/core/src/*"
+      ],
       "@app/logger": [
         "libs/logger/src"
       ],
