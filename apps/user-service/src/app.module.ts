@@ -4,11 +4,12 @@ import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
+import { globalConfigLoaderPipeline } from '@app/contracts/config-loader-pipeline.global';
 
 @Module({
   imports: [
     ConfigLibModule.forRoot({
-      loaders: ['env', 'yaml', 'aws'] as const,
+      loadersPipeline: globalConfigLoaderPipeline,
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',

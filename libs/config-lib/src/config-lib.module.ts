@@ -1,7 +1,9 @@
 ﻿import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { ConfigService, LOADER_REGISTRY_TOKEN } from './config.service';
-import { defaultLoaderRegistry } from '@app/config-lib/constants/loader-registry.default';
-import type { LoaderRegistry } from '@app/config-lib/interfaces/loader-options.interface';
+import {
+  ConfigurationService,
+  LOADER_REGISTRY_TOKEN,
+} from './configuration.service';
+import { LoaderDefinition } from '@app/config-lib/interfaces/loader.config';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
 import { LoggerModule } from '@app/logger/logger.module';
 import { LoggerService } from '@app/logger/logger.service';
@@ -14,32 +16,32 @@ import { IsDefined, IsObject, validate, ValidateNested } from 'class-validator';
 import { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
 
 export interface ConfigLibModuleOptions<
-  KOrderedLoaders extends readonly (keyof LoaderRegistry)[],
+  TPipeline extends LoaderDefinition<object, unknown[]>[],
 > {
-  loaders: KOrderedLoaders;
+  loadersPipeline: TPipeline;
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigLibModule {
-  static forRoot<KOrderedLoaders extends readonly (keyof LoaderRegistry)[]>(
-    options: ConfigLibModuleOptions<KOrderedLoaders>,
+  static forRoot<TPipeline extends LoaderDefinition<object, unknown[]>[]>(
+    options: ConfigLibModuleOptions<TPipeline>,
   ): DynamicModule {
     const loadersProvider: Provider = {
       provide: LOADER_REGISTRY_TOKEN,
-      useValue: defaultLoaderRegistry,
+      useValue: options.loadersPipeline,
     };
 
-    const configServiceProvider: Provider = ConfigService;
+    const configServiceProvider: Provider = ConfigurationService;
 
     const configContainerProvider: Provider = {
       provide: ConfigurationContainer,
       useFactory: async (
-        configService: ConfigService,
+        configService: ConfigurationService<TPipeline>,
         loggerService: LoggerService,
       ) => {
         loggerService.info('Start loading configurations...');
-        const config = await configService.load(options.loaders);
+        const config = await configService.load();
         loggerService.info('Configurations loaded');
 
         loggerService.updateConfig(
@@ -50,7 +52,7 @@ export class ConfigLibModule {
         );
         return new ConfigurationContainer(config);
       },
-      inject: [ConfigService, LoggerService],
+      inject: [ConfigurationService, LoggerService],
     };
 
     return {

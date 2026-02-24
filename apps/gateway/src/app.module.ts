@@ -9,18 +9,23 @@ import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
-import { ConfigSchema } from '@app/config-lib/config.service';
+import {
+  globalConfigLoaderPipeline,
+  GlobalConfigSchema,
+} from '@app/contracts/config-loader-pipeline.global';
 
 @Module({
   imports: [
     ConfigLibModule.forRoot({
-      loaders: ['env', 'yaml', 'aws'] as const,
+      loadersPipeline: globalConfigLoaderPipeline,
     }),
     PassportModule,
     JwtModule.registerAsync({
       imports: [],
       inject: [ConfigurationContainer],
-      useFactory: (configContainer: ConfigurationContainer<ConfigSchema>) => {
+      useFactory: (
+        configContainer: ConfigurationContainer<GlobalConfigSchema>,
+      ) => {
         const jwtSection = configContainer.config.jwt;
         return {
           secret: jwtSection.secret,
