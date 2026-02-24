@@ -1,72 +1,96 @@
 ﻿import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { ConfigLoaderService } from './config-loader.service';
-import { defaultLoaderOptions } from '@app/config-lib/constants/default-loader.options';
-import type { LoaderOptions } from '@app/config-lib/interfaces/loader-options.interface';
-import { ConfigHolder } from '@app/config-lib/config-holder';
+import { ConfigService, LOADER_REGISTRY_TOKEN } from './config.service';
+import { defaultLoaderRegistry } from '@app/config-lib/constants/loader-registry.default';
+import type { LoaderRegistry } from '@app/config-lib/interfaces/loader-options.interface';
+import { ConfigurationContainer } from '@app/config-lib/configuration-container';
 import { LoggerModule } from '@app/logger/logger.module';
 import { LoggerService } from '@app/logger/logger.service';
 import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
-import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
-import { IsDefined, validate, ValidateNested } from 'class-validator';
+import {
+  LoggerLibConfig,
+  LogLevel,
+} from '@app/contracts/config/logger-lib.config';
+import { IsDefined, IsObject, validate, ValidateNested } from 'class-validator';
+import { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
 
 export interface ConfigLibModuleOptions<
-  TOrder extends readonly (keyof LoaderOptions)[],
+  KOrderedLoaders extends readonly (keyof LoaderRegistry)[],
 > {
-  order: TOrder;
+  loaders: KOrderedLoaders;
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigLibModule {
-  static forRoot<TOrder extends readonly (keyof LoaderOptions)[]>(
-    options: ConfigLibModuleOptions<TOrder>,
+  static forRoot<KOrderedLoaders extends readonly (keyof LoaderRegistry)[]>(
+    options: ConfigLibModuleOptions<KOrderedLoaders>,
   ): DynamicModule {
     const loadersProvider: Provider = {
-      provide: 'LOADERS',
-      useValue: defaultLoaderOptions,
+      provide: LOADER_REGISTRY_TOKEN,
+      useValue: defaultLoaderRegistry,
     };
 
-    const loaderServiceProvider: Provider = ConfigLoaderService;
+    const configServiceProvider: Provider = ConfigService;
 
-    const configHolderProvider: Provider = {
-      provide: ConfigHolder,
+    const configContainerProvider: Provider = {
+      provide: ConfigurationContainer,
       useFactory: async (
-        loaderService: ConfigLoaderService,
-        logger: LoggerService,
+        configService: ConfigService,
+        loggerService: LoggerService,
       ) => {
-        logger.info('Start loading configurations...');
-        const config = await loaderService.load(options.order);
-        logger.info('Configurations loaded');
+        loggerService.info('Start loading configurations...');
+        const config = await configService.load(options.loaders);
+        loggerService.info('Configurations loaded');
 
-        class LoggerSection {
-          @IsDefined()
-          @ValidateNested()
-          @Type(() => LoggerLibConfig)
-          logger!: LoggerLibConfig;
-        }
-        const loggerSection = plainToInstance(LoggerSection, config);
-        const errors = await validate(loggerSection);
-        if (errors.length > 0) {
-          logger.error('');
-          throw new Error();
-        }
-        logger.updateConfig({
-          bootstrap: false,
-          ...(instanceToPlain(loggerSection.logger) as Pick<
-            LoggerLibConfig,
-            keyof LoggerLibConfig
-          >),
-        });
-        return new ConfigHolder(config);
+        loggerService.updateConfig(
+          await this.getPostBootstrapLoggerServiceConfiguration(
+            config,
+            loggerService,
+          ),
+        );
+        return new ConfigurationContainer(config);
       },
-      inject: [ConfigLoaderService, LoggerService],
+      inject: [ConfigService, LoggerService],
     };
 
     return {
       module: ConfigLibModule,
-      imports: [LoggerModule.forRoot({ bootstrap: true, level: 'info' })],
-      providers: [loadersProvider, loaderServiceProvider, configHolderProvider],
-      exports: [ConfigHolder, LoggerModule],
+      imports: [
+        LoggerModule.forRoot({ bootstrap: true, level: LogLevel.info }),
+      ],
+      providers: [
+        loadersProvider,
+        configServiceProvider,
+        configContainerProvider,
+      ],
+      exports: [ConfigurationContainer, LoggerModule],
+    };
+  }
+
+  private static async getPostBootstrapLoggerServiceConfiguration(
+    config: unknown,
+    loggerService: LoggerService,
+  ): Promise<LoggerConfig> {
+    class LoggerConfigurationSection {
+      @IsDefined()
+      @IsObject()
+      @ValidateNested()
+      @Type(() => LoggerLibConfig)
+      logger!: LoggerLibConfig;
+    }
+    const loggerSection = plainToInstance(LoggerConfigurationSection, config);
+    const errors = await validate(loggerSection);
+    if (errors.length > 0) {
+      loggerService.fatal('Logger configuration failed');
+      throw new Error();
+    }
+
+    return {
+      bootstrap: false,
+      ...(instanceToPlain(loggerSection.logger) as Pick<
+        LoggerLibConfig,
+        keyof LoggerLibConfig
+      >),
     };
   }
 }

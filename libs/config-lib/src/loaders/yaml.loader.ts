@@ -1,8 +1,7 @@
 ﻿import { promises } from 'fs';
 import { load as loadYaml } from 'js-yaml';
 import { merge } from 'lodash';
-import { ConfigLoader } from '@app/config-lib/interfaces/loader.interface';
-import { ConfigObject } from '@app/config-lib/interfaces/raw-config.interface';
+import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
 import { ConfigError, ConfigErrorCode } from '@app/config-lib/utils/errors';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
@@ -14,52 +13,56 @@ import {
 import { validate } from 'class-validator';
 import { formatValidationErrors } from '@app/config-lib/utils/format-validation-errors.utils';
 
-export class YamlLoader implements ConfigLoader {
+export class YamlLoader implements ConfigurationLoader {
   async load(
-    last: unknown,
-    depSchemas: [ClassConstructor<EnvSchema>],
-    resultSchema: ClassConstructor<YamlSchema>,
-  ): Promise<ConfigObject> {
-    const env = plainToInstance(depSchemas[0], last);
+    loadedConfig: unknown,
+    dependencies: [ClassConstructor<EnvSchema>],
+    target: ClassConstructor<YamlSchema>,
+  ): Promise<Record<string, unknown>> {
+    const env = plainToInstance(dependencies[0], loadedConfig, {
+      excludeExtraneousValues: true,
+    });
 
-    const errors = await validate(env);
-    if (errors.length > 0) {
-      throw new Error(formatValidationErrors(errors));
+    const depsValidationErrors = await validate(env);
+    if (depsValidationErrors.length > 0) {
+      throw new Error(formatValidationErrors(depsValidationErrors));
     }
 
     if (env.configBasePath === undefined) return {};
-    const basePath = env.configBasePath;
 
+    const basePath = env.configBasePath;
     const paths: string[] = [
       `${basePath}/${env.environment}/global.yaml`,
       `${basePath}/${env.environment}/${env.serviceName}.yaml`,
     ];
-    const configs: ConfigObject[] = [];
+
+    let loadedPart: Record<string, unknown> = {};
+
     for (const path of paths) {
       const content = await promises.readFile(path, 'utf8');
-      const loaded = loadYaml(content);
+      const loadedYaml = loadYaml(content);
 
       if (
-        typeof loaded !== 'object' ||
-        loaded === null ||
-        Array.isArray(loaded)
+        typeof loadedYaml !== 'object' ||
+        loadedYaml === null ||
+        Array.isArray(loadedYaml)
       ) {
         throw new ConfigError(
           `YAML file "${path}" must contain a configuration object (not array or scalar)`,
-          ConfigErrorCode.LOADER_FAILED,
-          undefined,
-          'YamlLoader',
+          ConfigErrorCode.LoaderFailed,
         );
       }
 
-      configs.push(loaded as ConfigObject);
+      loadedPart = merge(loadedPart, loadedYaml);
     }
 
-    const result = plainToInstance(resultSchema, merge({}, ...configs));
+    const result = plainToInstance(target, loadedPart, {
+      excludeExtraneousValues: true,
+    });
 
-    const errs = await validate(result);
-    if (errs.length > 0) {
-      throw new Error(formatValidationErrors(errs));
+    const targetValidationErrors = await validate(result);
+    if (targetValidationErrors.length > 0) {
+      throw new Error(formatValidationErrors(targetValidationErrors));
     }
 
     return instanceToPlain(result);

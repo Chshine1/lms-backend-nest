@@ -1,17 +1,17 @@
-import { IsDefined, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsDefined, IsObject, ValidateNested } from 'class-validator';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
 import { Type } from 'class-transformer';
+import { JwtConfig } from '@app/contracts/config/jwt.config';
 
 export class AwsSchema {
   @IsDefined()
-  @IsString()
-  jwtSecret!: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => JwtConfig)
+  jwt!: JwtConfig;
 
   @IsDefined()
-  @IsNumber()
-  jwtExpiry!: number;
-
-  @IsDefined()
+  @IsObject()
   @ValidateNested()
   @Type(() => LoggerLibConfig)
   logger!: LoggerLibConfig;

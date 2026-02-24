@@ -1,5 +1,5 @@
-﻿export interface LoggerConfig {
+﻿import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
+
+export type LoggerConfig = {
   bootstrap: boolean;
-  level: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
-  prettyPrint?: boolean;
-}
+} & LoggerLibConfig;

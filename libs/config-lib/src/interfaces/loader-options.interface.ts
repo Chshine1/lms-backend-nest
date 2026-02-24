@@ -1,5 +1,5 @@
 import { ClassConstructor } from 'class-transformer';
-import { ConfigLoader } from './loader.interface';
+import { ConfigurationLoader } from './loader.interface';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
 import { AwsSchema } from '@app/config-lib/schemas/aws.schema';
@@ -15,12 +15,12 @@ export interface LoaderDefinition<
   TSchema extends object,
   TDeps extends unknown[],
 > {
-  loader: ClassConstructor<ConfigLoader>;
+  loader: ClassConstructor<ConfigurationLoader>;
   deps: ClassConstructorList<TDeps>;
   schema: ClassConstructor<TSchema>;
 }
 
-export interface LoaderOptions {
+export interface LoaderRegistry {
   env: LoaderDefinition<EnvSchema, []>;
   yaml: LoaderDefinition<YamlSchema, [EnvSchema]>;
   aws: LoaderDefinition<AwsSchema, [EnvSchema, YamlSchema]>;

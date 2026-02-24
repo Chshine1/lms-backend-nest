@@ -1,9 +1,9 @@
 ﻿import { ClassConstructor } from 'class-transformer';
 
-export interface ConfigLoader {
+export interface ConfigurationLoader {
   load(
-    last: unknown,
-    depSchemas: ClassConstructor<unknown>[],
-    returnSchema: ClassConstructor<unknown>,
-  ): Promise<object>;
+    loadedConfig: unknown,
+    dependencies: ClassConstructor<unknown>[],
+    target: ClassConstructor<unknown>,
+  ): Promise<Record<string, unknown>>;
 }

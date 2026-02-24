@@ -1,10 +1,10 @@
 ﻿import { IsDefined, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export enum Environment {
-  DEVELOPMENT = 'development',
-  STAGING = 'staging',
-  PRODUCTION = 'production',
-  TEST = 'test',
+  development = 'development',
+  staging = 'staging',
+  production = 'production',
+  test = 'test',
 }
 
 export class EnvSchema {

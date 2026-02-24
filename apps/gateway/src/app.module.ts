@@ -8,23 +8,24 @@ import { UserClientModule } from './user-client/user-client.module';
 import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
-import { ConfigHolder } from '@app/config-lib/config-holder';
-import { ConfigSchema } from '@app/config-lib/config-loader.service';
+import { ConfigurationContainer } from '@app/config-lib/configuration-container';
+import { ConfigSchema } from '@app/config-lib/config.service';
 
 @Module({
   imports: [
     ConfigLibModule.forRoot({
-      order: ['env', 'yaml', 'aws'] as const,
+      loaders: ['env', 'yaml', 'aws'] as const,
     }),
     PassportModule,
     JwtModule.registerAsync({
       imports: [],
-      inject: [ConfigHolder],
-      useFactory: (configHolder: ConfigHolder<ConfigSchema>) => {
+      inject: [ConfigurationContainer],
+      useFactory: (configContainer: ConfigurationContainer<ConfigSchema>) => {
+        const jwtSection = configContainer.config.jwt;
         return {
-          secret: configHolder.config.jwtSecret,
+          secret: jwtSection.secret,
           signOptions: {
-            expiresIn: configHolder.config.jwtExpiry,
+            expiresIn: jwtSection.expiry,
           },
         };
       },

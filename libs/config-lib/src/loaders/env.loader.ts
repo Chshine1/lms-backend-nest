@@ -1,5 +1,4 @@
-﻿import { ConfigLoader } from '@app/config-lib/interfaces/loader.interface';
-import { ConfigObject } from '@app/config-lib/interfaces/raw-config.interface';
+﻿import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
 import { camelCase } from 'change-case';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { validate } from 'class-validator';
@@ -10,23 +9,29 @@ import {
 } from 'class-transformer';
 import { formatValidationErrors } from '@app/config-lib/utils/format-validation-errors.utils';
 
-export class EnvLoader implements ConfigLoader {
+export class EnvLoader implements ConfigurationLoader {
   async load(
     _: unknown,
     __: [],
-    returnSchema: ClassConstructor<EnvSchema>,
-  ): Promise<ConfigObject> {
-    const result: ConfigObject = {};
+    target: ClassConstructor<EnvSchema>,
+  ): Promise<Record<string, unknown>> {
+    const loadedPart: Record<string, unknown> = {};
+
     for (const key in process.env) {
       const value = process.env[key];
       if (value === undefined) continue;
-      result[camelCase(key)] = value;
+      loadedPart[camelCase(key)] = value;
     }
-    const r = plainToInstance(returnSchema, result);
-    const errors = await validate(r);
-    if (errors.length > 0) {
-      throw new Error(formatValidationErrors(errors));
+
+    const result = plainToInstance(target, loadedPart, {
+      excludeExtraneousValues: true,
+    });
+
+    const targetValidationErrors = await validate(result);
+    if (targetValidationErrors.length > 0) {
+      throw new Error(formatValidationErrors(targetValidationErrors));
     }
-    return instanceToPlain(r);
+
+    return instanceToPlain(result);
   }
 }
