@@ -99,7 +99,6 @@
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/config-lib(|/.*)$": "<rootDir>/libs/config-lib/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
-      "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
       "^@app/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }
