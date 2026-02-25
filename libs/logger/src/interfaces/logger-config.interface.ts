@@ -1,5 +1,10 @@
 ﻿import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
 
-export type LoggerConfig = {
+export interface LoggerConfig extends LoggerLibConfig {
   bootstrap: boolean;
-} & LoggerLibConfig;
+  buffer?: {
+    enabled: boolean;
+    maxSize: number;
+    flushInterval: number;
+  };
+}

@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ErrorRecoveryStrategy,
-  FallbackLogger,
-} from '../interfaces/error-recovery.interface';
-import { LogEntry } from '@app/logger/interfaces/log-pipeline.interface';
+import { ErrorRecoveryStrategyBase } from '../../interfaces/error-recovery.interface';
+import { FallbackLogger } from '../../interfaces/error-recovery.interface';
+import { LogEntry } from '@app/logger/interfaces/pipeline.interface';
 
 @Injectable()
-export class DefaultErrorRecoveryStrategy extends ErrorRecoveryStrategy {
+export class DefaultErrorRecovery extends ErrorRecoveryStrategyBase {
   private fallbackLogger: FallbackLogger;
 
   constructor() {
@@ -14,7 +12,7 @@ export class DefaultErrorRecoveryStrategy extends ErrorRecoveryStrategy {
     this.fallbackLogger = this.createFallbackLogger();
   }
 
-  override onLoggerError(error: Error, logEntry: LogEntry): Promise<void> {
+  onLoggerError(error: Error, logEntry: LogEntry): Promise<void> {
     if (this.canRecover(error)) {
       this.fallbackLogger.log(logEntry.message, logEntry.level, {
         ...logEntry.metadata,
@@ -26,9 +24,18 @@ export class DefaultErrorRecoveryStrategy extends ErrorRecoveryStrategy {
     }
   }
 
-  override canRecover(_error: Error): boolean {
-    return false;
-    // TODO
+  canRecover(error: Error): boolean {
+    const recoverableErrors = [
+      'ECONNREFUSED',
+      'ETIMEDOUT',
+      'ENOTFOUND',
+      'ENOENT',
+    ];
+
+    return recoverableErrors.some(
+      (pattern) =>
+        error.message.includes(pattern) || error.name.includes(pattern),
+    );
   }
 
   private createFallbackLogger(): FallbackLogger {

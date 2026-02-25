@@ -1,6 +1,11 @@
-import { LogEntry } from './log-pipeline.interface';
+import { LogEntry } from './pipeline.interface';
 
-export abstract class ErrorRecoveryStrategy {
+export interface ErrorRecoveryStrategy {
+  onLoggerError(error: Error, logEntry: LogEntry): Promise<void>;
+  canRecover(error: Error): boolean;
+}
+
+export abstract class ErrorRecoveryStrategyBase implements ErrorRecoveryStrategy {
   abstract onLoggerError(error: Error, logEntry: LogEntry): Promise<void>;
   abstract canRecover(error: Error): boolean;
 }
@@ -22,8 +27,20 @@ export class LoggerError extends Error {
 }
 
 export enum LoggerErrorCode {
-  BUFFER_OVERFLOW = 'BUFFER_OVERFLOW',
+  CONFIG_VALIDATION_FAILED = 'CONFIG_VALIDATION_FAILED',
   CONFIG_UPDATE_FAILED = 'CONFIG_UPDATE_FAILED',
-  LOG_PROCESSING_FAILED = 'LOG_PROCESSING_FAILED',
+
   FACTORY_CREATION_FAILED = 'FACTORY_CREATION_FAILED',
+  FACTORY_NOT_SUPPORTED = 'FACTORY_NOT_SUPPORTED',
+
+  BUFFER_OVERFLOW = 'BUFFER_OVERFLOW',
+  BUFFER_FLUSH_FAILED = 'BUFFER_FLUSH_FAILED',
+
+  LOG_PROCESSING_FAILED = 'LOG_PROCESSING_FAILED',
+  PROCESSOR_CHAIN_BROKEN = 'PROCESSOR_CHAIN_BROKEN',
+
+  RECOVERY_STRATEGY_FAILED = 'RECOVERY_STRATEGY_FAILED',
+  FALLBACK_LOGGER_FAILED = 'FALLBACK_LOGGER_FAILED',
+
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }

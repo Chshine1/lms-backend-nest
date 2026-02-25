@@ -1,30 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { PipelineBase } from '../../interfaces/pipeline.interface';
 import {
-  LogPipeline,
+  LogEntry,
   LogProcessor,
   LogFilter,
-  LogEntry,
-} from '../interfaces/log-pipeline.interface';
+} from '../../interfaces/pipeline.interface';
 import {
   LoggerError,
   LoggerErrorCode,
-} from '../interfaces/error-recovery.interface';
+} from '../../interfaces/error-recovery.interface';
 
 @Injectable()
-export class LogPipelineService extends LogPipeline {
+export class DefaultPipeline extends PipelineBase {
   private processors: LogProcessor[] = [];
   private filters: LogFilter[] = [];
 
-  override addProcessor(processor: LogProcessor): this {
-    this.processors.push(processor);
-    return this;
-  }
-  override addFilter(filter: LogFilter): this {
-    this.filters.push(filter);
-    return this;
-  }
-
-  override async process(logEntry: LogEntry): Promise<void> {
+  async process(logEntry: LogEntry): Promise<void> {
     try {
       for (const filter of this.filters) {
         if (!filter.shouldLog(logEntry)) {
@@ -46,5 +37,15 @@ export class LogPipelineService extends LogPipeline {
         error instanceof Error ? error : new Error(String(error)),
       );
     }
+  }
+
+  addProcessor(processor: LogProcessor): this {
+    this.processors.push(processor);
+    return this;
+  }
+
+  addFilter(filter: LogFilter): this {
+    this.filters.push(filter);
+    return this;
   }
 }

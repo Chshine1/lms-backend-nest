@@ -20,8 +20,14 @@ export interface LogFilter {
   shouldLog(logEntry: LogEntry): boolean;
 }
 
-export abstract class LogPipeline {
+export interface Pipeline {
+  process(logEntry: LogEntry): Promise<void>;
+  addProcessor(processor: LogProcessor): this;
+  addFilter(filter: LogFilter): this;
+}
+
+export abstract class PipelineBase implements Pipeline {
+  abstract process(logEntry: LogEntry): Promise<void>;
   abstract addProcessor(processor: LogProcessor): this;
   abstract addFilter(filter: LogFilter): this;
-  abstract process(logEntry: LogEntry): Promise<void>;
 }

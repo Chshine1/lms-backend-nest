@@ -7,64 +7,61 @@ import {
   Type,
   ForwardReference,
 } from '@nestjs/common';
-import { LOGGER_CONFIG_TOKEN, LoggerService } from './logger.service';
-import { LoggerFactory } from './interfaces/logger-factory.interface';
-import { PinoLoggerFactory } from './factories/pino-logger.factory';
-import { LogPipeline } from './interfaces/log-pipeline.interface';
-import { ErrorRecoveryStrategy } from './interfaces/error-recovery.interface';
-import { LogPipelineService } from './pipeline/log-pipeline.service';
-import { DefaultErrorRecoveryStrategy } from './error-recovery/default-error-recovery-strategy.service';
-import type { LoggerConfig } from './interfaces/logger-config.interface';
+import { LoggerConfig } from './interfaces/logger-config.interface';
+import { LoggerFactoryBase } from './interfaces/logger-factory.interface';
+import { PipelineBase } from './interfaces/pipeline.interface';
+import { ErrorRecoveryStrategyBase } from './interfaces/error-recovery.interface';
+import { PinoFactory } from './implementations/pino/pino-factory';
+import { DefaultPipeline } from './implementations/pipeline/default-pipeline';
+import { DefaultErrorRecovery } from './implementations/error-recovery/default-error-recovery';
+import { LoggerCoreService } from './services/logger-core.service';
+import { BufferManagerService } from './services/buffer-manager.service';
+import { PipelineManagerService } from './services/pipeline-manager.service';
+import { LoggerService } from '@app/logger/logger.service';
 
 export interface LoggerModuleOptions {
   config: LoggerConfig;
-  loggerFactory?: LoggerFactory;
-  logPipeline?: LogPipeline;
-  errorRecoveryStrategy?: ErrorRecoveryStrategy;
+  loggerFactory?: LoggerFactoryBase;
+  pipeline?: PipelineBase;
+  errorRecoveryStrategy?: ErrorRecoveryStrategyBase;
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class LoggerModule {
   static forRoot(options: LoggerModuleOptions): DynamicModule {
-    const configProvider: Provider = {
-      provide: LOGGER_CONFIG_TOKEN,
-      useValue: options.config,
+    const factoryProvider: Provider = {
+      provide: LoggerFactoryBase,
+      useFactory: () => options.loggerFactory || new PinoFactory(),
     };
 
-    const factoryProvider: Provider = {
-      provide: LoggerFactory,
-      useFactory: () => options.loggerFactory || new PinoLoggerFactory(),
+    const pipelineProvider: Provider = {
+      provide: PipelineBase,
+      useFactory: () => options.pipeline || new DefaultPipeline(),
+    };
+
+    const errorRecoveryProvider: Provider = {
+      provide: ErrorRecoveryStrategyBase,
+      useFactory: () =>
+        options.errorRecoveryStrategy || new DefaultErrorRecovery(),
     };
 
     const providers: Provider[] = [
-      configProvider,
       factoryProvider,
+      pipelineProvider,
+      errorRecoveryProvider,
+
+      LoggerCoreService,
+      BufferManagerService,
+      PipelineManagerService,
+
       LoggerService,
     ];
-
-    if (options.logPipeline) {
-      providers.push({
-        provide: LogPipeline,
-        useValue: options.logPipeline,
-      });
-    } else {
-      providers.push(LogPipelineService);
-    }
-
-    if (options.errorRecoveryStrategy) {
-      providers.push({
-        provide: ErrorRecoveryStrategy,
-        useValue: options.errorRecoveryStrategy,
-      });
-    } else {
-      providers.push(DefaultErrorRecoveryStrategy);
-    }
 
     return {
       module: LoggerModule,
       providers,
-      exports: [LoggerService],
+      exports: [LoggerService, LoggerCoreService],
     };
   }
 
@@ -81,15 +78,29 @@ export class LoggerModule {
     inject?: (InjectionToken | OptionalFactoryDependency)[];
   }): DynamicModule {
     const configProvider: Provider = {
-      provide: LOGGER_CONFIG_TOKEN,
+      provide: 'LOGGER_CONFIG',
       useFactory: (optionsResult: LoggerModuleOptions) => optionsResult.config,
       inject: ['LOGGER_MODULE_OPTIONS'],
     };
 
     const factoryProvider: Provider = {
-      provide: LoggerFactory,
+      provide: LoggerFactoryBase,
       useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.loggerFactory || new PinoLoggerFactory(),
+        optionsResult.loggerFactory || new PinoFactory(),
+      inject: ['LOGGER_MODULE_OPTIONS'],
+    };
+
+    const pipelineProvider: Provider = {
+      provide: PipelineBase,
+      useFactory: (optionsResult: LoggerModuleOptions) =>
+        optionsResult.pipeline || new DefaultPipeline(),
+      inject: ['LOGGER_MODULE_OPTIONS'],
+    };
+
+    const errorRecoveryProvider: Provider = {
+      provide: ErrorRecoveryStrategyBase,
+      useFactory: (optionsResult: LoggerModuleOptions) =>
+        optionsResult.errorRecoveryStrategy || new DefaultErrorRecovery(),
       inject: ['LOGGER_MODULE_OPTIONS'],
     };
 
@@ -103,29 +114,21 @@ export class LoggerModule {
       optionsProvider,
       configProvider,
       factoryProvider,
+      pipelineProvider,
+      errorRecoveryProvider,
+
+      LoggerCoreService,
+      BufferManagerService,
+      PipelineManagerService,
+
       LoggerService,
     ];
-
-    providers.push({
-      provide: LogPipeline,
-      useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.logPipeline || new LogPipelineService(),
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    });
-
-    providers.push({
-      provide: ErrorRecoveryStrategy,
-      useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.errorRecoveryStrategy ||
-        new DefaultErrorRecoveryStrategy(),
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    });
 
     return {
       module: LoggerModule,
       imports: options.imports || [],
       providers,
-      exports: [LoggerService],
+      exports: [LoggerService, LoggerCoreService],
     };
   }
 }

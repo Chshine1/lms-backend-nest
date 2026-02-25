@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { LogFilter, LogEntry } from '../../interfaces/log-pipeline.interface';
 import { LogLevel } from '@app/contracts/config/logger-lib.config';
+import { LogEntry, LogFilter } from '@app/logger/interfaces/pipeline.interface';
 
 @Injectable()
 export class LevelFilter implements LogFilter {

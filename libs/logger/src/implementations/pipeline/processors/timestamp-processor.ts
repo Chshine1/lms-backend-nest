@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
-  LogProcessor,
   LogEntry,
-} from '../../interfaces/log-pipeline.interface';
+  LogProcessor,
+} from '@app/logger/interfaces/pipeline.interface';
 
 @Injectable()
 export class TimestampProcessor implements LogProcessor {
@@ -18,6 +18,6 @@ export class TimestampProcessor implements LogProcessor {
   }
 
   canProcess(_logEntry: LogEntry): boolean {
-    return true; // 可以处理所有日志条目
+    return true;
   }
 }
