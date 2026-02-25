@@ -1,23 +1,56 @@
-﻿import type { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
+import type { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
 import type { Logger } from '@app/logger/interfaces/logger.interface';
+import { LogLevel } from '@app/contracts/config/logger-lib.config';
 import pino from 'pino';
 
-export function createPinoLogger(config: LoggerConfig): Logger {
-  const pinoInstance = pino(config);
-  return adaptPinoToLogger(pinoInstance);
+export function createPinoLogger(config: LoggerConfig): pino.Logger {
+  return pino(config);
 }
 
-function adaptPinoToLogger(pino: pino.Logger): Logger {
+export function adaptPinoToLogger(pinoInstance: pino.Logger): Logger {
   return {
-    fatal: pino.fatal.bind(pino),
-    error: pino.error.bind(pino),
-    warn: pino.warn.bind(pino),
-    info: pino.info.bind(pino),
-    debug: pino.debug.bind(pino),
-    trace: pino.trace.bind(pino),
-    logStructured(event: string, data: Record<string, unknown>): void {
-      pino.info({ event, ...data }, 'structured event');
+    fatal: pinoInstance.fatal.bind(pinoInstance),
+    error: pinoInstance.error.bind(pinoInstance),
+    warn: pinoInstance.warn.bind(pinoInstance),
+    info: pinoInstance.info.bind(pinoInstance),
+    debug: pinoInstance.debug.bind(pinoInstance),
+    trace: pinoInstance.trace.bind(pinoInstance),
+
+    logEvent(event: string, metadata: Record<string, unknown>): void {
+      pinoInstance.info({ event, ...metadata }, `Event: ${event}`);
     },
-    child: (fields) => adaptPinoToLogger(pino.child(fields)),
+
+    logEventWithLevel(
+      level: LogLevel,
+      event: string,
+      metadata: Record<string, unknown>,
+    ): void {
+      const logMethod = getPinoLogMethod(pinoInstance, level);
+      logMethod({ event, ...metadata }, `Event: ${event}`);
+    },
+
+    child: (fields) => adaptPinoToLogger(pinoInstance.child(fields)),
   };
+}
+
+function getPinoLogMethod(
+  pinoInstance: pino.Logger,
+  level: LogLevel,
+): (...args: unknown[]) => void {
+  switch (level) {
+    case LogLevel.fatal:
+      return pinoInstance.fatal.bind(pinoInstance);
+    case LogLevel.error:
+      return pinoInstance.error.bind(pinoInstance);
+    case LogLevel.warn:
+      return pinoInstance.warn.bind(pinoInstance);
+    case LogLevel.info:
+      return pinoInstance.info.bind(pinoInstance);
+    case LogLevel.debug:
+      return pinoInstance.debug.bind(pinoInstance);
+    case LogLevel.trace:
+      return pinoInstance.trace.bind(pinoInstance);
+    default:
+      return pinoInstance.info.bind(pinoInstance);
+  }
 }
