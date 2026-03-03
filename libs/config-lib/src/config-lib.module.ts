@@ -58,7 +58,9 @@ export class ConfigLibModule {
     return {
       module: ConfigLibModule,
       imports: [
-        LoggerModule.forRoot({ bootstrap: true, level: LogLevel.info }),
+        LoggerModule.forRoot({
+          config: { bootstrap: true, level: LogLevel.info },
+        }),
       ],
       providers: [
         loadersProvider,

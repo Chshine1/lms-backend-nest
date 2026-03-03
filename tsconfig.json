@@ -34,12 +34,6 @@
         "libs/contracts/*",
         "libs/contracts/src/*"
       ],
-      "@app/infrastructure": [
-        "libs/infrastructure/src"
-      ],
-      "@app/infrastructure/*": [
-        "libs/infrastructure/src/*"
-      ],
       "@app/logger": [
         "libs/logger/src"
       ],
