@@ -3,20 +3,24 @@ import { BootstrapService } from './bootstrap.service';
 import { BootstrapManagerService } from './services/bootstrap-manager.service';
 import { BootstrapEventBusService } from './services/bootstrap-event-bus.service';
 import { BOOTSTRAP_MANAGER_TOKEN } from './decorators/bootstrap-lifecycle.decorator';
+import { BootstrapConfig } from './interfaces/bootstrap-config.interface';
 
 export interface BootstrapModuleOptions {
+  config?: Partial<BootstrapConfig>;
   enableEventBus?: boolean;
-  defaultTimeout?: number;
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class BootstrapModule {
   static forRoot(options: BootstrapModuleOptions = {}): DynamicModule {
-    const { enableEventBus = true } = options;
+    const { config = {}, enableEventBus = true } = options;
 
     const providers: Provider[] = [
-      BootstrapManagerService,
+      {
+        provide: BootstrapManagerService,
+        useFactory: () => new BootstrapManagerService(config),
+      },
       {
         provide: BOOTSTRAP_MANAGER_TOKEN,
         useExisting: BootstrapManagerService,
@@ -40,10 +44,10 @@ export class BootstrapModule {
     };
   }
 
-  static forFeature(): DynamicModule {
+  static forFeature(options: BootstrapModuleOptions = {}): DynamicModule {
     return {
       module: BootstrapModule,
-      imports: [BootstrapModule.forRoot()],
+      imports: [BootstrapModule.forRoot(options)],
       exports: [BootstrapService, BOOTSTRAP_MANAGER_TOKEN],
     };
   }

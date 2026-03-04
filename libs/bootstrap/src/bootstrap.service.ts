@@ -2,7 +2,8 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { BootstrapManagerService } from './services/bootstrap-manager.service';
 import { BootstrapEventBusService } from './services/bootstrap-event-bus.service';
 import { BootstrapManager } from './interfaces/bootstrap-manager.interface';
-import { BootstrapOptions } from './interfaces/bootstrap-phase.interface';
+import { BootstrapOptions } from './interfaces/bootstrap-config.interface';
+import { BootstrapConfig } from './interfaces/bootstrap-config.interface';
 
 @Injectable()
 export class BootstrapService implements OnModuleInit, OnModuleDestroy {
@@ -23,6 +24,10 @@ export class BootstrapService implements OnModuleInit, OnModuleDestroy {
 
   getManager(): BootstrapManager {
     return this.bootstrapManager;
+  }
+
+  getConfig(): Readonly<BootstrapConfig> {
+    return this.bootstrapManager.config;
   }
 
   async startBootstrap(options?: BootstrapOptions): Promise<void> {
@@ -47,6 +52,23 @@ export class BootstrapService implements OnModuleInit, OnModuleDestroy {
 
   async waitForBootstrapComplete(): Promise<void> {
     await this.bootstrapManager.waitForPhase('post-bootstrap');
+  }
+
+  addHealthCheck(
+    check: Parameters<BootstrapManager['addHealthCheck']>[0],
+  ): Promise<void> {
+    this.bootstrapManager.addHealthCheck(check);
+    return Promise.resolve();
+  }
+
+  async runHealthChecks(): Promise<Map<string, boolean>> {
+    return this.bootstrapManager.runHealthChecks();
+  }
+
+  async validateConfig(): Promise<
+    ReturnType<BootstrapManager['validateConfig']>
+  > {
+    return this.bootstrapManager.validateConfig();
   }
 
   private setupEventHandlers(): void {

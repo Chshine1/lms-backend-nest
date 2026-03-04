@@ -1,29 +1,28 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { validate } from 'class-validator';
 import {
   BehaviorSubject,
   Observable,
   Subject,
-  timeout,
   firstValueFrom,
+  timeout,
+  filter,
 } from 'rxjs';
 import {
   BootstrapPhase,
   BootstrapPhaseChangeEvent,
   BootstrapLifecycle,
-  BootstrapOptions,
+  BootstrapError,
+  BootstrapErrorCode,
 } from '../interfaces/bootstrap-phase.interface';
-import { BootstrapManager } from '../interfaces/bootstrap-manager.interface';
-
-export class BootstrapError extends Error {
-  constructor(
-    message: string,
-    public readonly phase: BootstrapPhase,
-    public override readonly cause?: Error,
-  ) {
-    super(message);
-    this.name = 'BootstrapError';
-  }
-}
+import {
+  BootstrapManager,
+  BootstrapHealthCheck,
+} from '../interfaces/bootstrap-manager.interface';
+import {
+  BootstrapConfig,
+  BootstrapOptions,
+} from '../interfaces/bootstrap-config.interface';
 
 @Injectable()
 export class BootstrapManagerService
@@ -38,16 +37,38 @@ export class BootstrapManagerService
   private readonly listeners = new Set<
     (event: BootstrapPhaseChangeEvent) => void
   >();
+  private readonly healthChecks = new Map<string, BootstrapHealthCheck>();
   private isDestroyed = false;
+  private readonly _config: BootstrapConfig;
 
   readonly currentPhase: BootstrapPhase = this.phaseSubject.value;
   readonly phaseChanges: Observable<BootstrapPhaseChangeEvent> =
     this.phaseChangeSubject.asObservable();
 
+  constructor(config?: Partial<BootstrapConfig>) {
+    this._config = {
+      bootstrap: {
+        timeout: 30000,
+        enableLogging: true,
+        retryAttempts: 3,
+      },
+      eventBus: {
+        enabled: true,
+        bufferSize: 100,
+      },
+      ...config,
+    };
+  }
+
+  get config(): Readonly<BootstrapConfig> {
+    return this._config;
+  }
+
   async startBootstrap(options: BootstrapOptions = {}): Promise<void> {
     if (this.isDestroyed) {
       throw new BootstrapError(
         'BootstrapManager has been destroyed',
+        BootstrapErrorCode.MANAGER_DESTROYED,
         this.currentPhase,
       );
     }
@@ -55,20 +76,38 @@ export class BootstrapManagerService
     if (this.currentPhase !== 'pre-bootstrap') {
       throw new BootstrapError(
         `Cannot start bootstrap from phase: ${this.currentPhase}`,
+        BootstrapErrorCode.INVALID_PHASE,
         this.currentPhase,
       );
     }
 
-    const { enableLogging = true, retryAttempts = 3 } = options;
+    const phaseConfig = this.config.bootstrap;
+    const {
+      enableLogging = phaseConfig.enableLogging ?? true,
+      retryAttempts = phaseConfig.retryAttempts ?? 3,
+    } = options;
 
     try {
       await this.transitionPhase('pre-bootstrap', 'bootstrap', enableLogging);
 
-      for (const lifecycle of this.lifecycles) {
-        const bootstrapFn = lifecycle.bootstrap;
-        if (bootstrapFn !== undefined) {
-          await this.executeWithRetry(bootstrapFn, retryAttempts, 'bootstrap');
-        }
+      const bootstrapPromises = Array.from(this.lifecycles)
+        .map((lifecycle) => lifecycle.bootstrap?.bind(lifecycle))
+        .filter((fn): fn is () => Promise<void> => fn !== undefined)
+        .map((fn) => this.executeWithRetry(fn, retryAttempts, 'bootstrap'));
+
+      await Promise.allSettled(bootstrapPromises);
+
+      const errors = await this.runHealthChecks();
+      const failedChecks = Array.from(errors.entries())
+        .filter(([, success]) => !success)
+        .map(([name]) => name);
+
+      if (failedChecks.length > 0) {
+        throw new BootstrapError(
+          `Health checks failed: ${failedChecks.join(', ')}`,
+          BootstrapErrorCode.LIFECYCLE_EXECUTION_FAILED,
+          'bootstrap',
+        );
       }
     } catch (error) {
       if (enableLogging) {
@@ -82,6 +121,7 @@ export class BootstrapManagerService
     if (this.isDestroyed) {
       throw new BootstrapError(
         'BootstrapManager has been destroyed',
+        BootstrapErrorCode.MANAGER_DESTROYED,
         this.currentPhase,
       );
     }
@@ -89,6 +129,7 @@ export class BootstrapManagerService
     if (this.currentPhase !== 'bootstrap') {
       throw new BootstrapError(
         `Cannot complete bootstrap from phase: ${this.currentPhase}`,
+        BootstrapErrorCode.INVALID_PHASE,
         this.currentPhase,
       );
     }
@@ -96,11 +137,12 @@ export class BootstrapManagerService
     try {
       await this.transitionPhase('bootstrap', 'post-bootstrap', true);
 
-      for (const lifecycle of this.lifecycles) {
-        if (lifecycle.postBootstrap) {
-          await lifecycle.postBootstrap();
-        }
-      }
+      const postBootstrapPromises = Array.from(this.lifecycles)
+        .map((lifecycle) => lifecycle.postBootstrap?.bind(lifecycle))
+        .filter((fn): fn is () => Promise<void> => fn !== undefined)
+        .map((fn) => fn());
+
+      await Promise.allSettled(postBootstrapPromises);
     } catch (error) {
       console.error('Bootstrap completion failed:', error);
       throw error;
@@ -127,6 +169,63 @@ export class BootstrapManagerService
     return () => this.listeners.delete(listener);
   }
 
+  addHealthCheck(check: BootstrapHealthCheck): void {
+    if (this.isDestroyed) return;
+    this.healthChecks.set(check.name, check);
+  }
+
+  async runHealthChecks(): Promise<Map<string, boolean>> {
+    const results = new Map<string, boolean>();
+
+    for (const [name, check] of this.healthChecks) {
+      try {
+        const timeoutMs = check.timeout || 5000;
+        const result = await Promise.race([
+          check.check(),
+          new Promise<boolean>((_, reject) =>
+            setTimeout(() => {
+              reject(new Error('Timeout'));
+            }, timeoutMs),
+          ),
+        ]);
+        results.set(name, result);
+      } catch {
+        results.set(name, false);
+      }
+    }
+
+    return results;
+  }
+
+  async validateConfig(): Promise<BootstrapError[]> {
+    const errors: BootstrapError[] = [];
+
+    try {
+      const validationErrors = await validate(this.config);
+      if (validationErrors.length > 0) {
+        errors.push(
+          new BootstrapError(
+            'Configuration validation failed',
+            BootstrapErrorCode.INVALID_PHASE,
+            this.currentPhase,
+            new Error(validationErrors.map((e) => e.toString()).join(', ')),
+          ),
+        );
+      }
+    } catch (error) {
+      errors.push(
+        new BootstrapError(
+          'Configuration validation error',
+          BootstrapErrorCode.INVALID_PHASE,
+          this.currentPhase,
+          error as Error,
+        ),
+      );
+    }
+
+    return errors;
+  }
+
   isBootstrapPhase(): boolean {
     return this.currentPhase === 'bootstrap';
   }
@@ -150,23 +249,14 @@ export class BootstrapManagerService
     try {
       await firstValueFrom(
         this.phaseChanges.pipe(
-          timeout({
-            each: timeoutMs,
-            with: () => {
-              throw new BootstrapError(
-                `Timeout waiting for phase: ${phase}`,
-                this.currentPhase,
-              );
-            },
-          }),
+          filter((event) => event.to === phase),
+          timeout(timeoutMs),
         ),
       );
     } catch (error) {
-      if (error instanceof BootstrapError) {
-        throw error;
-      }
       throw new BootstrapError(
-        `Failed to wait for phase: ${phase}`,
+        `Timeout waiting for phase: ${phase}`,
+        BootstrapErrorCode.TIMEOUT,
         this.currentPhase,
         error as Error,
       );
@@ -175,23 +265,20 @@ export class BootstrapManagerService
 
   onModuleDestroy(): Promise<void> {
     this.isDestroyed = true;
-    this.phaseSubject.complete();
     this.phaseChangeSubject.complete();
-    this.listeners.clear();
     this.lifecycles.clear();
+    this.listeners.clear();
+    this.healthChecks.clear();
     return Promise.resolve();
   }
 
-  private async transitionPhase(
+  private transitionPhase(
     from: BootstrapPhase,
     to: BootstrapPhase,
     enableLogging: boolean,
   ): Promise<void> {
-    if (this.phaseSubject.value !== from) {
-      throw new BootstrapError(
-        `Expected phase ${from}, but current phase is ${this.currentPhase}`,
-        this.currentPhase,
-      );
+    if (enableLogging) {
+      console.log(`Transitioning from ${from} to ${to}`);
     }
 
     const event: BootstrapPhaseChangeEvent = {
@@ -200,10 +287,6 @@ export class BootstrapManagerService
       timestamp: new Date(),
     };
 
-    if (enableLogging) {
-      console.log(`Bootstrap phase transition: ${from} -> ${to}`);
-    }
-
     this.phaseSubject.next(to);
     this.phaseChangeSubject.next(event);
 
@@ -211,37 +294,46 @@ export class BootstrapManagerService
       try {
         listener(event);
       } catch (error) {
-        console.warn('Phase listener error:', error);
+        if (enableLogging) {
+          console.error('Phase listener error:', error);
+        }
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    return Promise.resolve();
   }
 
-  private async executeWithRetry<T>(
-    operation: () => Promise<T>,
+  private async executeWithRetry(
+    fn: () => Promise<void>,
     maxAttempts: number,
     phase: BootstrapPhase,
-  ): Promise<T> {
-    let lastError: Error | undefined = undefined;
+    timeoutMs: number = 30000,
+  ): Promise<void> {
+    let lastError: Error = new Error('No attempts made');
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        return await operation();
+        await Promise.race([
+          fn(),
+          new Promise<void>((_, reject) =>
+            setTimeout(() => {
+              reject(new Error('Timeout'));
+            }, timeoutMs),
+          ),
+        ]);
+        return;
       } catch (error) {
         lastError = error as Error;
         if (attempt < maxAttempts) {
-          console.warn(
-            `Bootstrap operation failed (attempt ${attempt.toString()}/${maxAttempts.toString()}), retrying...`,
-            error,
-          );
-          await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 30000);
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
 
     throw new BootstrapError(
-      `Bootstrap operation failed after ${maxAttempts.toString()} attempts`,
+      `Failed after ${maxAttempts.toString()} attempts`,
+      BootstrapErrorCode.LIFECYCLE_EXECUTION_FAILED,
       phase,
       lastError,
     );

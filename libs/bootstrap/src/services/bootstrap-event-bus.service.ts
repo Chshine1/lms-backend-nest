@@ -1,25 +1,26 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Subject, Observable, filter } from 'rxjs';
+import { BootstrapPhase } from '../interfaces/bootstrap-phase.interface';
 
-export interface BootstrapEvent {
+export interface TypedBootstrapEvent<T = unknown> {
   type: string;
-  payload?: unknown;
+  payload?: T;
   timestamp: Date;
-  phase: 'pre-bootstrap' | 'bootstrap' | 'post-bootstrap';
+  phase: BootstrapPhase;
 }
 
 @Injectable()
 export class BootstrapEventBusService implements OnModuleDestroy {
-  private readonly eventSubject = new Subject<BootstrapEvent>();
+  private readonly eventSubject = new Subject<TypedBootstrapEvent>();
   private isDestroyed = false;
 
-  readonly events: Observable<BootstrapEvent> =
+  readonly events: Observable<TypedBootstrapEvent> =
     this.eventSubject.asObservable();
 
-  publish(event: Omit<BootstrapEvent, 'timestamp'>): void {
+  publish<T = unknown>(event: Omit<TypedBootstrapEvent<T>, 'timestamp'>): void {
     if (this.isDestroyed) return;
 
-    const fullEvent: BootstrapEvent = {
+    const fullEvent: TypedBootstrapEvent<T> = {
       ...event,
       timestamp: new Date(),
     };
@@ -27,17 +28,15 @@ export class BootstrapEventBusService implements OnModuleDestroy {
     this.eventSubject.next(fullEvent);
   }
 
-  subscribe(
+  subscribe<T = unknown>(
     eventType: string,
-  ): Observable<BootstrapEvent & { payload?: unknown }> {
+  ): Observable<TypedBootstrapEvent<T>> {
     return this.events.pipe(
       filter((event) => event.type === eventType),
-    ) as Observable<BootstrapEvent & { payload?: unknown }>;
+    ) as Observable<TypedBootstrapEvent<T>>;
   }
 
-  subscribeToPhase(
-    phase: 'pre-bootstrap' | 'bootstrap' | 'post-bootstrap',
-  ): Observable<BootstrapEvent> {
+  subscribeToPhase(phase: BootstrapPhase): Observable<TypedBootstrapEvent> {
     return this.events.pipe(filter((event) => event.phase === phase));
   }
 
