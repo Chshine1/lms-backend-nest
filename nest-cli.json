@@ -8,6 +8,15 @@
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
+    "bootstrap": {
+      "type": "library",
+      "root": "libs/bootstrap",
+      "entryFile": "index",
+      "sourceRoot": "libs/bootstrap/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/bootstrap/tsconfig.lib.json"
+      }
+    },
     "config-lib": {
       "type": "library",
       "root": "libs/config-lib",

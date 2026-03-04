@@ -11,6 +11,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
+    "^@app/bootstrap(|/.*)$": "<rootDir>/../libs/bootstrap/src/$1",
     "^@app/common(|/.*)$": "<rootDir>/../libs/common/src/$1",
     "^@app/config-lib(|/.*)$": "<rootDir>/../libs/config-lib/src/$1",
     "^@app/contracts(|/.*)$": "<rootDir>/../libs/contracts/src/$1",
