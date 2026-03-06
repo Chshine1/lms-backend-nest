@@ -4,7 +4,7 @@ import { IIoCContainer } from '@app/bootstrap/interfaces';
 
 @BootstrapToken('user-service')
 abstract class IUserService {
-  abstract _getUser(id: string): Promise<{ name: string }>;
+  protected abstract _getUser(id: string): Promise<{ name: string }>;
 
   @ExposeDependency('getUser')
   getUser(id: string): Promise<{ name: string }> {
@@ -14,7 +14,7 @@ abstract class IUserService {
 
 @BootstrapToken('logger')
 abstract class ILogger {
-  abstract _log(message: string): void;
+  protected abstract _log(message: string): void;
 
   @ExposeDependency('log')
   log(message: string): void {
@@ -23,7 +23,7 @@ abstract class ILogger {
 }
 
 class ConsoleLogger extends ILogger {
-  override _log(message: string): void {
+  protected override _log(message: string): void {
     console.log(`[LOG] ${message}`);
   }
 }
@@ -33,7 +33,7 @@ class UserService extends IUserService {
     super();
   }
 
-  override _getUser(id: string): Promise<{ name: string }> {
+  protected override _getUser(id: string): Promise<{ name: string }> {
     this.logger.log(`Fetching user ${id}`);
     return Promise.resolve({ name: 'Alice' });
   }
