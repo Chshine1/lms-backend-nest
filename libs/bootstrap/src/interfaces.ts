@@ -1,11 +1,12 @@
 ﻿import { ClassConstructor } from 'class-transformer';
+import { AbstractConstructor } from '@app/bootstrap/decorators';
 
 export interface IIoCContainer {
   register<T>(
-    token: string | ClassConstructor<T>,
+    token: AbstractConstructor<T>,
     factory: ClassConstructor<T> | (() => T),
   ): void;
-  resolve<T>(token: string | ClassConstructor<T>): T;
+  resolve<T>(token: AbstractConstructor<T>): T;
 }
 
 export interface IEventBus {

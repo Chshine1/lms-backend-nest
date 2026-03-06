@@ -2,6 +2,7 @@
 import { ClassConstructor } from 'class-transformer';
 import { IIoCContainer, IEventBus } from './interfaces';
 import {
+  AbstractConstructor,
   extractBootstrapToken,
   extractExposeToMethodMap,
   extractMethodToExposeMap,
@@ -9,8 +10,11 @@ import {
 
 export class BootstrapCore implements IEventBus {
   private eventListeners = new Map<string, (...args: unknown[]) => unknown>();
-  private abstractProxies = new Map<ClassConstructor<unknown>, unknown>();
-  private registeredEvents = new Map<ClassConstructor<unknown>, Set<string>>();
+  private abstractProxies = new Map<AbstractConstructor<unknown>, unknown>();
+  private registeredEvents = new Map<
+    AbstractConstructor<unknown>,
+    Set<string>
+  >();
 
   constructor(private ioc: IIoCContainer) {}
 
@@ -26,7 +30,9 @@ export class BootstrapCore implements IEventBus {
     return listener(...args);
   }
 
-  registerAbstract<T extends object>(abstractClass: ClassConstructor<T>): void {
+  registerAbstract<T extends object>(
+    abstractClass: AbstractConstructor<T>,
+  ): void {
     const token = this.getToken(abstractClass);
     if (!token) {
       throw new Error(
@@ -42,7 +48,7 @@ export class BootstrapCore implements IEventBus {
   }
 
   registerImplementation<T extends object>(
-    abstractClass: ClassConstructor<T>,
+    abstractClass: AbstractConstructor<T>,
     implementationClass: ClassConstructor<T>,
   ): void {
     this.registerAbstract(abstractClass);
@@ -54,7 +60,7 @@ export class BootstrapCore implements IEventBus {
       );
     }
 
-    this.ioc.register(implementationClass, implementationClass);
+    this.ioc.register(abstractClass, implementationClass);
 
     this.clearListenersForAbstract(abstractClass);
 
@@ -80,12 +86,12 @@ export class BootstrapCore implements IEventBus {
     this.registeredEvents.set(abstractClass, eventSet);
   }
 
-  private getToken(cls: ClassConstructor<unknown>): string | undefined {
+  private getToken(cls: AbstractConstructor<unknown>): string | undefined {
     return extractBootstrapToken(cls);
   }
 
   private createProxyForAbstract<T extends object>(
-    abstractClass: ClassConstructor<T>,
+    abstractClass: AbstractConstructor<T>,
     token: string,
   ): T {
     const methodToExpose =
@@ -122,7 +128,7 @@ export class BootstrapCore implements IEventBus {
   }
 
   private clearListenersForAbstract(
-    abstractClass: ClassConstructor<unknown>,
+    abstractClass: AbstractConstructor<unknown>,
   ): void {
     const eventSet = this.registeredEvents.get(abstractClass);
     if (eventSet) {

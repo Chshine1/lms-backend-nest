@@ -1,12 +1,13 @@
 ﻿import 'reflect-metadata';
-import { ClassConstructor } from 'class-transformer';
 
 const bootstrapTokenSymbol = Symbol.for('bootstrap:token');
 const exposeToMethodMapSymbol = Symbol.for('bootstrap:exposeToMethodMap');
 const methodToExposeMapSymbol = Symbol.for('bootstrap:methodToExposeMap');
 
+export type AbstractConstructor<T> = abstract new (...args: unknown[]) => T;
+
 export const extractBootstrapToken = (
-  target: ClassConstructor<unknown>,
+  target: AbstractConstructor<unknown>,
 ): string | undefined => {
   return Reflect.getMetadata(bootstrapTokenSymbol, target) as
     | string
@@ -14,7 +15,7 @@ export const extractBootstrapToken = (
 };
 
 export const extractExposeToMethodMap = (
-  target: ClassConstructor<unknown>,
+  target: AbstractConstructor<unknown>,
 ): Map<string, string> | undefined => {
   return Reflect.getMetadata(exposeToMethodMapSymbol, target) as
     | Map<string, string>
@@ -22,7 +23,7 @@ export const extractExposeToMethodMap = (
 };
 
 export const extractMethodToExposeMap = (
-  target: ClassConstructor<unknown>,
+  target: AbstractConstructor<unknown>,
 ): Map<string, string> | undefined => {
   return Reflect.getMetadata(methodToExposeMapSymbol, target) as
     | Map<string, string>
@@ -30,14 +31,14 @@ export const extractMethodToExposeMap = (
 };
 
 export const BootstrapToken = (token: string) => {
-  return (target: ClassConstructor<unknown>): void => {
+  return (target: AbstractConstructor<unknown>): void => {
     Reflect.defineMetadata(bootstrapTokenSymbol, token, target);
   };
 };
 
 export const ExposeDependency = (name: string) => {
   return (target: object, propertyKey: string): void => {
-    const ctor = target.constructor as ClassConstructor<unknown>;
+    const ctor = target.constructor as AbstractConstructor<unknown>;
 
     let exposeToMethod = extractExposeToMethodMap(ctor);
     if (!exposeToMethod) {
