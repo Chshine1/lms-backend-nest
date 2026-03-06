@@ -1,56 +1,131 @@
 ﻿import { BootstrapCore } from '@app/bootstrap/core';
 import { BootstrapToken, ExposeDependency } from '@app/bootstrap/decorators';
-import { IIoCContainer } from '@app/bootstrap/interfaces';
+import { IBootstrap } from '@app/bootstrap/interfaces';
+import {
+  type ClassConstructor,
+  plainToInstance,
+  Type,
+} from 'class-transformer';
+import {
+  IsDefined,
+  IsObject,
+  IsString,
+  ValidateNested,
+  validateSync,
+} from 'class-validator';
 
 @BootstrapToken('user-service')
-abstract class IUserService {
-  protected abstract _getUser(id: string): Promise<{ name: string }>;
+abstract class IConfigurationCentre implements IBootstrap {
+  protected abstract _get<T extends object>(config: ClassConstructor<T>): T;
+  abstract bootstrap(): Promise<void>;
+  abstract createRuntime(): unknown;
 
-  @ExposeDependency('getUser')
-  getUser(id: string): Promise<{ name: string }> {
-    return this._getUser(id);
+  @ExposeDependency('get')
+  get<T extends object>(config: ClassConstructor<T>): T {
+    return this._get<T>(config);
   }
 }
 
 @BootstrapToken('logger')
-abstract class ILogger {
+abstract class ILogger implements IBootstrap {
   protected abstract _log(message: string): void;
+  protected abstract _switchConfig(): void;
+  abstract bootstrap(): Promise<void>;
+  abstract createRuntime(): unknown;
 
   @ExposeDependency('log')
   log(message: string): void {
     this._log(message);
   }
+  @ExposeDependency('switchConfig')
+  switchConfig(): void {
+    this._switchConfig();
+  }
 }
 
 class ConsoleLogger extends ILogger {
-  protected override _log(message: string): void {
-    console.log(`[LOG] ${message}`);
-  }
-}
-
-class UserService extends IUserService {
-  constructor(private logger: ILogger) {
+  private loggerInstance: string = '';
+  constructor(private readonly configCentre: IConfigurationCentre) {
     super();
   }
 
-  protected override _getUser(id: string): Promise<{ name: string }> {
-    this.logger.log(`Fetching user ${id}`);
-    return Promise.resolve({ name: 'Alice' });
+  protected override _switchConfig(): void {
+    class LoggerSection {
+      @IsDefined()
+      @IsString()
+      url!: string;
+    }
+    class LoggerConfig {
+      @IsDefined()
+      @IsObject()
+      @Type(() => LoggerSection)
+      @ValidateNested()
+      logger!: LoggerSection;
+    }
+    const config = this.configCentre.get(LoggerConfig);
+    this.loggerInstance = config.logger.url;
+  }
+  protected override _log(message: string): void {
+    console.log(`[BOOTSTRAP_LOG@${this.loggerInstance}] ${message}`);
+  }
+
+  override bootstrap(): Promise<void> {
+    this.loggerInstance = 'console';
+    return Promise.resolve();
+  }
+  override createRuntime(): unknown {
+    return new RuntimeLogger(this.loggerInstance);
   }
 }
 
-const ioc: IIoCContainer = new IoCContainer();
-const core = new BootstrapCore(ioc);
+class RuntimeLogger {
+  constructor(private readonly url: string) {}
 
-core.registerImplementation(ILogger, ConsoleLogger);
-core.registerImplementation(IUserService, UserService);
+  log(message: string): void {
+    console.log(`[LOG@${this.url}] ${message}`);
+  }
+}
 
-const userService = ioc.resolve<IUserService>(IUserService);
-userService
-  .getUser('123')
-  .then((user) => {
-    console.log(user);
-  })
-  .catch((err: unknown) => {
-    console.log(err);
-  });
+class ConfigurationCentre extends IConfigurationCentre {
+  private config: Record<string, unknown> = {};
+  constructor(private readonly logger: ILogger) {
+    super();
+  }
+
+  protected override _get<T extends object>(config: ClassConstructor<T>): T {
+    const result = plainToInstance(config, this.config, {
+      excludeExtraneousValues: true,
+    });
+    const errors = validateSync(result);
+    if (errors.length > 0) {
+      this.logger.log(JSON.stringify(errors));
+    }
+    return result;
+  }
+  override bootstrap(): Promise<void> {
+    this.config['logger'] = {
+      url: 'http://localhost:8080',
+    };
+    return Promise.resolve();
+  }
+  override createRuntime(): unknown {
+    return new ConfigurationProvider(this.config);
+  }
+}
+
+class ConfigurationProvider {
+  constructor(private readonly config: Record<string, unknown>) {}
+
+  get<T extends object>(config: ClassConstructor<T>): T {
+    return plainToInstance(config, this.config, {
+      excludeExtraneousValues: true,
+    });
+  }
+}
+
+const bootstrapCore = new BootstrapCore();
+
+bootstrapCore.register(ILogger, ConsoleLogger);
+bootstrapCore.register(IConfigurationCentre, ConfigurationCentre);
+
+void bootstrapCore.bootstrap();
