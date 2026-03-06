@@ -1,7 +1,6 @@
 ﻿import { Inject, Injectable } from '@nestjs/common';
 import { LoaderDefinition } from './interfaces/loader.config';
 import { ConfigError } from '@app/config-lib/utils/errors';
-import { MergeConfigSchema } from '@app/config-lib/interfaces/config-loader-pipeline.builder';
 
 export const LOADER_REGISTRY_TOKEN = Symbol('CONFIG_LOADER_REGISTRY');
 
@@ -14,8 +13,8 @@ export class ConfigurationService<
     private readonly loadersPipeline: TPipeline,
   ) {}
 
-  async load(): Promise<MergeConfigSchema<TPipeline>> {
-    let loadedConfig: object = {};
+  async load(): Promise<Record<string, unknown>> {
+    let loadedConfig: Record<string, unknown> = {};
 
     for (const loaderDefinition of this.loadersPipeline) {
       let loaderPart: object;
@@ -36,6 +35,6 @@ export class ConfigurationService<
       };
     }
 
-    return loadedConfig as MergeConfigSchema<TPipeline>;
+    return loadedConfig;
   }
 }

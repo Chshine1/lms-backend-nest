@@ -1,4 +1,5 @@
-﻿import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Module, Provider, OnModuleInit } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import {
   ConfigurationService,
   LOADER_REGISTRY_TOKEN,
@@ -7,13 +8,7 @@ import { LoaderDefinition } from '@app/config-lib/interfaces/loader.config';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
 import { LoggerModule } from '@app/logger/logger.module';
 import { LoggerService } from '@app/logger/logger.service';
-import { instanceToPlain, plainToInstance, Type } from 'class-transformer';
-import {
-  LoggerLibConfig,
-  LogLevel,
-} from '@app/contracts/config/logger-lib.config';
-import { IsDefined, IsObject, validate, ValidateNested } from 'class-validator';
-import { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
+import { LogLevel } from '@app/contracts/config/logger-lib.config';
 
 export interface ConfigLibModuleOptions<
   TPipeline extends LoaderDefinition<object, unknown[]>[],
@@ -22,8 +17,15 @@ export interface ConfigLibModuleOptions<
 }
 
 @Module({})
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class ConfigLibModule {
+export class ConfigLibModule implements OnModuleInit {
+  private loggerService!: LoggerService;
+
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  onModuleInit(): void {
+    this.loggerService = this.moduleRef.get(LoggerService, { strict: false });
+  }
+
   static forRoot<TPipeline extends LoaderDefinition<object, unknown[]>[]>(
     options: ConfigLibModuleOptions<TPipeline>,
   ): DynamicModule {
@@ -38,21 +40,17 @@ export class ConfigLibModule {
       provide: ConfigurationContainer,
       useFactory: async (
         configService: ConfigurationService<TPipeline>,
-        loggerService: LoggerService,
+        configLibModule: ConfigLibModule,
       ) => {
+        const loggerService = configLibModule.loggerService;
         loggerService.info('Start loading configurations...');
         const config = await configService.load();
         loggerService.info('Configurations loaded');
 
-        loggerService.updateConfig(
-          await this.getPostBootstrapLoggerServiceConfiguration(
-            config,
-            loggerService,
-          ),
-        );
+        loggerService.updateConfig();
         return new ConfigurationContainer(config);
       },
-      inject: [ConfigurationService, LoggerService],
+      inject: [ConfigurationService, ConfigLibModule],
     };
 
     return {
@@ -66,35 +64,9 @@ export class ConfigLibModule {
         loadersProvider,
         configServiceProvider,
         configContainerProvider,
+        ConfigLibModule,
       ],
-      exports: [ConfigurationContainer, LoggerModule],
-    };
-  }
-
-  private static async getPostBootstrapLoggerServiceConfiguration(
-    config: unknown,
-    loggerService: LoggerService,
-  ): Promise<LoggerConfig> {
-    class LoggerConfigurationSection {
-      @IsDefined()
-      @IsObject()
-      @ValidateNested()
-      @Type(() => LoggerLibConfig)
-      logger!: LoggerLibConfig;
-    }
-    const loggerSection = plainToInstance(LoggerConfigurationSection, config);
-    const errors = await validate(loggerSection);
-    if (errors.length > 0) {
-      loggerService.fatal('Logger configuration failed');
-      throw new Error();
-    }
-
-    return {
-      bootstrap: false,
-      ...(instanceToPlain(loggerSection.logger) as Pick<
-        LoggerLibConfig,
-        keyof LoggerLibConfig
-      >),
+      exports: [ConfigurationContainer],
     };
   }
 }

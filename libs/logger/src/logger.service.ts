@@ -1,5 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { LogLevel } from '@app/contracts/config/logger-lib.config';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import {
+  LoggerLibConfig,
+  LogLevel,
+} from '@app/contracts/config/logger-lib.config';
 import { LoggerCoreService } from '@app/logger/services/logger-core.service';
 import { LoggerBase } from '@app/logger/interfaces/logger.interface';
 import type { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
@@ -10,10 +13,15 @@ import {
   LoggerError,
   LoggerErrorCode,
 } from '@app/logger/interfaces/error-recovery.interface';
+import { ModuleRef } from '@nestjs/core';
+import { ConfigurationContainer } from '@app/config-lib/configuration-container';
+import { IsDefined, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 @Injectable()
-export class LoggerService extends LoggerBase {
+export class LoggerService extends LoggerBase implements OnModuleInit {
   private readonly isBootstrapping: boolean;
+  private configurationContainer!: ConfigurationContainer;
 
   constructor(
     @Inject('LOGGER_CONFIG') config: LoggerConfig,
@@ -22,12 +30,18 @@ export class LoggerService extends LoggerBase {
     private readonly bufferService: BufferManagerService,
     @Inject(PipelineManagerService)
     private readonly pipelineService: PipelineManagerService,
+    private readonly moduleRef: ModuleRef,
   ) {
     super();
     this.isBootstrapping = config.bootstrap;
   }
 
-  // Logger接口实现
+  onModuleInit(): void {
+    this.configurationContainer = this.moduleRef.get(ConfigurationContainer, {
+      strict: false,
+    });
+  }
+
   fatal(message: string, metadata?: Record<string, unknown>): void {
     this.logWithLevel(LogLevel.fatal, message, metadata);
   }
@@ -89,7 +103,19 @@ export class LoggerService extends LoggerBase {
     }
   }
 
-  updateConfig(newConfig: Partial<LoggerConfig>): void {
+  updateConfig(): void {
+    class LoggerConfigurationSection {
+      @IsDefined()
+      @IsObject()
+      @ValidateNested()
+      @Type(() => LoggerLibConfig)
+      logger!: LoggerLibConfig;
+    }
+    const newConfig =
+      this.configurationContainer.get<LoggerConfigurationSection>(
+        LoggerConfigurationSection,
+      );
+
     throw new LoggerError(
       'Config update not implemented yet',
       LoggerErrorCode.CONFIG_UPDATE_FAILED,

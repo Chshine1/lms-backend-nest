@@ -9,10 +9,8 @@ import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
-import {
-  globalConfigLoaderPipeline,
-  GlobalConfigSchema,
-} from '@app/contracts/config-loader-pipeline.global';
+import { globalConfigLoaderPipeline } from '@app/contracts/config-loader-pipeline.global';
+import { JwtConfig } from '@app/contracts/config/jwt.config';
 
 @Module({
   imports: [
@@ -23,10 +21,8 @@ import {
     JwtModule.registerAsync({
       imports: [],
       inject: [ConfigurationContainer],
-      useFactory: (
-        configContainer: ConfigurationContainer<GlobalConfigSchema>,
-      ) => {
-        const jwtSection = configContainer.config.jwt;
+      useFactory: (configContainer: ConfigurationContainer) => {
+        const jwtSection = configContainer.get<JwtConfig>(JwtConfig);
         return {
           secret: jwtSection.secret,
           signOptions: {

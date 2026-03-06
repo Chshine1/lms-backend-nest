@@ -23,16 +23,3 @@ export class ConfigLoaderPipelineBuilder<
     return this.pipeline;
   }
 }
-
-export type MergeConfigSchema<
-  TPipeline extends LoaderDefinition<object, unknown[]>[],
-> = TPipeline extends []
-  ? unknown
-  : TPipeline extends [infer TFirst, ...infer TRest]
-    ? TFirst extends LoaderDefinition<infer TSchema, unknown[]>
-      ? TSchema &
-          (TRest extends LoaderDefinition<object, unknown[]>[]
-            ? MergeConfigSchema<TRest>
-            : never)
-      : never
-    : never;

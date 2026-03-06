@@ -1,7 +1,4 @@
-﻿import {
-  ConfigLoaderPipelineBuilder,
-  MergeConfigSchema,
-} from '@app/config-lib/interfaces/config-loader-pipeline.builder';
+﻿import { ConfigLoaderPipelineBuilder } from '@app/config-lib/interfaces/config-loader-pipeline.builder';
 import { EnvLoader } from '@app/config-lib/loaders/env.loader';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { YamlLoader } from '@app/config-lib/loaders/yaml.loader';
@@ -26,7 +23,3 @@ export const globalConfigLoaderPipeline = ConfigLoaderPipelineBuilder.create()
     schema: AwsSchema,
   })
   .build();
-
-export type GlobalConfigSchema = MergeConfigSchema<
-  typeof globalConfigLoaderPipeline
->;
