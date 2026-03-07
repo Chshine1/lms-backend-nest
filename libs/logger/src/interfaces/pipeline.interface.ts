@@ -3,7 +3,6 @@ import { LogLevel } from '@app/contracts/config/logger-lib.config';
 export interface LogEntry<
   T extends Record<string, unknown> = Record<string, unknown>,
 > {
-  event: string;
   level: LogLevel;
   timestamp: Date;
   message: string;

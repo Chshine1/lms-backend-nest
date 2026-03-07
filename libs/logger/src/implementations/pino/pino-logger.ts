@@ -1,36 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { LoggerBase } from '../../interfaces/logger.interface';
+import { EventLoggerBase } from '../../interfaces/logger.interface';
 import { LogLevel } from '@app/contracts/config/logger-lib.config';
 import { type Logger as PinoLoggerBase } from 'pino';
 
 @Injectable()
-export class PinoLogger extends LoggerBase {
+export class PinoLogger extends EventLoggerBase {
   constructor(private readonly pinoInstance: PinoLoggerBase) {
     super();
-  }
-
-  fatal(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.fatal(metadata, message);
-  }
-
-  error(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.error(metadata, message);
-  }
-
-  warn(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.warn(metadata, message);
-  }
-
-  info(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.info(metadata, message);
-  }
-
-  debug(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.debug(metadata, message);
-  }
-
-  trace(message: string, metadata?: Record<string, unknown>): void {
-    this.pinoInstance.trace(metadata, message);
   }
 
   child(metadata: Record<string, unknown>): PinoLogger {
@@ -38,17 +14,13 @@ export class PinoLogger extends LoggerBase {
     return new PinoLogger(childPino);
   }
 
-  logEvent(event: string, metadata: Record<string, unknown>): void {
-    this.pinoInstance.info({ event, ...metadata }, `Event: ${event}`);
-  }
-
-  logEventWithLevel(
+  logWithLevel(
     level: LogLevel,
-    event: string,
+    message: string,
     metadata: Record<string, unknown>,
   ): void {
     const logMethod = this.getPinoLogMethod(level);
-    logMethod({ event, ...metadata }, `Event: ${event}`);
+    logMethod({ event: message, ...metadata }, `Event: ${message}`);
   }
 
   private getPinoLogMethod(level: LogLevel): (...args: unknown[]) => void {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerFactoryBase } from '../../interfaces/logger-factory.interface';
-import { Logger } from '../../interfaces/logger.interface';
+import { EventLogger } from '../../interfaces/logger.interface';
 import { LoggerConfig } from '../../interfaces/logger-config.interface';
 import { PinoLogger } from './pino-logger';
 import {
@@ -11,7 +11,7 @@ import { pino } from 'pino';
 
 @Injectable()
 export class PinoFactory extends LoggerFactoryBase {
-  createLogger(config: LoggerConfig): Logger {
+  createLogger(config: LoggerConfig): EventLogger {
     try {
       return new PinoLogger(pino(config));
     } catch (error) {

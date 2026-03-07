@@ -1,17 +1,13 @@
-import { Injectable, Inject, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import {
   LoggerLibConfig,
   LogLevel,
 } from '@app/contracts/config/logger-lib.config';
 import { LoggerCoreService } from '@app/logger/services/logger-core.service';
-import { LoggerBase } from '@app/logger/interfaces/logger.interface';
+import { EventLoggerBase } from '@app/logger/interfaces/logger.interface';
 import { BufferManagerService } from '@app/logger/services/buffer-manager.service';
 import { PipelineManagerService } from '@app/logger/services/pipeline-manager.service';
 import { LogEntry } from '@app/logger/interfaces/pipeline.interface';
-import {
-  LoggerError,
-  LoggerErrorCode,
-} from '@app/logger/interfaces/error-recovery.interface';
 import {
   IsDefined,
   IsObject,
@@ -26,8 +22,8 @@ import {
 import { type Emitter } from 'mitt';
 
 @Injectable()
-export class LoggerService extends LoggerBase implements OnModuleDestroy {
-  private isRuntimeMode: boolean = false;
+export class LoggerService extends EventLoggerBase implements OnModuleDestroy {
+  private isRuntime: boolean = false;
 
   constructor(
     private readonly coreService: LoggerCoreService,
@@ -48,108 +44,56 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
   }
 
   upgradeToRuntime(config: Record<string, unknown>): void {
-    try {
-      class LoggerConfigurationSection {
-        @IsDefined()
-        @IsObject()
-        @ValidateNested()
-        @Type(() => LoggerLibConfig)
-        logger!: LoggerLibConfig;
-      }
-      const newConfig = plainToInstance(LoggerConfigurationSection, config, {
-        excludeExtraneousValues: true,
-      });
-      const errors = validateSync(newConfig);
-      if (errors.length > 0) {
-        throw new LoggerError(
-          'Invalid runtime configuration',
-          LoggerErrorCode.CONFIG_UPDATE_FAILED,
-          { config },
-        );
-      }
-
-      this.isRuntimeMode = true;
-      this.flushBuffer().catch((error: unknown) => {
-        console.error('Failed to flush buffer during upgrade:', error);
-      });
-    } catch (error) {
-      throw new LoggerError(
-        'Failed to upgrade to runtime mode',
-        LoggerErrorCode.CONFIG_UPDATE_FAILED,
-        { config },
-        error instanceof Error ? error : new Error(String(error)),
-      );
+    class LoggerConfigurationSection {
+      @IsDefined()
+      @IsObject()
+      @ValidateNested()
+      @Type(() => LoggerLibConfig)
+      logger!: LoggerLibConfig;
     }
-  }
+    const newConfig = plainToInstance(LoggerConfigurationSection, config, {
+      excludeExtraneousValues: true,
+    });
+    const errors = validateSync(newConfig);
+    if (errors.length > 0) {
+      this.logWithLevel(
+        LogLevel.fatal,
+        'Fatal error when validating config for upgrading logger service to runtime.',
+        {
+          validationErrors: errors,
+        },
+      );
+      process.exit(1);
+    }
 
-  fatal(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.fatal, message, metadata);
-  }
-
-  error(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.error, message, metadata);
-  }
-
-  warn(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.warn, message, metadata);
-  }
-
-  info(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.info, message, metadata);
-  }
-
-  debug(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.debug, message, metadata);
-  }
-
-  trace(message: string, metadata?: Record<string, unknown>): void {
-    this.logWithLevel(LogLevel.trace, message, metadata);
+    this.isRuntime = true;
+    this.bufferService.flush().catch((error: unknown) => {
+      this.logWithLevel(
+        LogLevel.fatal,
+        'Failed to flush buffer during upgrade.',
+        {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          traceId: 'bootstrap',
+        },
+      );
+    });
   }
 
   child(_metadata: Record<string, unknown>): this {
     return this;
   }
 
-  logEventWithLevel(
+  logWithLevel(
     level: LogLevel,
-    event: string,
+    message: string,
     metadata: Record<string, unknown>,
   ): void {
     const logEntry: LogEntry = {
-      event,
-      level,
-      timestamp: new Date(),
-      message: `Event: ${event}`,
-      metadata,
-    };
-
-    this.processLogEntry(logEntry);
-  }
-
-  async flushBuffer(): Promise<void> {
-    try {
-      await this.bufferService.flush();
-    } catch (error) {
-      throw new LoggerError(
-        'Failed to flush buffer',
-        LoggerErrorCode.BUFFER_FLUSH_FAILED,
-        undefined,
-        error instanceof Error ? error : new Error(String(error)),
-      );
-    }
-  }
-
-  private logWithLevel(
-    level: LogLevel,
-    message: string,
-    metadata?: Record<string, unknown>,
-  ): void {
-    const logEntry: LogEntry = {
-      event: 'log',
-      level,
-      timestamp: new Date(),
       message,
-      metadata: metadata || {},
+      level,
+      timestamp: new Date(),
+      metadata,
     };
 
     this.processLogEntry(logEntry);
@@ -157,7 +101,7 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
 
   private processLogEntry(logEntry: LogEntry): void {
     try {
-      if (!this.isRuntimeMode) {
+      if (!this.isRuntime) {
         this.bufferService.add(logEntry);
       } else {
         this.pipelineService
@@ -194,27 +138,10 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
   }
 
   private directLog(logEntry: LogEntry): void {
-    switch (logEntry.level) {
-      case LogLevel.fatal:
-        this.coreService.fatal(logEntry.message, logEntry.metadata);
-        break;
-      case LogLevel.error:
-        this.coreService.error(logEntry.message, logEntry.metadata);
-        break;
-      case LogLevel.warn:
-        this.coreService.warn(logEntry.message, logEntry.metadata);
-        break;
-      case LogLevel.info:
-        this.coreService.info(logEntry.message, logEntry.metadata);
-        break;
-      case LogLevel.debug:
-        this.coreService.debug(logEntry.message, logEntry.metadata);
-        break;
-      case LogLevel.trace:
-        this.coreService.trace(logEntry.message, logEntry.metadata);
-        break;
-      default:
-        this.coreService.info(logEntry.message, logEntry.metadata);
-    }
+    this.coreService.logWithLevel(
+      logEntry.level,
+      logEntry.message,
+      logEntry.metadata,
+    );
   }
 }

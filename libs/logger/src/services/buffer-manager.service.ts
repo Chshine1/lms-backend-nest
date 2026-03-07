@@ -51,19 +51,7 @@ export class BufferManagerService {
     }
   }
 
-  getSize(): number {
-    return this.buffer.length;
-  }
-
   isFull(): boolean {
     return this.buffer.length >= this.maxBufferSize;
-  }
-
-  clear(): void {
-    this.buffer = [];
-  }
-
-  getBufferContents(): LogEntry[] {
-    return [...this.buffer];
   }
 }

@@ -1,15 +1,16 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { LoggerBase } from '../interfaces/logger.interface';
+import { EventLoggerBase } from '../interfaces/logger.interface';
 import { LoggerFactoryBase } from '../interfaces/logger-factory.interface';
 import type { LoggerConfig } from '../interfaces/logger-config.interface';
 import {
   LoggerError,
   LoggerErrorCode,
 } from '../interfaces/error-recovery.interface';
+import { LogLevel } from '@app/contracts/src/config/logger-lib.config';
 
 @Injectable()
-export class LoggerCoreService extends LoggerBase {
-  private readonly currentLogger: LoggerBase;
+export class LoggerCoreService extends EventLoggerBase {
+  private readonly currentLogger: EventLoggerBase;
 
   constructor(
     @Inject('LOGGER_CONFIG') private readonly config: LoggerConfig,
@@ -20,9 +21,9 @@ export class LoggerCoreService extends LoggerBase {
     this.currentLogger = this.createLogger();
   }
 
-  private createLogger(): LoggerBase {
+  private createLogger(): EventLoggerBase {
     try {
-      return this.loggerFactory.createLogger(this.config) as LoggerBase;
+      return this.loggerFactory.createLogger(this.config) as EventLoggerBase;
     } catch (error) {
       throw new LoggerError(
         'Failed to create logger instance',
@@ -33,35 +34,15 @@ export class LoggerCoreService extends LoggerBase {
     }
   }
 
-  fatal(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.fatal(message, metadata);
-  }
-
-  error(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.error(message, metadata);
-  }
-
-  warn(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.warn(message, metadata);
-  }
-
-  info(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.info(message, metadata);
-  }
-
-  debug(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.debug(message, metadata);
-  }
-
-  trace(message: string, metadata?: Record<string, unknown>): void {
-    this.currentLogger.trace(message, metadata);
-  }
-
-  child(_metadata: Record<string, unknown>): LoggerBase {
+  override child(_metadata: Record<string, unknown>): EventLoggerBase {
     return this;
   }
 
-  getInternalLogger(): LoggerBase {
-    return this.currentLogger;
+  override logWithLevel(
+    level: LogLevel,
+    event: string,
+    metadata: Record<string, unknown>,
+  ): void {
+    this.currentLogger.logWithLevel(level, event, metadata);
   }
 }
