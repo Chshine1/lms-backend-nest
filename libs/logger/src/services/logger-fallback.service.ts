@@ -1,57 +1,72 @@
-﻿import { Injectable } from '@nestjs/common';
-import { PipelineManagerService } from './pipeline-manager.service';
+import { Inject, Injectable } from '@nestjs/common';
 import { LoggerInstance } from '@app/logger/abstractions/logger.abstraction';
 import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
-import { LoggerError } from '@app/logger/logger.error';
+import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
+import { ErrorRecoveryStrategy } from '@app/logger/abstractions/error-recovery.abstraction';
+import { LoggerPipeline } from '@app/logger/abstractions/logger-pipeline.abstraction';
 
 @Injectable()
 export class LoggerFallbackService {
   constructor(
-    private readonly pipelineService: PipelineManagerService,
+    @Inject(LoggerPipeline) private readonly loggerPipeline: LoggerPipeline,
     private readonly innerLogger: LoggerInstance,
+    private readonly errorRecoveryStrategy: ErrorRecoveryStrategy,
   ) {}
 
   async logWithFallback(logEntry: LogEntry): Promise<void> {
     try {
-      await this.pipelineService.processLogEntry(logEntry);
+      await this.loggerPipeline.process(logEntry);
     } catch (pipelineError) {
-      this.tryInnerLogger(logEntry, pipelineError);
+      await this.handlePipelineError(pipelineError, logEntry);
     }
   }
 
-  private tryInnerLogger(logEntry: LogEntry, originalError: unknown): void {
+  private async handlePipelineError(
+    error: unknown,
+    logEntry: LogEntry,
+  ): Promise<void> {
+    const loggerError = this.toLoggerError(
+      error,
+      LoggerErrorCode.LOG_PROCESSING_FAILED,
+      { logEntry },
+    );
+
+    if (this.errorRecoveryStrategy.canRecover(loggerError)) {
+      await this.errorRecoveryStrategy.recover(loggerError, logEntry);
+      return;
+    }
+
     try {
       this.innerLogger.logWithLevel(
         logEntry.level,
         logEntry.message,
         logEntry.metadata,
       );
-      console.error(
-        '[Logger] Pipeline failed, used inner logger:',
-        originalError,
-      );
     } catch (innerError) {
-      console.error('[FATAL] Both pipeline and inner logger failed.', {
-        pipelineError: this.formatError(originalError),
-        innerError: this.formatError(innerError),
-        logEntry,
-      });
+      const innerLoggerError = this.toLoggerError(
+        innerError,
+        LoggerErrorCode.FALLBACK_LOGGER_FAILED,
+        { originalError: loggerError },
+      );
+      console.error(
+        '[FATAL] Both loggerPipeline and inner logger failed.',
+        innerLoggerError,
+      );
+      throw innerLoggerError;
     }
   }
 
-  private formatError(error: unknown): Record<string, unknown> {
+  private toLoggerError(
+    error: unknown,
+    code: string,
+    context?: Record<string, unknown>,
+  ): LoggerError {
     if (error instanceof LoggerError) {
-      return {
-        message: error.message,
-        code: error.code,
-        context: error.context,
-        stack: error.stack,
-        innerError: error.innerError,
-      };
+      return error;
     }
     if (error instanceof Error) {
-      return { message: error.message, stack: error.stack };
+      return new LoggerError(error.message, code, context, error);
     }
-    return { message: String(error) };
+    return new LoggerError(String(error), code, context);
   }
 }

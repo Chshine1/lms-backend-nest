@@ -1,4 +1,3 @@
-import type { LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
 import { Inject, Injectable } from '@nestjs/common';
 import { LoggerFallbackService } from './logger-fallback.service';
 import {
@@ -6,6 +5,7 @@ import {
   LogLevel,
 } from '@app/logger/abstractions/log-entry.interface';
 import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
+import { type LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
 
 @Injectable()
 export class BufferManagerService {
@@ -31,7 +31,7 @@ export class BufferManagerService {
           metadata: {},
         })
         .catch((error: unknown) => {
-          throw error;
+          console.error('[Buffer Manager Error]', error);
         });
       return;
     }
@@ -56,7 +56,11 @@ export class BufferManagerService {
     this.buffer = [];
 
     for (const entry of logsToFlush) {
-      await this.loggerFallbackService.logWithFallback(entry);
+      try {
+        await this.loggerFallbackService.logWithFallback(entry);
+      } catch (error) {
+        console.error('[Buffer Flush Error]', error);
+      }
     }
   }
 }

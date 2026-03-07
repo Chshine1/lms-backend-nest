@@ -12,7 +12,8 @@ import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
 export class PinoFactory extends LoggerFactory {
   createLogger(config: LoggerConfig): LoggerInstance {
     try {
-      return new PinoLoggerInstance(pino(config));
+      const pinoInstance = pino(config);
+      return new PinoLoggerInstance(pinoInstance);
     } catch (error) {
       throw new LoggerError(
         `Failed to create Pino logger: ${error instanceof Error ? error.message : 'Unknown error'}`,

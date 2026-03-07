@@ -3,29 +3,33 @@ import {
   LogEntry,
   LogLevel,
 } from '@app/logger/abstractions/log-entry.interface';
-import { LogFilter } from '@app/logger/abstractions/pipeline.abstraction';
+import { LogFilter } from '@app/logger/abstractions/logger-pipeline.abstraction';
 
 @Injectable()
 export class LevelFilter implements LogFilter {
   private readonly minLevel: LogLevel;
+  private readonly levelPriority: Record<LogLevel, number> = {
+    [LogLevel.fatal]: 6,
+    [LogLevel.error]: 5,
+    [LogLevel.warn]: 4,
+    [LogLevel.info]: 3,
+    [LogLevel.debug]: 2,
+    [LogLevel.trace]: 1,
+  };
 
   constructor(minLevel: LogLevel = LogLevel.info) {
     this.minLevel = minLevel;
   }
 
   shouldLog(logEntry: LogEntry): boolean {
-    const levelPriority = {
-      [LogLevel.fatal]: 6,
-      [LogLevel.error]: 5,
-      [LogLevel.warn]: 4,
-      [LogLevel.info]: 3,
-      [LogLevel.debug]: 2,
-      [LogLevel.trace]: 1,
-    };
+    try {
+      const entryPriority = this.levelPriority[logEntry.level] || 0;
+      const minPriority = this.levelPriority[this.minLevel] || 0;
 
-    const entryPriority = levelPriority[logEntry.level] || 0;
-    const minPriority = levelPriority[this.minLevel] || 0;
-
-    return entryPriority >= minPriority;
+      return entryPriority >= minPriority;
+    } catch (error) {
+      console.error('[LevelFilter Error]', error);
+      return true;
+    }
   }
 }

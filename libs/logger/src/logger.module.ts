@@ -1,13 +1,13 @@
 import { Module, DynamicModule, Provider, forwardRef } from '@nestjs/common';
 import { LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
-import { PipelineBase } from '@app/logger/abstractions/pipeline.abstraction';
-import { ErrorRecoveryStrategyBase } from '@app/logger/abstractions/error-recovery.abstraction';
+import { LoggerPipeline } from '@app/logger/abstractions/logger-pipeline.abstraction';
+import { ErrorRecoveryStrategy } from '@app/logger/abstractions/error-recovery.abstraction';
 import { PinoFactory } from './implementations/pino/pino-factory';
 import { DefaultPipeline } from './implementations/pipeline/default-pipeline';
 import { DefaultErrorRecovery } from './implementations/error-recovery/default-error-recovery';
 import { BufferManagerService } from './services/buffer-manager.service';
-import { PipelineManagerService } from './services/pipeline-manager.service';
 import { LoggerService } from '@app/logger/logger.service';
+import { LoggerFallbackService } from './services/logger-fallback.service';
 import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 import { globalConfigLoaderPipeline } from '@app/contracts/config-loader-pipeline.global';
@@ -19,8 +19,8 @@ import {
 export interface LoggerModuleOptions {
   config: LoggerConfig;
   loggerFactory?: LoggerFactory;
-  pipeline?: PipelineBase;
-  errorRecoveryStrategy?: ErrorRecoveryStrategyBase;
+  pipeline?: LoggerPipeline;
+  errorRecoveryStrategy?: ErrorRecoveryStrategy;
 }
 
 @Module({})
@@ -36,12 +36,12 @@ export class LoggerModule {
     };
 
     const pipelineProvider: Provider = {
-      provide: PipelineBase,
+      provide: LoggerPipeline,
       useFactory: () => options.pipeline || new DefaultPipeline(),
     };
 
     const errorRecoveryProvider: Provider = {
-      provide: ErrorRecoveryStrategyBase,
+      provide: ErrorRecoveryStrategy,
       useFactory: () =>
         options.errorRecoveryStrategy || new DefaultErrorRecovery(),
     };
@@ -52,7 +52,7 @@ export class LoggerModule {
       errorRecoveryProvider,
 
       BufferManagerService,
-      PipelineManagerService,
+      LoggerFallbackService,
 
       LoggerService,
     ];

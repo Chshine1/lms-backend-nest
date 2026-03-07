@@ -65,7 +65,7 @@ export class LoggerService extends LoggerInstance implements OnModuleDestroy {
 
     this.isRuntime = true;
     this.bufferService.flush().catch((error: unknown) => {
-      throw error;
+      console.error('[Buffer Flush Error]', error);
     });
   }
 
@@ -87,13 +87,12 @@ export class LoggerService extends LoggerInstance implements OnModuleDestroy {
 
     this.loggerFallbackService
       .logWithFallback(logEntry)
-      .then(() => {
+      .catch((error: unknown) => {
         if (!this.isRuntime) {
           this.bufferService.add(logEntry);
+        } else {
+          console.error('[Logger Error]', error);
         }
-      })
-      .catch((err: unknown) => {
-        throw err;
       });
   }
 }
