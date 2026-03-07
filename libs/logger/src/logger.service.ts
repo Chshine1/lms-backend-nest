@@ -3,8 +3,7 @@ import {
   LoggerLibConfig,
   LogLevel,
 } from '@app/contracts/config/logger-lib.config';
-import { LoggerCoreService } from '@app/logger/services/logger-core.service';
-import { EventLoggerBase } from '@app/logger/interfaces/logger.interface';
+import { LoggerInstance } from '@app/logger/interfaces/logger.interface';
 import { BufferManagerService } from '@app/logger/services/buffer-manager.service';
 import { PipelineManagerService } from '@app/logger/services/pipeline-manager.service';
 import { LogEntry } from '@app/logger/interfaces/pipeline.interface';
@@ -20,20 +19,24 @@ import {
   BootstrapEvents,
 } from '@app/infrastructure/infrastructure.module';
 import { type Emitter } from 'mitt';
+import type { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
+import { LoggerFactory } from '@app/logger/interfaces/logger-factory.interface';
 
 @Injectable()
-export class LoggerService extends EventLoggerBase implements OnModuleDestroy {
+export class LoggerService extends LoggerInstance implements OnModuleDestroy {
+  private readonly innerLogger: LoggerInstance;
   private isRuntime: boolean = false;
 
   constructor(
-    private readonly coreService: LoggerCoreService,
+    @Inject('LOGGER_CONFIG') config: LoggerConfig,
+    @Inject(LoggerFactory) loggerFactory: LoggerFactory,
     private readonly bufferService: BufferManagerService,
     private readonly pipelineService: PipelineManagerService,
     @Inject(BootstrapEventBusSymbol)
     private readonly eventBus: Emitter<BootstrapEvents>,
   ) {
     super();
-
+    this.innerLogger = loggerFactory.createLogger(config);
     eventBus.on('config.loaded', (config: Record<string, unknown>) => {
       this.upgradeToRuntime(config);
     });
@@ -96,52 +99,41 @@ export class LoggerService extends EventLoggerBase implements OnModuleDestroy {
       metadata,
     };
 
-    this.processLogEntry(logEntry);
+    this.log(logEntry)
+      .then(() => {
+        if (!this.isRuntime) {
+          this.bufferService.add(logEntry);
+        }
+      })
+      .catch((err: unknown) => {
+        throw err;
+      });
   }
 
-  private processLogEntry(logEntry: LogEntry): void {
+  private async log(logEntry: LogEntry): Promise<void> {
     try {
-      if (!this.isRuntime) {
-        this.bufferService.add(logEntry);
-      } else {
-        this.pipelineService
-          .processLogEntry(logEntry)
-          .catch((error: unknown) => {
-            this.handlePipelineError(error, logEntry);
-          });
+      await this.pipelineService.processLogEntry(logEntry);
+    } catch (pipelineError: unknown) {
+      const pipelineMessage =
+        pipelineError instanceof Error
+          ? pipelineError.message
+          : String(pipelineError);
+
+      try {
+        this.innerLogger.logWithLevel(
+          LogLevel.fatal,
+          'Logger pipeline failed. Using direct logger instead.',
+          {
+            message: pipelineMessage,
+          },
+        );
+      } catch (loggerError: unknown) {
+        const loggerMessage =
+          loggerError instanceof Error
+            ? loggerError.message
+            : String(loggerError);
+        console.log('[FATAL] Inner logger failed: %s', loggerMessage);
       }
-    } catch (error: unknown) {
-      this.handleBufferError(error, logEntry);
     }
-  }
-
-  private handlePipelineError(error: unknown, logEntry: LogEntry): void {
-    const e = error instanceof Error ? error : new Error(String(error));
-    console.error('Pipeline processing failed:', e.message);
-
-    try {
-      this.bufferService.add(logEntry);
-    } catch (bufferError) {
-      console.error('Buffer also failed:', bufferError);
-    }
-  }
-
-  private handleBufferError(error: unknown, logEntry: LogEntry): void {
-    const e = error instanceof Error ? error : new Error(String(error));
-    console.error('Buffer operation failed:', e.message);
-
-    try {
-      this.directLog(logEntry);
-    } catch (directError) {
-      console.error('Direct logging also failed:', directError);
-    }
-  }
-
-  private directLog(logEntry: LogEntry): void {
-    this.coreService.logWithLevel(
-      logEntry.level,
-      logEntry.message,
-      logEntry.metadata,
-    );
   }
 }

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { EventLoggerBase } from '../../interfaces/logger.interface';
+import { LoggerInstance } from '../../interfaces/logger.interface';
 import { LogLevel } from '@app/contracts/config/logger-lib.config';
 import { type Logger as PinoLoggerBase } from 'pino';
 
 @Injectable()
-export class PinoLogger extends EventLoggerBase {
+export class PinoLogger extends LoggerInstance {
   constructor(private readonly pinoInstance: PinoLoggerBase) {
     super();
   }
