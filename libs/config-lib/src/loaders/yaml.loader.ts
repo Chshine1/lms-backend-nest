@@ -1,4 +1,4 @@
-﻿import { promises } from 'fs';
+import { promises } from 'fs';
 import { load as loadYaml } from 'js-yaml';
 import { merge } from 'lodash';
 import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
@@ -16,8 +16,8 @@ import { formatValidationErrors } from '@app/config-lib/utils/format-validation-
 export class YamlLoader implements ConfigurationLoader {
   async load(
     loadedConfig: unknown,
-    dependencies: [ClassConstructor<EnvSchema>],
-    target: ClassConstructor<YamlSchema>,
+    dependencies: ClassConstructor<unknown>[],
+    target: ClassConstructor<unknown>,
   ): Promise<Record<string, unknown>> {
     const env = plainToInstance(dependencies[0], loadedConfig, {
       excludeExtraneousValues: true,

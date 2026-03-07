@@ -15,18 +15,14 @@ import {
 } from '@app/infrastructure/infrastructure.module';
 import type { Emitter } from 'mitt';
 
-export interface ConfigLibModuleOptions<
-  TPipeline extends LoaderDefinition<object, unknown[]>[],
-> {
-  loadersPipeline: TPipeline;
+export interface ConfigLibModuleOptions {
+  loadersPipeline: LoaderDefinition[];
 }
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ConfigLibModule {
-  static forRoot<TPipeline extends LoaderDefinition<object, unknown[]>[]>(
-    options: ConfigLibModuleOptions<TPipeline>,
-  ): DynamicModule {
+  static forRoot(options: ConfigLibModuleOptions): DynamicModule {
     const loadersProvider: Provider = {
       provide: LOADER_REGISTRY_TOKEN,
       useValue: options.loadersPipeline,
@@ -37,7 +33,7 @@ export class ConfigLibModule {
     const configContainerProvider: Provider = {
       provide: ConfigurationContainer,
       useFactory: async (
-        configService: ConfigurationService<TPipeline>,
+        configService: ConfigurationService,
         loggerService: LoggerService,
         eventBus: Emitter<BootstrapEvents>,
       ) => {
@@ -57,7 +53,7 @@ export class ConfigLibModule {
         InfrastructureModule,
         forwardRef(() =>
           LoggerModule.forRoot({
-            config: { bootstrap: true, level: LogLevel.info },
+            config: { level: LogLevel.info },
           }),
         ),
       ],

@@ -5,12 +5,10 @@ import { ConfigError } from '@app/config-lib/utils/errors';
 export const LOADER_REGISTRY_TOKEN = Symbol('CONFIG_LOADER_REGISTRY');
 
 @Injectable()
-export class ConfigurationService<
-  TPipeline extends LoaderDefinition<object, unknown[]>[],
-> {
+export class ConfigurationService {
   constructor(
     @Inject(LOADER_REGISTRY_TOKEN)
-    private readonly loadersPipeline: TPipeline,
+    private readonly loadersPipeline: LoaderDefinition[],
   ) {}
 
   async load(): Promise<Record<string, unknown>> {

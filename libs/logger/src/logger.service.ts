@@ -5,7 +5,6 @@ import {
 } from '@app/contracts/config/logger-lib.config';
 import { LoggerCoreService } from '@app/logger/services/logger-core.service';
 import { LoggerBase } from '@app/logger/interfaces/logger.interface';
-import type { LoggerConfig } from '@app/logger/interfaces/logger-config.interface';
 import { BufferManagerService } from '@app/logger/services/buffer-manager.service';
 import { PipelineManagerService } from '@app/logger/services/pipeline-manager.service';
 import { LogEntry } from '@app/logger/interfaces/pipeline.interface';
@@ -28,10 +27,9 @@ import { type Emitter } from 'mitt';
 
 @Injectable()
 export class LoggerService extends LoggerBase implements OnModuleDestroy {
-  private readonly isBootstrapping: boolean;
+  private isRuntimeMode: boolean = false;
 
   constructor(
-    @Inject('LOGGER_CONFIG') config: LoggerConfig,
     private readonly coreService: LoggerCoreService,
     private readonly bufferService: BufferManagerService,
     private readonly pipelineService: PipelineManagerService,
@@ -39,9 +37,18 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
     private readonly eventBus: Emitter<BootstrapEvents>,
   ) {
     super();
-    this.isBootstrapping = config.bootstrap;
 
     eventBus.on('config.loaded', (config: Record<string, unknown>) => {
+      this.upgradeToRuntime(config);
+    });
+  }
+
+  onModuleDestroy(): void {
+    this.eventBus.off('config.loaded');
+  }
+
+  upgradeToRuntime(config: Record<string, unknown>): void {
+    try {
       class LoggerConfigurationSection {
         @IsDefined()
         @IsObject()
@@ -55,16 +62,24 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
       const errors = validateSync(newConfig);
       if (errors.length > 0) {
         throw new LoggerError(
-          'Config update not implemented yet',
+          'Invalid runtime configuration',
           LoggerErrorCode.CONFIG_UPDATE_FAILED,
           { config },
         );
       }
-    });
-  }
 
-  onModuleDestroy(): void {
-    this.eventBus.off('config.loaded');
+      this.isRuntimeMode = true;
+      this.flushBuffer().catch((error: unknown) => {
+        console.error('Failed to flush buffer during upgrade:', error);
+      });
+    } catch (error) {
+      throw new LoggerError(
+        'Failed to upgrade to runtime mode',
+        LoggerErrorCode.CONFIG_UPDATE_FAILED,
+        { config },
+        error instanceof Error ? error : new Error(String(error)),
+      );
+    }
   }
 
   fatal(message: string, metadata?: Record<string, unknown>): void {
@@ -93,10 +108,6 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
 
   child(_metadata: Record<string, unknown>): this {
     return this;
-  }
-
-  logEvent(event: string, metadata: Record<string, unknown>): void {
-    this.logEventWithLevel(LogLevel.info, event, metadata);
   }
 
   logEventWithLevel(
@@ -146,7 +157,7 @@ export class LoggerService extends LoggerBase implements OnModuleDestroy {
 
   private processLogEntry(logEntry: LogEntry): void {
     try {
-      if (this.isBootstrapping) {
+      if (!this.isRuntimeMode) {
         this.bufferService.add(logEntry);
       } else {
         this.pipelineService
