@@ -1,4 +1,4 @@
-﻿export enum LogLevel {
+export enum LogLevel {
   fatal = 'fatal',
   error = 'error',
   warn = 'warn',

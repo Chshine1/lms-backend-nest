@@ -4,6 +4,5 @@ export interface LoggerConfig extends LoggerLibConfig {
   buffer?: {
     enabled: boolean;
     maxSize: number;
-    flushInterval: number;
   };
 }

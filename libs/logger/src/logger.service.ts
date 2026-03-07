@@ -1,38 +1,35 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
-import { LoggerInstance } from '@app/logger/abstractions/logger.abstraction';
-import { BufferManagerService } from '@app/logger/services/buffer-manager.service';
-import {
-  IsDefined,
-  IsObject,
-  ValidateNested,
-  validateSync,
-} from 'class-validator';
+import { BufferService } from '@app/logger/core/services/buffer.service';
+import { IsDefined, IsObject, validate, ValidateNested } from 'class-validator';
 import { plainToInstance, Type } from 'class-transformer';
 import {
   BootstrapEventBusSymbol,
   BootstrapEvents,
 } from '@app/infrastructure/infrastructure.module';
 import { type Emitter } from 'mitt';
-import { LoggerFallbackService } from '@app/logger/services/logger-fallback.service';
 import {
   LogEntry,
   LogLevel,
-} from '@app/logger/abstractions/log-entry.interface';
+} from '@app/logger/core/contracts/log-entry.interface';
+import { LoggerInstance } from '@app/logger/core/contracts/logger.abstraction';
+import { BootstrapLogger } from '@app/logger/core/bootstrap/bootstrap-logger';
+import { PinoFactory } from '@app/logger/config/implementations/pino-factory';
+import { LoggerConfig } from '@app/logger/core/contracts/logger-config.interface';
 
 @Injectable()
-export class LoggerService extends LoggerInstance implements OnModuleDestroy {
-  private isRuntime: boolean = false;
+export class LoggerService implements OnModuleDestroy {
+  private isRuntime = false;
+  private innerLogger: LoggerInstance;
 
   constructor(
-    private readonly bufferService: BufferManagerService,
+    private readonly bufferService: BufferService,
     @Inject(BootstrapEventBusSymbol)
     private readonly eventBus: Emitter<BootstrapEvents>,
-    private readonly loggerFallbackService: LoggerFallbackService,
   ) {
-    super();
-    eventBus.on('config.loaded', (config: Record<string, unknown>) => {
-      this.upgradeToRuntime(config);
+    this.innerLogger = new BootstrapLogger(bufferService);
+    this.eventBus.on('config.loaded', (config) => {
+      void this.upgradeToRuntime(config);
     });
   }
 
@@ -40,7 +37,49 @@ export class LoggerService extends LoggerInstance implements OnModuleDestroy {
     this.eventBus.off('config.loaded');
   }
 
-  upgradeToRuntime(config: Record<string, unknown>): void {
+  async upgradeToRuntime(config: Record<string, unknown>): Promise<void> {
+    if (this.isRuntime) {
+      return;
+    }
+
+    const loggerConfig = await this.getLoggerConfig(config);
+    this.innerLogger = new PinoFactory().createLogger(loggerConfig);
+
+    try {
+      const entries = this.bufferService.flush();
+      for (const entry of entries) {
+        await this.innerLogger.log(entry);
+      }
+    } catch (error) {
+      console.error(
+        '[Logger] Failed flush buffer when upgrading to the runtime logger.',
+        error,
+      );
+    }
+
+    this.isRuntime = true;
+  }
+
+  async log(
+    logEntry: Omit<LogEntry, 'metadata' | 'timestamp'> & {
+      metadata?: Record<string, unknown>;
+      timestamp?: Date;
+    },
+  ): Promise<void> {
+    try {
+      await this.innerLogger.log({
+        metadata: {},
+        timestamp: new Date(),
+        ...logEntry,
+      });
+    } catch (error) {
+      console.error('[Logger] Failed to log via innerLogger.', error);
+    }
+  }
+
+  private async getLoggerConfig(
+    config: Record<string, unknown>,
+  ): Promise<LoggerConfig> {
     class LoggerConfigurationSection {
       @IsDefined()
       @IsObject()
@@ -48,51 +87,22 @@ export class LoggerService extends LoggerInstance implements OnModuleDestroy {
       @Type(() => LoggerLibConfig)
       logger!: LoggerLibConfig;
     }
+
     const newConfig = plainToInstance(LoggerConfigurationSection, config, {
       excludeExtraneousValues: true,
     });
-    const errors = validateSync(newConfig);
+
+    const errors = await validate(newConfig);
     if (errors.length > 0) {
-      this.logWithLevel(
-        LogLevel.fatal,
-        'Fatal error when validating config for upgrading logger service to runtime.',
-        {
-          validationErrors: errors,
-        },
-      );
+      await this.log({
+        level: LogLevel.fatal,
+        message: 'Config validation failed for logger runtime upgrade',
+        metadata: { validationErrors: errors },
+        timestamp: new Date(),
+      });
       process.exit(1);
     }
 
-    this.isRuntime = true;
-    this.bufferService.flush().catch((error: unknown) => {
-      console.error('[Buffer Flush Error]', error);
-    });
-  }
-
-  child(_metadata: Record<string, unknown>): this {
-    return this;
-  }
-
-  logWithLevel(
-    level: LogLevel,
-    message: string,
-    metadata: Record<string, unknown>,
-  ): void {
-    const logEntry: LogEntry = {
-      message,
-      level,
-      timestamp: new Date(),
-      metadata,
-    };
-
-    this.loggerFallbackService
-      .logWithFallback(logEntry)
-      .catch((error: unknown) => {
-        if (!this.isRuntime) {
-          this.bufferService.add(logEntry);
-        } else {
-          console.error('[Logger Error]', error);
-        }
-      });
+    return newConfig.logger;
   }
 }

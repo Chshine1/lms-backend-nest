@@ -1,4 +1,4 @@
-import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
+import { LogEntry } from '@app/logger/core/contracts/log-entry.interface';
 
 export interface LogProcessor {
   process(logEntry: LogEntry): Promise<LogEntry>;

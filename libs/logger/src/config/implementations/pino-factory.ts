@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   LoggerFactory,
   LoggerInstance,
-} from '@app/logger/abstractions/logger.abstraction';
-import { LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
+} from '@app/logger/core/contracts/logger.abstraction';
+import { LoggerConfig } from '@app/logger/core/contracts/logger-config.interface';
 import { PinoLoggerInstance } from './pino-logger.instance';
 import { pino } from 'pino';
 import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';

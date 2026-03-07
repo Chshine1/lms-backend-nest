@@ -7,7 +7,7 @@ import { LoaderDefinition } from '@app/config-lib/interfaces/loader.config';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
 import { LoggerService } from '@app/logger/logger.service';
 import { LoggerModule } from '@app/logger/logger.module';
-import { LogLevel } from '@app/contracts/config/logger-lib.config';
+import { LogLevel } from '@app/logger/core/contracts/log-entry.interface';
 import {
   BootstrapEventBusSymbol,
   BootstrapEvents,
@@ -37,9 +37,15 @@ export class ConfigLibModule {
         loggerService: LoggerService,
         eventBus: Emitter<BootstrapEvents>,
       ) => {
-        loggerService.info('Start loading configurations...');
+        void loggerService.log({
+          level: LogLevel.info,
+          message: 'Start loading configurations.',
+        });
         const config = await configService.load();
-        loggerService.info('Configurations loaded');
+        void loggerService.log({
+          level: LogLevel.info,
+          message: 'Configurations loaded.',
+        });
         eventBus.emit('config.loaded', config);
 
         return new ConfigurationContainer(config);
