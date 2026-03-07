@@ -3,8 +3,8 @@ import {
   LogFilter,
   LogProcessor,
   PipelineBase,
-} from '../interfaces/pipeline.interface';
-import { LogEntry } from '../interfaces/pipeline.interface';
+} from '@app/logger/abstractions/pipeline.abstraction';
+import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
 
 @Injectable()
 export class PipelineManagerService {
@@ -22,9 +22,5 @@ export class PipelineManagerService {
   addFilter(filter: LogFilter): this {
     this.pipeline.addFilter(filter);
     return this;
-  }
-
-  getPipelineStatus(): { processorCount: number; filterCount: number } {
-    return { processorCount: 0, filterCount: 0 };
   }
 }

@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { LoggerInstance } from '../../interfaces/logger.interface';
-import { LogLevel } from '@app/contracts/config/logger-lib.config';
-import { type Logger as PinoLoggerBase } from 'pino';
+import { LoggerInstance } from '@app/logger/abstractions/logger.abstraction';
+import { type Logger as PinoLogger } from 'pino';
+import { LogLevel } from '@app/logger/abstractions/log-entry.interface';
 
 @Injectable()
-export class PinoLogger extends LoggerInstance {
-  constructor(private readonly pinoInstance: PinoLoggerBase) {
+export class PinoLoggerInstance extends LoggerInstance {
+  constructor(private readonly pinoInstance: PinoLogger) {
     super();
   }
 
-  child(metadata: Record<string, unknown>): PinoLogger {
+  child(metadata: Record<string, unknown>): PinoLoggerInstance {
     const childPino = this.pinoInstance.child(metadata);
-    return new PinoLogger(childPino);
+    return new PinoLoggerInstance(childPino);
   }
 
   logWithLevel(

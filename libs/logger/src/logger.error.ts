@@ -1,25 +1,9 @@
-import { LogEntry } from './pipeline.interface';
-
-export interface ErrorRecoveryStrategy {
-  onLoggerError(error: Error, logEntry: LogEntry): Promise<void>;
-  canRecover(error: Error): boolean;
-}
-
-export abstract class ErrorRecoveryStrategyBase implements ErrorRecoveryStrategy {
-  abstract onLoggerError(error: Error, logEntry: LogEntry): Promise<void>;
-  abstract canRecover(error: Error): boolean;
-}
-
-export interface FallbackLogger {
-  log(message: string, level: string, metadata?: Record<string, unknown>): void;
-}
-
-export class LoggerError extends Error {
+﻿export class LoggerError extends Error {
   constructor(
     message: string,
     public readonly code: string,
     public readonly context?: Record<string, unknown>,
-    public readonly _cause?: Error,
+    public readonly innerError?: Error,
   ) {
     super(message);
     this.name = 'LoggerError';

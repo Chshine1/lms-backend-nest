@@ -1,10 +1,11 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { LogEntry } from '../interfaces/pipeline.interface';
-import type { LoggerConfig } from '../interfaces/logger-config.interface';
+import type { LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { LoggerFallbackService } from './logger-fallback.service';
 import {
-  LoggerError,
-  LoggerErrorCode,
-} from '../interfaces/error-recovery.interface';
+  LogEntry,
+  LogLevel,
+} from '@app/logger/abstractions/log-entry.interface';
+import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
 
 @Injectable()
 export class BufferManagerService {
@@ -12,17 +13,30 @@ export class BufferManagerService {
   private readonly maxBufferSize: number;
   private readonly enabled: boolean;
 
-  constructor(@Inject('LOGGER_CONFIG') config: LoggerConfig) {
+  constructor(
+    @Inject('LOGGER_CONFIG') config: LoggerConfig,
+    private readonly loggerFallbackService: LoggerFallbackService,
+  ) {
     this.enabled = config.buffer?.enabled ?? true;
     this.maxBufferSize = config.buffer?.maxSize ?? 1000;
   }
 
   add(logEntry: LogEntry): void {
     if (!this.enabled) {
+      this.loggerFallbackService
+        .logWithFallback({
+          level: LogLevel.warn,
+          message: 'Logger buffer was disabled in the config but still called.',
+          timestamp: new Date(),
+          metadata: {},
+        })
+        .catch((error: unknown) => {
+          throw error;
+        });
       return;
     }
 
-    if (this.isFull()) {
+    if (this.buffer.length >= this.maxBufferSize) {
       throw new LoggerError(
         'Log buffer is full',
         LoggerErrorCode.BUFFER_OVERFLOW,
@@ -33,25 +47,16 @@ export class BufferManagerService {
     this.buffer.push(logEntry);
   }
 
-  flush(): Promise<void> {
+  async flush(): Promise<void> {
     if (!this.enabled || this.buffer.length === 0) {
-      return Promise.resolve();
+      return;
     }
 
-    try {
-      this.buffer = [];
-      return Promise.resolve();
-    } catch (error) {
-      throw new LoggerError(
-        'Failed to flush log buffer',
-        LoggerErrorCode.BUFFER_FLUSH_FAILED,
-        { bufferSize: this.buffer.length },
-        error instanceof Error ? error : new Error(String(error)),
-      );
-    }
-  }
+    const logsToFlush = [...this.buffer];
+    this.buffer = [];
 
-  isFull(): boolean {
-    return this.buffer.length >= this.maxBufferSize;
+    for (const entry of logsToFlush) {
+      await this.loggerFallbackService.logWithFallback(entry);
+    }
   }
 }

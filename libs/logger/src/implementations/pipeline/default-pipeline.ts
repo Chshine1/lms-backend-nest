@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PipelineBase } from '../../interfaces/pipeline.interface';
 import {
-  LogEntry,
-  LogProcessor,
   LogFilter,
-} from '../../interfaces/pipeline.interface';
-import {
-  LoggerError,
-  LoggerErrorCode,
-} from '../../interfaces/error-recovery.interface';
+  LogProcessor,
+  PipelineBase,
+} from '@app/logger/abstractions/pipeline.abstraction';
+import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
+import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
 
 @Injectable()
 export class DefaultPipeline extends PipelineBase {

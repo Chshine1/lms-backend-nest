@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  LogEntry,
-  LogProcessor,
-} from '@app/logger/interfaces/pipeline.interface';
+import { LogProcessor } from '@app/logger/abstractions/pipeline.abstraction';
+import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
 
 @Injectable()
 export class TimestampProcessor implements LogProcessor {

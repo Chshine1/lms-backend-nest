@@ -1,8 +1,7 @@
 import { Module, DynamicModule, Provider, forwardRef } from '@nestjs/common';
-import { LoggerConfig } from './interfaces/logger-config.interface';
-import { LoggerFactory } from './interfaces/logger-factory.interface';
-import { PipelineBase } from './interfaces/pipeline.interface';
-import { ErrorRecoveryStrategyBase } from './interfaces/error-recovery.interface';
+import { LoggerConfig } from '@app/logger/abstractions/logger-config.interface';
+import { PipelineBase } from '@app/logger/abstractions/pipeline.abstraction';
+import { ErrorRecoveryStrategyBase } from '@app/logger/abstractions/error-recovery.abstraction';
 import { PinoFactory } from './implementations/pino/pino-factory';
 import { DefaultPipeline } from './implementations/pipeline/default-pipeline';
 import { DefaultErrorRecovery } from './implementations/error-recovery/default-error-recovery';
@@ -12,6 +11,10 @@ import { LoggerService } from '@app/logger/logger.service';
 import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
 import { ConfigLibModule } from '@app/config-lib/config-lib.module';
 import { globalConfigLoaderPipeline } from '@app/contracts/config-loader-pipeline.global';
+import {
+  LoggerFactory,
+  LoggerInstance,
+} from '@app/logger/abstractions/logger.abstraction';
 
 export interface LoggerModuleOptions {
   config: LoggerConfig;
@@ -24,9 +27,12 @@ export interface LoggerModuleOptions {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class LoggerModule {
   static forRoot(options: LoggerModuleOptions): DynamicModule {
-    const factoryProvider: Provider = {
-      provide: LoggerFactory,
-      useFactory: () => options.loggerFactory || new PinoFactory(),
+    const innerLoggerProvider: Provider = {
+      provide: LoggerInstance,
+      useFactory: () => {
+        const factory = options.loggerFactory || new PinoFactory();
+        return factory.createLogger(options.config);
+      },
     };
 
     const pipelineProvider: Provider = {
@@ -41,7 +47,7 @@ export class LoggerModule {
     };
 
     const providers: Provider[] = [
-      factoryProvider,
+      innerLoggerProvider,
       pipelineProvider,
       errorRecoveryProvider,
 

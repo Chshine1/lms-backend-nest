@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ErrorRecoveryStrategyBase } from '../../interfaces/error-recovery.interface';
-import { FallbackLogger } from '../../interfaces/error-recovery.interface';
-import { LogEntry } from '@app/logger/interfaces/pipeline.interface';
+import { ErrorRecoveryStrategyBase } from '@app/logger/abstractions/error-recovery.abstraction';
+import { FallbackLogger } from '@app/logger/abstractions/error-recovery.abstraction';
+import { LogEntry } from '@app/logger/abstractions/log-entry.interface';
 
 @Injectable()
 export class DefaultErrorRecovery extends ErrorRecoveryStrategyBase {

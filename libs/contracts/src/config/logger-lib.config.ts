@@ -1,13 +1,5 @@
 ﻿import { IsBoolean, IsDefined, IsEnum, IsOptional } from 'class-validator';
-
-export enum LogLevel {
-  fatal = 'fatal',
-  error = 'error',
-  warn = 'warn',
-  info = 'info',
-  debug = 'debug',
-  trace = 'trace',
-}
+import { LogLevel } from '@app/logger/abstractions/log-entry.interface';
 
 export class LoggerLibConfig {
   @IsDefined()
