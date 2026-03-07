@@ -2,7 +2,6 @@ import { GetParametersByPathCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
-import { AwsSchema } from '@app/config-lib/schemas/aws.schema';
 import {
   ClassConstructor,
   instanceToPlain,
@@ -13,9 +12,9 @@ import { formatValidationErrors } from '@app/config-lib/utils/format-validation-
 
 export class AwsLoader implements ConfigurationLoader {
   async load(
-    loadedConfig: unknown,
-    dependencies: ClassConstructor<unknown>[],
-    returnSchema: ClassConstructor<unknown>,
+    loadedConfig: object,
+    dependencies: [ClassConstructor<EnvSchema>, ClassConstructor<YamlSchema>],
+    returnSchema: ClassConstructor<object>,
   ): Promise<Record<string, unknown>> {
     const env = plainToInstance(dependencies[0], loadedConfig, {
       excludeExtraneousValues: true,

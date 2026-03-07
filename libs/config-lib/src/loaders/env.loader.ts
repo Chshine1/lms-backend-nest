@@ -1,6 +1,5 @@
 import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
 import { camelCase } from 'change-case';
-import { EnvSchema } from '@app/config-lib/schemas/env.schema';
 import { validate } from 'class-validator';
 import {
   ClassConstructor,
@@ -11,9 +10,9 @@ import { formatValidationErrors } from '@app/config-lib/utils/format-validation-
 
 export class EnvLoader implements ConfigurationLoader {
   async load(
-    _: unknown,
-    __: ClassConstructor<unknown>[],
-    target: ClassConstructor<unknown>,
+    _: object,
+    __: ClassConstructor<object>[],
+    target: ClassConstructor<object>,
   ): Promise<Record<string, unknown>> {
     const loadedPart: Record<string, unknown> = {};
 

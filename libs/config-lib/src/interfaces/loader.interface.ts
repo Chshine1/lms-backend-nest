@@ -2,8 +2,8 @@
 
 export interface ConfigurationLoader {
   load(
-    loadedConfig: unknown,
-    dependencies: ClassConstructor<unknown>[],
-    target: ClassConstructor<unknown>,
+    loadedConfig: object,
+    dependencies: ClassConstructor<object>[],
+    target: ClassConstructor<object>,
   ): Promise<Record<string, unknown>>;
 }

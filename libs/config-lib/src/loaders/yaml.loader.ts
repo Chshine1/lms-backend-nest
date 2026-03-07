@@ -4,7 +4,6 @@ import { merge } from 'lodash';
 import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
 import { ConfigError, ConfigErrorCode } from '@app/config-lib/utils/errors';
 import { EnvSchema } from '@app/config-lib/schemas/env.schema';
-import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
 import {
   ClassConstructor,
   instanceToPlain,
@@ -15,9 +14,9 @@ import { formatValidationErrors } from '@app/config-lib/utils/format-validation-
 
 export class YamlLoader implements ConfigurationLoader {
   async load(
-    loadedConfig: unknown,
-    dependencies: ClassConstructor<unknown>[],
-    target: ClassConstructor<unknown>,
+    loadedConfig: object,
+    dependencies: [ClassConstructor<EnvSchema>],
+    target: ClassConstructor<object>,
   ): Promise<Record<string, unknown>> {
     const env = plainToInstance(dependencies[0], loadedConfig, {
       excludeExtraneousValues: true,
