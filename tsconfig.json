@@ -14,12 +14,6 @@
       "@/*": [
         "apps/*"
       ],
-      "@app/bootstrap": [
-        "libs/bootstrap/src"
-      ],
-      "@app/bootstrap/*": [
-        "libs/bootstrap/src/*"
-      ],
       "@app/common": [
         "libs/common/src"
       ],
@@ -39,6 +33,12 @@
       "@app/contracts/*": [
         "libs/contracts/*",
         "libs/contracts/src/*"
+      ],
+      "@app/infrastructure": [
+        "libs/infrastructure/src"
+      ],
+      "@app/infrastructure/*": [
+        "libs/infrastructure/src/*"
       ],
       "@app/logger": [
         "libs/logger/src"

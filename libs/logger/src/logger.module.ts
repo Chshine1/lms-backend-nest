@@ -1,12 +1,4 @@
-import {
-  Module,
-  DynamicModule,
-  Provider,
-  OptionalFactoryDependency,
-  InjectionToken,
-  Type,
-  ForwardReference,
-} from '@nestjs/common';
+import { Module, DynamicModule, Provider, forwardRef } from '@nestjs/common';
 import { LoggerConfig } from './interfaces/logger-config.interface';
 import { LoggerFactoryBase } from './interfaces/logger-factory.interface';
 import { PipelineBase } from './interfaces/pipeline.interface';
@@ -18,6 +10,9 @@ import { LoggerCoreService } from './services/logger-core.service';
 import { BufferManagerService } from './services/buffer-manager.service';
 import { PipelineManagerService } from './services/pipeline-manager.service';
 import { LoggerService } from '@app/logger/logger.service';
+import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
+import { ConfigLibModule } from '@app/config-lib/config-lib.module';
+import { globalConfigLoaderPipeline } from '@app/contracts/config-loader-pipeline.global';
 
 export interface LoggerModuleOptions {
   config: LoggerConfig;
@@ -60,73 +55,14 @@ export class LoggerModule {
 
     return {
       module: LoggerModule,
-      providers,
-      exports: [LoggerService, LoggerCoreService],
-    };
-  }
-
-  static forRootAsync(options: {
-    imports?: (
-      | DynamicModule
-      | Type
-      | ForwardReference
-      | Promise<DynamicModule>
-    )[];
-    useFactory: (
-      ...args: (InjectionToken | OptionalFactoryDependency)[]
-    ) => Promise<LoggerModuleOptions> | LoggerModuleOptions;
-    inject?: (InjectionToken | OptionalFactoryDependency)[];
-  }): DynamicModule {
-    const configProvider: Provider = {
-      provide: 'LOGGER_CONFIG',
-      useFactory: (optionsResult: LoggerModuleOptions) => optionsResult.config,
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    };
-
-    const factoryProvider: Provider = {
-      provide: LoggerFactoryBase,
-      useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.loggerFactory || new PinoFactory(),
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    };
-
-    const pipelineProvider: Provider = {
-      provide: PipelineBase,
-      useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.pipeline || new DefaultPipeline(),
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    };
-
-    const errorRecoveryProvider: Provider = {
-      provide: ErrorRecoveryStrategyBase,
-      useFactory: (optionsResult: LoggerModuleOptions) =>
-        optionsResult.errorRecoveryStrategy || new DefaultErrorRecovery(),
-      inject: ['LOGGER_MODULE_OPTIONS'],
-    };
-
-    const optionsProvider: Provider = {
-      provide: 'LOGGER_MODULE_OPTIONS',
-      useFactory: options.useFactory,
-      inject: options.inject || [],
-    };
-
-    const providers: Provider[] = [
-      optionsProvider,
-      configProvider,
-      factoryProvider,
-      pipelineProvider,
-      errorRecoveryProvider,
-
-      LoggerCoreService,
-      BufferManagerService,
-      PipelineManagerService,
-
-      LoggerService,
-    ];
-
-    return {
-      module: LoggerModule,
-      imports: options.imports || [],
+      imports: [
+        InfrastructureModule,
+        forwardRef(() =>
+          ConfigLibModule.forRoot({
+            loadersPipeline: globalConfigLoaderPipeline,
+          }),
+        ),
+      ],
       providers,
       exports: [LoggerService, LoggerCoreService],
     };

@@ -1,14 +1,19 @@
-import { DynamicModule, Module, Provider, OnModuleInit } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { DynamicModule, Module, Provider, forwardRef } from '@nestjs/common';
 import {
   ConfigurationService,
   LOADER_REGISTRY_TOKEN,
 } from './configuration.service';
 import { LoaderDefinition } from '@app/config-lib/interfaces/loader.config';
 import { ConfigurationContainer } from '@app/config-lib/configuration-container';
-import { LoggerModule } from '@app/logger/logger.module';
 import { LoggerService } from '@app/logger/logger.service';
+import { LoggerModule } from '@app/logger/logger.module';
 import { LogLevel } from '@app/contracts/config/logger-lib.config';
+import {
+  BootstrapEventBusSymbol,
+  BootstrapEvents,
+  InfrastructureModule,
+} from '@app/infrastructure/infrastructure.module';
+import type { Emitter } from 'mitt';
 
 export interface ConfigLibModuleOptions<
   TPipeline extends LoaderDefinition<object, unknown[]>[],
@@ -17,15 +22,8 @@ export interface ConfigLibModuleOptions<
 }
 
 @Module({})
-export class ConfigLibModule implements OnModuleInit {
-  private loggerService!: LoggerService;
-
-  constructor(private readonly moduleRef: ModuleRef) {}
-
-  onModuleInit(): void {
-    this.loggerService = this.moduleRef.get(LoggerService, { strict: false });
-  }
-
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class ConfigLibModule {
   static forRoot<TPipeline extends LoaderDefinition<object, unknown[]>[]>(
     options: ConfigLibModuleOptions<TPipeline>,
   ): DynamicModule {
@@ -40,31 +38,33 @@ export class ConfigLibModule implements OnModuleInit {
       provide: ConfigurationContainer,
       useFactory: async (
         configService: ConfigurationService<TPipeline>,
-        configLibModule: ConfigLibModule,
+        loggerService: LoggerService,
+        eventBus: Emitter<BootstrapEvents>,
       ) => {
-        const loggerService = configLibModule.loggerService;
         loggerService.info('Start loading configurations...');
         const config = await configService.load();
         loggerService.info('Configurations loaded');
+        eventBus.emit('config.loaded', config);
 
-        loggerService.updateConfig();
         return new ConfigurationContainer(config);
       },
-      inject: [ConfigurationService, ConfigLibModule],
+      inject: [ConfigurationService, LoggerService, BootstrapEventBusSymbol],
     };
 
     return {
       module: ConfigLibModule,
       imports: [
-        LoggerModule.forRoot({
-          config: { bootstrap: true, level: LogLevel.info },
-        }),
+        InfrastructureModule,
+        forwardRef(() =>
+          LoggerModule.forRoot({
+            config: { bootstrap: true, level: LogLevel.info },
+          }),
+        ),
       ],
       providers: [
         loadersProvider,
         configServiceProvider,
         configContainerProvider,
-        ConfigLibModule,
       ],
       exports: [ConfigurationContainer],
     };

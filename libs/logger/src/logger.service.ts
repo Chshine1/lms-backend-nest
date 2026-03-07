@@ -1,4 +1,4 @@
-import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, OnModuleDestroy } from '@nestjs/common';
 import {
   LoggerLibConfig,
   LogLevel,
@@ -13,33 +13,58 @@ import {
   LoggerError,
   LoggerErrorCode,
 } from '@app/logger/interfaces/error-recovery.interface';
-import { ModuleRef } from '@nestjs/core';
-import { ConfigurationContainer } from '@app/config-lib/configuration-container';
-import { IsDefined, IsObject, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsDefined,
+  IsObject,
+  ValidateNested,
+  validateSync,
+} from 'class-validator';
+import { plainToInstance, Type } from 'class-transformer';
+import {
+  BootstrapEventBusSymbol,
+  BootstrapEvents,
+} from '@app/infrastructure/infrastructure.module';
+import { type Emitter } from 'mitt';
 
 @Injectable()
-export class LoggerService extends LoggerBase implements OnModuleInit {
+export class LoggerService extends LoggerBase implements OnModuleDestroy {
   private readonly isBootstrapping: boolean;
-  private configurationContainer!: ConfigurationContainer;
 
   constructor(
     @Inject('LOGGER_CONFIG') config: LoggerConfig,
-    @Inject(LoggerCoreService) private readonly coreService: LoggerCoreService,
-    @Inject(BufferManagerService)
+    private readonly coreService: LoggerCoreService,
     private readonly bufferService: BufferManagerService,
-    @Inject(PipelineManagerService)
     private readonly pipelineService: PipelineManagerService,
-    private readonly moduleRef: ModuleRef,
+    @Inject(BootstrapEventBusSymbol)
+    private readonly eventBus: Emitter<BootstrapEvents>,
   ) {
     super();
     this.isBootstrapping = config.bootstrap;
+
+    eventBus.on('config.loaded', (config: Record<string, unknown>) => {
+      class LoggerConfigurationSection {
+        @IsDefined()
+        @IsObject()
+        @ValidateNested()
+        @Type(() => LoggerLibConfig)
+        logger!: LoggerLibConfig;
+      }
+      const newConfig = plainToInstance(LoggerConfigurationSection, config, {
+        excludeExtraneousValues: true,
+      });
+      const errors = validateSync(newConfig);
+      if (errors.length > 0) {
+        throw new LoggerError(
+          'Config update not implemented yet',
+          LoggerErrorCode.CONFIG_UPDATE_FAILED,
+          { config },
+        );
+      }
+    });
   }
 
-  onModuleInit(): void {
-    this.configurationContainer = this.moduleRef.get(ConfigurationContainer, {
-      strict: false,
-    });
+  onModuleDestroy(): void {
+    this.eventBus.off('config.loaded');
   }
 
   fatal(message: string, metadata?: Record<string, unknown>): void {
@@ -101,26 +126,6 @@ export class LoggerService extends LoggerBase implements OnModuleInit {
         error instanceof Error ? error : new Error(String(error)),
       );
     }
-  }
-
-  updateConfig(): void {
-    class LoggerConfigurationSection {
-      @IsDefined()
-      @IsObject()
-      @ValidateNested()
-      @Type(() => LoggerLibConfig)
-      logger!: LoggerLibConfig;
-    }
-    const newConfig =
-      this.configurationContainer.get<LoggerConfigurationSection>(
-        LoggerConfigurationSection,
-      );
-
-    throw new LoggerError(
-      'Config update not implemented yet',
-      LoggerErrorCode.CONFIG_UPDATE_FAILED,
-      { newConfig },
-    );
   }
 
   private logWithLevel(

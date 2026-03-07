@@ -37,6 +37,7 @@
     "class-validator": "^0.14.3",
     "js-yaml": "^4.1.1",
     "lodash": "^4.17.23",
+    "mitt": "^3.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pino": "^10.3.1",
@@ -96,10 +97,10 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/bootstrap(|/.*)$": "<rootDir>/libs/bootstrap/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/config-lib(|/.*)$": "<rootDir>/libs/config-lib/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }
