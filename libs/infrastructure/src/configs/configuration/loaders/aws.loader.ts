@@ -1,33 +1,14 @@
+﻿import { LoaderMiddlewareBase } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
+import { EnvSchema } from '@app/infrastructure/configs/configuration/schemas/env.schema';
+import { YamlSchema } from '@app/infrastructure/configs/configuration/schemas/yaml.schema';
 import { GetParametersByPathCommand, SSMClient } from '@aws-sdk/client-ssm';
-import { ConfigurationLoader } from '@app/config-lib/interfaces/loader.interface';
-import { EnvSchema } from '@app/config-lib/schemas/env.schema';
-import { YamlSchema } from '@app/config-lib/schemas/yaml.schema';
-import {
-  ClassConstructor,
-  instanceToPlain,
-  plainToInstance,
-} from 'class-transformer';
-import { validate } from 'class-validator';
-import { formatValidationErrors } from '@app/config-lib/utils/format-validation-errors.utils';
 
-export class AwsLoader implements ConfigurationLoader {
-  async load(
-    loadedConfig: object,
-    dependencies: [ClassConstructor<EnvSchema>, ClassConstructor<YamlSchema>],
-    returnSchema: ClassConstructor<object>,
+export class AwsLoader extends LoaderMiddlewareBase<[EnvSchema, YamlSchema]> {
+  protected async load(
+    dependencies: [EnvSchema, YamlSchema],
   ): Promise<Record<string, unknown>> {
-    const env = plainToInstance(dependencies[0], loadedConfig, {
-      excludeExtraneousValues: true,
-    });
-    const yaml = plainToInstance(dependencies[1], loadedConfig, {
-      excludeExtraneousValues: true,
-    });
-    const depsValidationErrors = (
-      await Promise.all([validate(env), validate(yaml)])
-    ).flat(1);
-    if (depsValidationErrors.length > 0) {
-      throw new Error(formatValidationErrors(depsValidationErrors));
-    }
+    const env = dependencies[0];
+    const yaml = dependencies[1];
 
     const client = new SSMClient({ region: yaml.aws.region });
     const paths: string[] = [
@@ -79,15 +60,6 @@ export class AwsLoader implements ConfigurationLoader {
       }
     }
 
-    const result = plainToInstance(returnSchema, loadedPart, {
-      excludeExtraneousValues: true,
-    });
-
-    const targetValidationErrors = await validate(result);
-    if (targetValidationErrors.length > 0) {
-      throw new Error(formatValidationErrors(targetValidationErrors));
-    }
-
-    return instanceToPlain(result);
+    return loadedPart;
   }
 }

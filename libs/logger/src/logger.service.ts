@@ -14,8 +14,10 @@ import {
 } from '@app/logger/core/contracts/log-entry.interface';
 import { LoggerInstance } from '@app/logger/core/contracts/logger.abstraction';
 import { BootstrapLogger } from '@app/logger/core/bootstrap/bootstrap-logger';
-import { PinoFactory } from '@app/logger/config/implementations/pino-factory';
 import { LoggerConfig } from '@app/logger/core/contracts/logger-config.interface';
+import { RuntimeLogger } from '@app/logger/core/runtime/runtime-logger';
+import { LoggerPipeline } from '@app/logger/core/contracts/logger-pipeline.abstraction';
+import { FallbackLoggerService } from '@app/logger/core/runtime/fallback-logger.service';
 
 @Injectable()
 export class LoggerService implements OnModuleDestroy {
@@ -26,6 +28,8 @@ export class LoggerService implements OnModuleDestroy {
     private readonly bufferService: BufferService,
     @Inject(BootstrapEventBusSymbol)
     private readonly eventBus: Emitter<BootstrapEvents>,
+    private readonly pipeline: LoggerPipeline,
+    private readonly fallbackService: FallbackLoggerService,
   ) {
     this.innerLogger = new BootstrapLogger(bufferService);
     this.eventBus.on('config.loaded', (config) => {
@@ -43,7 +47,12 @@ export class LoggerService implements OnModuleDestroy {
     }
 
     const loggerConfig = await this.getLoggerConfig(config);
-    this.innerLogger = new PinoFactory().createLogger(loggerConfig);
+    this.innerLogger = new RuntimeLogger(
+      loggerConfig,
+      this.bufferService,
+      this.pipeline,
+      this.fallbackService,
+    );
 
     try {
       const entries = this.bufferService.flush();

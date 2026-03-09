@@ -4,9 +4,11 @@ import { BufferService } from '@app/logger/core/services/buffer.service';
 import { LoggerPipeline } from '@app/logger/core/contracts/logger-pipeline.abstraction';
 import { FallbackLoggerService } from '@app/logger/core/runtime/fallback-logger.service';
 import { LoggerError, LoggerErrorCode } from '@app/logger/logger.error';
+import { LoggerConfig } from '@app/logger/core/contracts/logger-config.interface';
 
 export class RuntimeLogger extends LoggerInstance {
   constructor(
+    _config: LoggerConfig,
     private readonly bufferService: BufferService,
     private readonly pipeline: LoggerPipeline,
     private readonly fallbackService: FallbackLoggerService,

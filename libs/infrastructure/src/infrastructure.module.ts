@@ -1,9 +1,4 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
-import mitt from 'mitt';
-
-export type BootstrapEvents = {
-  'config.loaded': Record<string, unknown>;
-};
+import { DynamicModule, Module } from '@nestjs/common';
 
 export const BootstrapEventBusSymbol = Symbol('EVENT_BUS');
 
@@ -11,13 +6,9 @@ export const BootstrapEventBusSymbol = Symbol('EVENT_BUS');
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class InfrastructureModule {
   static forRoot(): DynamicModule {
-    const eventBusProvider: Provider = {
-      provide: BootstrapEventBusSymbol,
-      useValue: mitt<BootstrapEvents>(),
-    };
     return {
       module: InfrastructureModule,
-      providers: [eventBusProvider],
+      providers: [],
     };
   }
 }
