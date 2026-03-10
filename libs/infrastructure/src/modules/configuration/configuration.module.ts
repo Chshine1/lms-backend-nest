@@ -12,6 +12,12 @@ import { ConfigurationService } from '@app/infrastructure/modules/configuration/
       provide: configurationLoadersMiddlewaresToken,
       useValue: loaderPipelineMiddleware,
     },
+    {
+      provide: ConfigurationService,
+      useFactory: (loader: ConfigurationLoader): ConfigurationService => {
+        return loader.service;
+      },
+    },
   ],
   exports: [ConfigurationLoader, ConfigurationService],
 })

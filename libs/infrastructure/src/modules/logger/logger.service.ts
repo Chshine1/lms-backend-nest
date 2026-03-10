@@ -3,6 +3,8 @@ import { LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.inte
 import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
 
 export class LoggerService {
+  private flushing = false;
+
   constructor(
     private readonly sink: Sink,
     private readonly buffer: LogBuffer,
@@ -15,7 +17,13 @@ export class LoggerService {
     }
   }
 
-  flush(): Promise<void> {
-    return this.buffer.flush(this.sink);
+  async flush(): Promise<void> {
+    if (this.flushing) return;
+    this.flushing = true;
+    try {
+      await this.buffer.flush(this.sink);
+    } finally {
+      this.flushing = false;
+    }
   }
 }

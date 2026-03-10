@@ -2,7 +2,7 @@
 import mitt, { Emitter } from 'mitt';
 
 export type BootstrapEvents = {
-  'config.loaded': Record<string, unknown>;
+  'config.loaded': unknown;
 };
 
 @Injectable()
@@ -16,10 +16,11 @@ export class EventBusService {
     this.eventBus.emit(event, payload);
   }
 
-  on<K extends keyof BootstrapEvents>(
+  async on<K extends keyof BootstrapEvents>(
     event: K,
-    callback: (payload: BootstrapEvents[K]) => void,
-  ): void {
-    this.eventBus.on(event, callback);
+  ): Promise<BootstrapEvents[K]> {
+    return new Promise((resolve) => {
+      this.eventBus.on(event, resolve);
+    });
   }
 }
