@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { HealthService } from './health.service';
+import { LoggerHealthIndicator } from '@app/health/indicators/logger.health';
 
 @Module({
-  providers: [HealthService],
-  exports: [HealthService],
+  providers: [LoggerHealthIndicator],
+  exports: [LoggerHealthIndicator],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class HealthModule {}
