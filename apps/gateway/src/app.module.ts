@@ -7,17 +7,17 @@ import { JwtStrategy } from './auth/jwt.strategy';
 import { UserClientModule } from './user-client/user-client.module';
 import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { TenantTypedClient } from '@app/typed-client/tenant.typed-client';
-import { ConfigurationContainer } from '@app/config-lib/configuration-container';
 import { JwtConfig } from '@app/contracts/config/jwt.config';
+import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.registerAsync({
       imports: [],
-      inject: [ConfigurationContainer],
-      useFactory: (configContainer: ConfigurationContainer) => {
-        const jwtSection = configContainer.get<JwtConfig>(JwtConfig);
+      inject: [ConfigurationService],
+      useFactory: (configService: ConfigurationService) => {
+        const jwtSection = configService.get<JwtConfig>(JwtConfig);
         return {
           secret: jwtSection.secret,
           signOptions: {

@@ -1,5 +1,5 @@
 import { IsBoolean, IsDefined, IsEnum, IsOptional } from 'class-validator';
-import { LogLevel } from '@app/logger/core/contracts/log-entry.interface';
+import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
 
 export class LoggerLibConfig {
   @IsDefined()

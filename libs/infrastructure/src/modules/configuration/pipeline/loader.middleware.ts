@@ -4,6 +4,10 @@
   plainToInstance,
 } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import {
+  ConfigLoadPipelineMiddlewareError,
+  ConfigLoadPipelineValidationError,
+} from '@app/infrastructure/infrastructure.errors';
 
 type ConstructorArray<TTypeArray extends object[]> = TTypeArray extends [
   infer TFirst,
@@ -42,19 +46,40 @@ export abstract class LoaderMiddlewareBase<
       });
       const validationErrors = validateSync(dependency);
       if (validationErrors.length > 0) {
-        /* TODO */
+        throw new ConfigLoadPipelineValidationError(
+          this.constructor as ClassConstructor<object>,
+          {
+            type: 'dependencies',
+            dependency: cls,
+          },
+          validationErrors,
+        );
       }
       return dependency;
     }) as TDependencies;
 
-    const newSection = await this.load(dependencies);
+    let newSection: Record<string, unknown>;
+    try {
+      newSection = await this.load(dependencies);
+    } catch (error: unknown) {
+      throw new ConfigLoadPipelineMiddlewareError(
+        this.constructor as ClassConstructor<object>,
+        error,
+      );
+    }
 
     const typedSection = plainToInstance(this.target, newSection, {
       excludeExtraneousValues: true,
     });
     const validationErrors = validateSync(typedSection);
     if (validationErrors.length > 0) {
-      /* TODO */
+      throw new ConfigLoadPipelineValidationError(
+        this.constructor as ClassConstructor<object>,
+        {
+          type: 'target',
+        },
+        validationErrors,
+      );
     }
 
     return {
