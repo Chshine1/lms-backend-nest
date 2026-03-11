@@ -30,7 +30,11 @@
     "@nestjs/microservices": "^11.1.14",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/terminus": "^11.1.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.71.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
+    "@opentelemetry/sdk-node": "^0.213.0",
     "bcrypt": "^6.0.0",
     "change-case": "^5.4.4",
     "class-transformer": "^0.5.1",
@@ -97,8 +101,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/health(|/.*)$": "<rootDir>/libs/health/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }

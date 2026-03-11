@@ -1,75 +1,116 @@
-## Description
+## 微服务划分概览
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| 服务名称        | 核心职责                                               | 内部模块（示例）                       |
+|-------------|----------------------------------------------------|--------------------------------|
+| **用户服务**    | 管理所有用户（学生、家长、教师、学导、教务等）基本信息、角色权限、联系方式、多租户账户。       | 用户模块、角色权限模块、租户模块、家长关联模块        |
+| **课程服务**    | 管理课程基本信息（名称、科目、级别、容量、候补规则）、课程模板、课程与班级关系。           | 课程基础模块、课程模板模块、科目模块             |
+| **排课服务**    | 负责排课资源（教师、教室、时间）、课程实例创建、学生enroll、调课/取消、候补逻辑、点名签到。  | 排课模块、资源管理模块、调课审批模块、点名模块、候补队列模块 |
+| **课时服务**    | 管理学生课时包、课时余额、消耗记录、监控预警（低课时、停课、频率告警）、批改卡、延续访问权限。    | 课时包模块、消耗记录模块、预警模块、批改卡模块、续期模块   |
+| **学习任务服务**  | 发布基于课程资料的学习任务（精听、精读等）、任务进度跟踪、生词本/错题本、教师课前准备看板。     | 任务模板模块、任务分配模块、进度跟踪模块、错题本模块     |
+| **评估服务**    | 管理模考计划、模考成绩录入、AI评分与人工复核、真考成绩录入、学习报告（期中/期末）生成、诊断建议。 | 模考计划模块、成绩录入模块、报告生成模块、AI诊断模块    |
+| **沟通与反馈服务** | 课堂反馈（文字/多媒体）、学导沟通记录、家校沟通模板。                        | 课堂反馈模块、沟通记录模块、模板模块             |
+| **新生流程服务**  | 管理OC表、学导分派、开课仪式、面谈建档、排课需求生成，流程状态机。                 | OC表模块、分派模块、面谈模块、需求生成模块         |
+| **通知服务**    | 负责发送各类通知（邮件、短信、站内信、推送），记录通知历史，处理重试。                | 通知发送模块、渠道适配模块、历史记录模块           |
+| **文件服务**    | 管理课程材料、讲义、成绩截图等文件的上传、下载、存储、版本控制，对接对象存储。            | 文件上传模块、访问控制模块、版本管理模块           |
+| **数据分析服务**  | 进行月度多维度数据统计、周报生成、BI报表，通常基于离线计算或定时ETL。              | 数据采集模块、报表生成模块、指标计算模块           |
+| **租户服务**    | 管理多租户配置、租户隔离策略、租户管理员，作为基础服务供其他服务调用。                | 租户注册模块、配置模块、隔离策略模块             |
 
-## Project setup
+---
 
-```bash
-$ yarn install
-```
+## 微服务划分理由
 
-## Compile and run the project
+### 1. 用户服务
+- **业务内聚**：所有用户身份、权限、联系方式集中管理，避免重复建设。
+- **多租户基础**：租户信息与用户绑定，便于实现租户级数据隔离。
+- **独立性**：用户数据变更（如修改手机号）不影响其他业务服务。
 
-```bash
-# development
-$ yarn run start
+### 2. 课程服务
+- **核心静态数据**：课程基本信息相对稳定，独立出来便于其他服务引用。
+- **与排课解耦**：课程模板可被多个排课实例复用，避免与动态排课耦合。
 
-# watch mode
-$ yarn run start:dev
+### 3. 排课服务
+- **高并发与资源冲突**：涉及教师、教室、学生名额的实时竞争，需要独立处理并发控制（如分布式锁）。
+- **复杂业务规则**：调课审批、候补队列、点名触发课时消耗，事件驱动需求强。
+- **数据一致性边界**：课程实例的状态（未开始、进行中、已结束）独立维护。
 
-# production mode
-$ yarn run start:prod
-```
+### 4. 课时服务
+- **资产与计费**：课时包是学生的核心资产，需要严格的事务记录和审计。
+- **监控与预警**：低课时、停课等监控需实时或准实时，独立服务可定制策略。
+- **跨服务联动**：通过事件（点名完成、课程取消）消费消息来扣减课时，保持最终一致性。
 
-## Run tests
+### 5. 学习任务服务
+- **学生学习过程管理**：任务发布、进度跟踪、错题本等属于日常学习行为，与课程、排课有交互但可独立。
+- **个性化学习**：常规/VIP学习规划差异大，独立服务便于扩展智能推荐算法。
 
-```bash
-# unit tests
-$ yarn run test
+### 6. 评估服务
+- **AI与数据分析**：涉及模考评分、真考诊断、报告生成，可能需要调用外部AI服务或复杂计算。
+- **数据聚合**：需要从多个服务（课时、学习任务、排课）获取数据，独立服务可做聚合与清洗。
 
-# e2e tests
-$ yarn run test:e2e
+### 7. 沟通与反馈服务
+- **内容存储与合规**：课堂反馈包含多媒体，需独立存储和隐私控制；学导沟通记录需长期留存。
+- **与教学解耦**：反馈内容不直接影响排课或课时，可异步处理。
 
-# test coverage
-$ yarn run test:cov
-```
+### 8. 新生流程服务
+- **长业务流程**：从OC表到排课需求涉及多步骤、多角色，独立为状态机服务便于维护和扩展。
+- **与核心教学隔离**：流程未完成时不影响正常教学，解耦后降低核心服务复杂度。
 
-## Deployment
+### 9. 通知服务
+- **统一发送渠道**：所有通知统一出口，便于管理模板、重试策略、渠道切换。
+- **异步解耦**：其他服务只需发送事件，无需关心通知成功与否。
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### 10. 文件服务
+- **存储与带宽**：文件上传下载可能消耗大量资源，独立服务可优化存储策略（CDN、冷热分离）。
+- **安全与合规**：集中处理文件权限、DRM、防录屏等安全需求。
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 11. 数据分析服务
+- **离线与实时分离**：避免复杂统计查询影响在线业务数据库性能。
+- **多源数据整合**：可订阅各服务事件，构建数据仓库，支持BI报表。
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+### 12. 租户服务
+- **多租户基础设施**：提供租户配置、数据隔离策略，被其他服务依赖。
+- **扩展性**：新增租户无需修改其他服务代码。
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 内部模块组织（以NestJS为例）
 
-Check out a few resources that may come in handy when working with NestJS:
+每个微服务是一个独立的NestJS应用，内部按功能划分模块。例如：
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **排课服务**：
+    - `SchedulingModule`：排期创建、修改
+    - `ResourceModule`：教师、教室可用性管理
+    - `EnrollmentModule`：学生enroll、退课
+    - `WaitlistModule`：候补队列处理
+    - `AttendanceModule`：点名签到
+    - `ApprovalModule`：调课审批流程
 
-## Support
+- **课时服务**：
+    - `CreditPackageModule`：课时包定义、购买
+    - `ConsumptionModule`：课时消耗记录
+    - `AlertModule`：监控预警（剩余课时、停课）
+    - `GradingCardModule`：批改卡管理
+    - `ExtensionModule`：延续访问权限
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **评估服务**：
+    - `MockPlanModule`：模考计划
+    - `ScoreEntryModule`：成绩录入（含OCR）
+    - `ReportModule`：报告生成
+    - `AIDiagnosisModule`：AI诊断建议
 
-## Stay in touch
+各模块之间通过NestJS的模块导入/导出共享服务，但保持领域边界清晰。
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 服务间通信设计
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **同步API**（REST/gRPC）：用于实时性要求高的查询，如排课服务查询用户信息。
+- **异步事件**（RabbitMQ/Kafka）：用于跨服务状态变更，如点名完成 -> 课时服务扣减课时；课程取消 -> 排课服务触发候补。
+- **数据最终一致性**：通过事件保证，必要时使用Saga模式处理分布式事务（如购买课时包后需同步更新用户权限）。
+
+---
+
+## 多租户支持
+
+- 每个服务的数据库表中都包含`tenant_id`字段，实现数据行级隔离。
+- 租户服务维护租户配置（如域名、功能开关），其他服务通过中间件或拦截器注入当前租户上下文。
+- 部分服务（如文件服务）可使用租户隔离的存储桶。

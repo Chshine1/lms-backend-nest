@@ -14,19 +14,17 @@
       "@/*": [
         "apps/*"
       ],
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ],
       "@app/contracts": [
-        "libs/contracts",
         "libs/contracts/src"
       ],
       "@app/contracts/*": [
-        "libs/contracts/*",
         "libs/contracts/src/*"
+      ],
+      "@app/health": [
+        "libs/health/src"
+      ],
+      "@app/health/*": [
+        "libs/health/src/*"
       ],
       "@app/infrastructure": [
         "libs/infrastructure/src"
