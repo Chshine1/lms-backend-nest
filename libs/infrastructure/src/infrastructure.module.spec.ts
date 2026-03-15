@@ -21,7 +21,7 @@ describe('InfrastructureModule', () => {
 
   it('should have forRoot method that returns DynamicModule', () => {
     const dynamicModule = InfrastructureModule.forRoot();
-    
+
     expect(dynamicModule).toBeDefined();
     expect(dynamicModule.module).toBe(InfrastructureModule);
     expect(dynamicModule.providers).toBeDefined();

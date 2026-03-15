@@ -1,7 +1,10 @@
-﻿import { LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.interface';
+﻿import { type LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.interface';
 import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+import { type Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 import { LogEnrichmentService } from '@app/infrastructure/modules/logger/services/log-enrichment.service';
+import { Injectable } from '@nestjs/common';
+import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
+import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
 
 export interface LogParams {
   level: LogLevel;
@@ -10,20 +13,25 @@ export interface LogParams {
   error?: Error;
 }
 
+@Injectable()
+export class LoggerServiceDependencies {
+  public sink: Sink = new ConsoleSink();
+  public buffer: LogBuffer = new MemoryBuffer();
+
+  constructor(public enrichmentService: LogEnrichmentService) {}
+}
+
+@Injectable()
 export class LoggerService {
   private flushing = false;
 
-  constructor(
-    private readonly enrichmentService: LogEnrichmentService,
-    private readonly sink: Sink,
-    private readonly buffer: LogBuffer,
-  ) {}
+  constructor(private readonly dependencies: LoggerServiceDependencies) {}
 
   async log(params: LogParams): Promise<void> {
-    const entry = await this.enrichmentService.enrich(params);
-    const accepted = this.buffer.write(entry);
+    const entry = await this.dependencies.enrichmentService.enrich(params);
+    const accepted = this.dependencies.buffer.write(entry);
     if (!accepted) {
-      await this.sink.emit(entry);
+      await this.dependencies.sink.emit(entry);
     }
   }
 
@@ -31,7 +39,7 @@ export class LoggerService {
     if (this.flushing) return;
     this.flushing = true;
     try {
-      await this.buffer.flush(this.sink);
+      await this.dependencies.buffer.flush(this.dependencies.sink);
     } finally {
       this.flushing = false;
     }

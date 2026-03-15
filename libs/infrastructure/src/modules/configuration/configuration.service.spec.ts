@@ -20,8 +20,10 @@ describe('ConfigurationService', () => {
 
   beforeEach(() => {
     service = new ConfigurationService({
-      name: 'test-app',
-      port: 3000,
+      configuration: {
+        name: 'test-app',
+        port: 3000,
+      },
     });
   });
 
@@ -36,8 +38,10 @@ describe('ConfigurationService', () => {
 
     it('should throw GetConfigValidationError when validation fails', () => {
       const invalidService = new ConfigurationService({
-        name: 'test-app',
-        // port is missing - required field
+        configuration: {
+          name: 'test-app',
+          // port is missing - required field
+        },
       });
 
       expect(() => invalidService.get(TestConfig)).toThrow(
@@ -47,9 +51,11 @@ describe('ConfigurationService', () => {
 
     it('should exclude extraneous values from configuration', () => {
       const serviceWithExtra = new ConfigurationService({
-        name: 'test-app',
-        port: 3000,
-        extraField: 'should-be-ignored',
+        configuration: {
+          name: 'test-app',
+          port: 3000,
+          extraField: 'should-be-ignored',
+        },
       });
 
       const config = serviceWithExtra.get(TestConfig);
@@ -66,7 +72,9 @@ describe('ConfigurationService', () => {
   describe('error handling', () => {
     it('should include validation errors in GetConfigValidationError', () => {
       const invalidService = new ConfigurationService({
-        // Both required fields are missing
+        configuration: {
+          // Both required fields are missing
+        },
       });
 
       try {

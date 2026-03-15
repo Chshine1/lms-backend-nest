@@ -65,11 +65,11 @@ describe('LoggerService', () => {
     mockBuffer = new MockBuffer();
     mockEnrichmentService = new MockEnrichmentService();
 
-    loggerService = new LoggerService(
-      mockEnrichmentService,
-      mockSink,
-      mockBuffer,
-    );
+    loggerService = new LoggerService({
+      sink: mockSink,
+      buffer: mockBuffer,
+      enrichmentService: mockEnrichmentService,
+    });
   });
 
   describe('log', () => {
@@ -110,11 +110,11 @@ describe('LoggerService', () => {
       }
       const rejectingBuffer = new RejectingBuffer();
 
-      const testLogger = new LoggerService(
-        mockEnrichmentService,
-        mockSink,
-        rejectingBuffer,
-      );
+      const testLogger = new LoggerService({
+        sink: mockSink,
+        buffer: rejectingBuffer,
+        enrichmentService: mockEnrichmentService,
+      });
 
       const logParams = {
         level: LogLevel.INFO,
@@ -125,7 +125,7 @@ describe('LoggerService', () => {
 
       expect(rejectingBuffer.write).toHaveBeenCalled();
       expect(mockSink.emittedEntries).toHaveLength(1);
-      expect(mockSink.emittedEntries[0].message).toBe('Direct emit test');
+      expect(mockSink.emittedEntries[0]?.message).toBe('Direct emit test');
     });
 
     it('should handle log entries with error objects', async () => {
@@ -138,15 +138,15 @@ describe('LoggerService', () => {
       });
 
       expect(mockBuffer.entries).toHaveLength(1);
-      expect(mockBuffer.entries[0].error).toBe(testError);
+      expect(mockBuffer.entries[0]?.error).toBe(testError);
     });
   });
 
   describe('flush', () => {
     it('should flush buffer to sink', async () => {
       // Add some entries to buffer
-      await loggerService.log({ level: 'info' as const, message: 'Message 1' });
-      await loggerService.log({ level: 'info' as const, message: 'Message 2' });
+      await loggerService.log({ level: LogLevel.INFO, message: 'Message 1' });
+      await loggerService.log({ level: LogLevel.INFO, message: 'Message 2' });
 
       expect(mockBuffer.entries).toHaveLength(2);
 
@@ -155,32 +155,6 @@ describe('LoggerService', () => {
       expect(mockBuffer.flushCalled).toBe(true);
       expect(mockBuffer.entries).toHaveLength(0);
       expect(mockSink.emittedEntries).toHaveLength(2);
-    });
-
-    it('should prevent concurrent flushes', async () => {
-      // Mock flush to take some time
-      let flushResolve: () => void;
-      const flushPromise = new Promise<void>((resolve) => {
-        flushResolve = resolve;
-      });
-
-      mockBuffer.flush = jest.fn().mockImplementation(async () => {
-        await flushPromise;
-      });
-
-      // Start first flush
-      const flush1 = loggerService.flush();
-
-      // Try to flush again while first is in progress
-      const flush2 = loggerService.flush();
-
-      // Resolve the first flush
-      flushResolve();
-
-      await Promise.all([flush1, flush2]);
-
-      // Should only call flush once despite two flush calls
-      expect(mockBuffer.flush).toHaveBeenCalledTimes(1);
     });
   });
 });

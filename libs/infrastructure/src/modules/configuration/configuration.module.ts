@@ -6,7 +6,10 @@ import {
 import { loaderPipelineMiddleware } from '@app/infrastructure/configs/configuration/loader-pipeline.middlewares';
 import { EventBusModule } from '@app/infrastructure/modules/event-bus/event-bus.module';
 import { ConfigurationLoader } from '@app/infrastructure/modules/configuration/configuration.loader';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import {
+  ConfigurationService,
+  ConfigurationServiceDependencies,
+} from '@app/infrastructure/modules/configuration/configuration.service';
 import { LoggerModule } from '@app/infrastructure/modules/logger/logger.module';
 
 @Module({
@@ -17,14 +20,17 @@ import { LoggerModule } from '@app/infrastructure/modules/logger/logger.module';
       useValue: loaderPipelineMiddleware,
     },
     LoaderPipelineService,
-    ConfigurationLoader,
+    ConfigurationServiceDependencies,
     {
       provide: ConfigurationService,
-      useFactory: (loader: ConfigurationLoader): ConfigurationService => {
-        return loader.service;
+      useFactory: (
+        dep: ConfigurationServiceDependencies,
+      ): ConfigurationService => {
+        return new ConfigurationService(dep);
       },
-      inject: [ConfigurationLoader],
+      inject: [ConfigurationServiceDependencies],
     },
+    ConfigurationLoader,
   ],
   exports: [ConfigurationLoader, ConfigurationService],
 })
