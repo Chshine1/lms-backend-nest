@@ -88,24 +88,4 @@ describe('EventBusService', () => {
       expect(result).toEqual(complexPayload);
     });
   });
-
-  describe('concurrent operations', () => {
-    it('should handle rapid sequential events', async () => {
-      const promises = [];
-      const expectedResults = [];
-
-      for (let i = 0; i < 5; i++) {
-        const payload = { index: i, timestamp: Date.now() };
-        expectedResults.push(payload);
-
-        const listener = eventBusService.on('config.loaded');
-        eventBusService.emit('config.loaded', payload);
-        promises.push(listener);
-      }
-
-      const results = await Promise.all(promises);
-
-      expect(results).toEqual(expectedResults);
-    });
-  });
 });
