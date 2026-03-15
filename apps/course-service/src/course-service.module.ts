@@ -7,4 +7,5 @@ import { CourseServiceService } from './course-service.service';
   controllers: [CourseServiceController],
   providers: [CourseServiceService],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CourseServiceModule {}

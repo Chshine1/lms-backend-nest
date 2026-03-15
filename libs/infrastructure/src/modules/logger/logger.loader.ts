@@ -8,6 +8,7 @@ import { ConfigurationService } from '@app/infrastructure/modules/configuration/
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
 import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+import { LogEnrichmentService } from '@app/infrastructure/modules/logger/services/log-enrichment.service';
 
 @Injectable()
 export class LoggerLoader implements ModuleLoader {
@@ -18,16 +19,16 @@ export class LoggerLoader implements ModuleLoader {
   private serviceInnerBuffer: LogBuffer;
 
   constructor(
+    private readonly enrichmentService: LogEnrichmentService,
     private readonly eventBusService: EventBusService,
     @Inject(forwardRef(() => ConfigurationService))
     private readonly configurationService: ConfigurationService,
-    consoleSink: ConsoleSink,
-    memoryBuffer: MemoryBuffer,
   ) {
-    this.serviceInnerSink = consoleSink;
-    this.serviceInnerBuffer = memoryBuffer;
+    this.serviceInnerSink = new ConsoleSink();
+    this.serviceInnerBuffer = new MemoryBuffer();
 
     this.loggerService = new LoggerService(
+      this.enrichmentService,
       this.serviceInnerSink,
       this.serviceInnerBuffer,
     );

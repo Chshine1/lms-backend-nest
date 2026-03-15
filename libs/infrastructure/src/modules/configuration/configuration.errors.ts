@@ -7,8 +7,8 @@ export class ConfigurationError extends BaseError {}
 
 export class GetConfigValidationError extends ConfigurationError {
   constructor(
-    configurationSection: ClassConstructor<object>,
-    validationErrors: ValidationError[],
+    public readonly configurationSection: ClassConstructor<object>,
+    public readonly validationErrors: ValidationError[],
   ) {
     super(
       `Failed to validate when getting the configuration section: ${configurationSection.name}`,

@@ -28,10 +28,8 @@ export class LoaderPipelineService {
       const newPart = await middleware.loadValidated(initialConfig);
       result = merge(result, newPart);
       void this.loggerService.log({
-        level: LogLevel.info,
+        level: LogLevel.INFO,
         message: 'config loaded',
-        metadata: {},
-        timestamp: new Date(),
       });
       this.eventBusService.emit('config.loaded', {});
     }

@@ -11,7 +11,9 @@ describe('CourseServiceController', () => {
       providers: [CourseServiceService],
     }).compile();
 
-    courseServiceController = app.get<CourseServiceController>(CourseServiceController);
+    courseServiceController = app.get<CourseServiceController>(
+      CourseServiceController,
+    );
   });
 
   describe('root', () => {

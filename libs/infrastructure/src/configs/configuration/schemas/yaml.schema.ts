@@ -8,18 +8,6 @@
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class YamlSchema {
-  @IsOptional()
-  @IsBoolean()
-  skipAws?: boolean;
-
-  @IsDefined()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => AwsConfig)
-  aws!: AwsConfig;
-}
-
 export class AwsConfig {
   @IsDefined()
   @IsString()
@@ -32,4 +20,16 @@ export class AwsConfig {
   @IsOptional()
   @IsBoolean()
   withDecryption?: boolean;
+}
+
+export class YamlSchema {
+  @IsOptional()
+  @IsBoolean()
+  skipAws?: boolean;
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AwsConfig)
+  aws!: AwsConfig;
 }
