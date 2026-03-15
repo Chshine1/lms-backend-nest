@@ -31,9 +31,9 @@ export class LoaderPipelineService {
         level: LogLevel.INFO,
         message: 'config loaded',
       });
-      this.eventBusService.emit('config.loaded', {});
     }
 
+    this.eventBusService.emit('config.loaded', result);
     return result;
   }
 }

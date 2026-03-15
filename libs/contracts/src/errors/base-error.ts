@@ -9,6 +9,9 @@ export abstract class BaseError extends Error {
   ) {
     super(message);
     this.name = this.constructor.name;
+    if (innerError) {
+      this.cause = innerError;
+    }
     Error.captureStackTrace(this, this.constructor);
   }
 }

@@ -6,7 +6,10 @@ import { ValidationError } from '@nestjs/common';
 export class InfrastructureError extends BaseError {}
 
 export class ConfigLoadPipelineMiddlewareError extends InfrastructureError {
-  constructor(middleware: ClassConstructor<object>, cause: unknown) {
+  constructor(
+    public readonly middleware: ClassConstructor<object>,
+    cause: unknown,
+  ) {
     super(
       `Config pipeline breaks when loaded by the middleware: ${middleware.name}`,
       ErrorCode.CONFIG_LOAD_PIPELINE_MIDDLEWARE_ERROR,
@@ -20,11 +23,11 @@ export class ConfigLoadPipelineMiddlewareError extends InfrastructureError {
 
 export class ConfigLoadPipelineValidationError extends InfrastructureError {
   constructor(
-    middleware: ClassConstructor<object>,
-    location:
+    public readonly middleware: ClassConstructor<object>,
+    public readonly location:
       | { type: 'dependencies'; dependency: ClassConstructor<object> }
       | { type: 'target' },
-    validationErrors: ValidationError[],
+    public readonly validationErrors: ValidationError[],
   ) {
     super(
       `Config pipeline breaks when validating configs at the middleware: ${middleware.name}`,

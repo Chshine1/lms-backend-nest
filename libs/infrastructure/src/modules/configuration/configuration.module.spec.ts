@@ -27,12 +27,4 @@ describe('ConfigurationModule', () => {
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(ConfigurationService);
   });
-
-  it('should export ConfigurationLoader and ConfigurationService', () => {
-    const loader = module.get(ConfigurationLoader);
-    const service = module.get(ConfigurationService);
-
-    expect(loader).toBeDefined();
-    expect(service).toBeDefined();
-  });
 });
