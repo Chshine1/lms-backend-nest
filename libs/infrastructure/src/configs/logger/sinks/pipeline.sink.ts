@@ -1,9 +1,9 @@
-﻿import {
+﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import {
   Filter,
   Processor,
   Sink,
-} from '@app/infrastructure/modules/logger/pipeline/middlewares.interface';
-import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+} from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 
 export class PipelineSink implements Sink {
   constructor(
@@ -21,7 +21,7 @@ export class PipelineSink implements Sink {
     }
 
     for (const processor of this.processors) {
-      current = processor.process(current);
+      current = await processor.process(current);
     }
 
     try {

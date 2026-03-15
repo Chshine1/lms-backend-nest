@@ -1,116 +1,313 @@
-## 微服务划分概览
+## 一、微服务划分概览
 
-| 服务名称        | 核心职责                                               | 内部模块（示例）                       |
-|-------------|----------------------------------------------------|--------------------------------|
-| **用户服务**    | 管理所有用户（学生、家长、教师、学导、教务等）基本信息、角色权限、联系方式、多租户账户。       | 用户模块、角色权限模块、租户模块、家长关联模块        |
-| **课程服务**    | 管理课程基本信息（名称、科目、级别、容量、候补规则）、课程模板、课程与班级关系。           | 课程基础模块、课程模板模块、科目模块             |
-| **排课服务**    | 负责排课资源（教师、教室、时间）、课程实例创建、学生enroll、调课/取消、候补逻辑、点名签到。  | 排课模块、资源管理模块、调课审批模块、点名模块、候补队列模块 |
-| **课时服务**    | 管理学生课时包、课时余额、消耗记录、监控预警（低课时、停课、频率告警）、批改卡、延续访问权限。    | 课时包模块、消耗记录模块、预警模块、批改卡模块、续期模块   |
-| **学习任务服务**  | 发布基于课程资料的学习任务（精听、精读等）、任务进度跟踪、生词本/错题本、教师课前准备看板。     | 任务模板模块、任务分配模块、进度跟踪模块、错题本模块     |
-| **评估服务**    | 管理模考计划、模考成绩录入、AI评分与人工复核、真考成绩录入、学习报告（期中/期末）生成、诊断建议。 | 模考计划模块、成绩录入模块、报告生成模块、AI诊断模块    |
-| **沟通与反馈服务** | 课堂反馈（文字/多媒体）、学导沟通记录、家校沟通模板。                        | 课堂反馈模块、沟通记录模块、模板模块             |
-| **新生流程服务**  | 管理OC表、学导分派、开课仪式、面谈建档、排课需求生成，流程状态机。                 | OC表模块、分派模块、面谈模块、需求生成模块         |
-| **通知服务**    | 负责发送各类通知（邮件、短信、站内信、推送），记录通知历史，处理重试。                | 通知发送模块、渠道适配模块、历史记录模块           |
-| **文件服务**    | 管理课程材料、讲义、成绩截图等文件的上传、下载、存储、版本控制，对接对象存储。            | 文件上传模块、访问控制模块、版本管理模块           |
-| **数据分析服务**  | 进行月度多维度数据统计、周报生成、BI报表，通常基于离线计算或定时ETL。              | 数据采集模块、报表生成模块、指标计算模块           |
-| **租户服务**    | 管理多租户配置、租户隔离策略、租户管理员，作为基础服务供其他服务调用。                | 租户注册模块、配置模块、隔离策略模块             |
+| 服务名称        | 核心职责                                   | 相关用例                                                       |
+|-------------|----------------------------------------|------------------------------------------------------------|
+| **用户服务**    | 管理用户（学生、家长、教师、教务等）基本信息、账户、角色、联系方式及关联关系 | UC-INFO-01, UC-INFO-02, UC-CLASS-01, UC-POST-02, UC-OC-01  |
+| **课程服务**    | 管理课程基本信息、课时包、课程资料、容量规则等静态内容            | UC-WS-01, UC-WS-03, UC-MAT-01, UC-LEARN-01, UC-PLAN-01     |
+| **排课服务**    | 管理课程排期（班次）、教师分配、教室资源、调课/取消、智能排课建议      | UC-CL-01, UC-SCHED-01, UC-SCHED-02, UC-ATT-01, UC-CLASS-01 |
+| **选课服务**    | 管理学生选课、候补队列、名额释放、预约权限控制                | UC-WS-01, UC-WS-02, UC-WS-03, UC-CL-01                     |
+| **课时服务**    | 管理学生课时余额、消耗、有效期、预警                     | UC-MON-01, UC-ATT-01                                       |
+| **支付/订单服务** | 处理订单、支付、退款、财务流水                        | UC-WS-03, UC-POST-01                                       |
+| **试听服务**    | 管理试听申请、审批、排期                           | UC-TRIAL-01, UC-TRIAL-02                                   |
+| **课堂服务**    | 管理点名、课堂反馈、课堂材料分发                       | UC-ATT-01, UC-FEED-01, UC-MAT-01                           |
+| **学习服务**    | 管理学习任务、进度跟踪、错题本、生词本、预习检查               | UC-LEARN-01, UC-LEARN-02, UC-LEARN-03, UC-PLAN-01          |
+| **考试服务**    | 管理模考计划、真考成绩录入、AI诊断报告、学习计划建议            | UC-MOCK-01, UC-EXAM-01, UC-EXAM-02                         |
+| **报告服务**    | 生成月度运营报表、阶段性学习报告、真考报告等                 | UC-REP-01, UC-REPORT-02                                    |
+| **消息通知服务**  | 统一处理站内信、邮件、短信、推送                       | 所有涉及通知的用例                                                  |
+| **审批流程服务**  | 管理各类审批任务（试听、调课、排课需求等）                  | UC-TRIAL-01, UC-TRIAL-02, UC-CL-01, UC-SCHED-01, UC-OC-01  |
+| **文件存储服务**  | 文件上传、下载、版本控制、DRM、预览                    | UC-MAT-01, UC-FEED-01, UC-VOD-01, UC-EXAM-01               |
+| **权限服务**    | 管理角色、权限、数据访问控制                         | UC-INFO-01, UC-INFO-02, 所有需要权限校验的用例                        |
+| **规则引擎服务**  | 管理可配置的业务规则（候补规则、调课次数、预警阈值等）            | 多用例需调用规则                                                   |
 
----
-
-## 微服务划分理由
-
-### 1. 用户服务
-- **业务内聚**：所有用户身份、权限、联系方式集中管理，避免重复建设。
-- **多租户基础**：租户信息与用户绑定，便于实现租户级数据隔离。
-- **独立性**：用户数据变更（如修改手机号）不影响其他业务服务。
-
-### 2. 课程服务
-- **核心静态数据**：课程基本信息相对稳定，独立出来便于其他服务引用。
-- **与排课解耦**：课程模板可被多个排课实例复用，避免与动态排课耦合。
-
-### 3. 排课服务
-- **高并发与资源冲突**：涉及教师、教室、学生名额的实时竞争，需要独立处理并发控制（如分布式锁）。
-- **复杂业务规则**：调课审批、候补队列、点名触发课时消耗，事件驱动需求强。
-- **数据一致性边界**：课程实例的状态（未开始、进行中、已结束）独立维护。
-
-### 4. 课时服务
-- **资产与计费**：课时包是学生的核心资产，需要严格的事务记录和审计。
-- **监控与预警**：低课时、停课等监控需实时或准实时，独立服务可定制策略。
-- **跨服务联动**：通过事件（点名完成、课程取消）消费消息来扣减课时，保持最终一致性。
-
-### 5. 学习任务服务
-- **学生学习过程管理**：任务发布、进度跟踪、错题本等属于日常学习行为，与课程、排课有交互但可独立。
-- **个性化学习**：常规/VIP学习规划差异大，独立服务便于扩展智能推荐算法。
-
-### 6. 评估服务
-- **AI与数据分析**：涉及模考评分、真考诊断、报告生成，可能需要调用外部AI服务或复杂计算。
-- **数据聚合**：需要从多个服务（课时、学习任务、排课）获取数据，独立服务可做聚合与清洗。
-
-### 7. 沟通与反馈服务
-- **内容存储与合规**：课堂反馈包含多媒体，需独立存储和隐私控制；学导沟通记录需长期留存。
-- **与教学解耦**：反馈内容不直接影响排课或课时，可异步处理。
-
-### 8. 新生流程服务
-- **长业务流程**：从OC表到排课需求涉及多步骤、多角色，独立为状态机服务便于维护和扩展。
-- **与核心教学隔离**：流程未完成时不影响正常教学，解耦后降低核心服务复杂度。
-
-### 9. 通知服务
-- **统一发送渠道**：所有通知统一出口，便于管理模板、重试策略、渠道切换。
-- **异步解耦**：其他服务只需发送事件，无需关心通知成功与否。
-
-### 10. 文件服务
-- **存储与带宽**：文件上传下载可能消耗大量资源，独立服务可优化存储策略（CDN、冷热分离）。
-- **安全与合规**：集中处理文件权限、DRM、防录屏等安全需求。
-
-### 11. 数据分析服务
-- **离线与实时分离**：避免复杂统计查询影响在线业务数据库性能。
-- **多源数据整合**：可订阅各服务事件，构建数据仓库，支持BI报表。
-
-### 12. 租户服务
-- **多租户基础设施**：提供租户配置、数据隔离策略，被其他服务依赖。
-- **扩展性**：新增租户无需修改其他服务代码。
+> 注：以上服务可根据实际部署情况合并（如报告服务可与统计服务合并），但核心原则是职责单一、独立演进。
 
 ---
 
-## 内部模块组织（以NestJS为例）
+## 二、重点服务详细分析
 
-每个微服务是一个独立的NestJS应用，内部按功能划分模块。例如：
+### 1. 用户服务 (User Service)
 
-- **排课服务**：
-    - `SchedulingModule`：排期创建、修改
-    - `ResourceModule`：教师、教室可用性管理
-    - `EnrollmentModule`：学生enroll、退课
-    - `WaitlistModule`：候补队列处理
-    - `AttendanceModule`：点名签到
-    - `ApprovalModule`：调课审批流程
+### 2. 课程服务 (Course Service)
 
-- **课时服务**：
-    - `CreditPackageModule`：课时包定义、购买
-    - `ConsumptionModule`：课时消耗记录
-    - `AlertModule`：监控预警（剩余课时、停课）
-    - `GradingCardModule`：批改卡管理
-    - `ExtensionModule`：延续访问权限
+#### 职责
+管理课程的静态信息，包括课程基本信息、课时包、课程资料（讲义等）、容量及候补规则。不涉及具体上课时间、教师分配等动态内容。
 
-- **评估服务**：
-    - `MockPlanModule`：模考计划
-    - `ScoreEntryModule`：成绩录入（含OCR）
-    - `ReportModule`：报告生成
-    - `AIDiagnosisModule`：AI诊断建议
+#### 需求细节（来自用例）
+- **课程基本信息**：课程名称、描述、科目、级别、类型（班课/一对一/录播）、状态（上架/下架）、所属校区（UC-WS-01, UC-WS-03）。
+- **课时包**：一个课程可包含多个课时包（如10课时包、20课时包），包含课时数、价格、有效期（从报名起算）、退款规则（UC-WS-03）。
+- **容量与候补规则**：课程总容量、是否允许候补、候补队列大小限制、补位确认时限（UC-WS-01）。
+- **课程资料**：讲义、词汇表、PPT等，包含名称、类型、文件URL、版本、可见范围（仅学生/家长可见）、上传者（UC-MAT-01）。
+- **课程模板**：用于快速创建课程，包含默认的课时包和资料（UC-SCHED-02, UC-PLAN-01）。
 
-各模块之间通过NestJS的模块导入/导出共享服务，但保持领域边界清晰。
+#### 领域模型
+
+```java
+// 课程
+class Course {
+    String courseId;
+    String name;
+    String description;
+    String subject;
+    String level;
+    CourseType type; // GROUP, ONE_ON_ONE, RECORDED
+    CourseStatus status; // DRAFT, PUBLISHED, ARCHIVED
+    String campusId; // 可选
+    int capacity; // 总容量
+    boolean allowWaitlist;
+    int waitlistSizeLimit; // 0表示无限制
+    int confirmationTimeLimit; // 补位确认时限（小时）
+    DateTime createdTime;
+    DateTime modifiedTime;
+}
+
+// 课时包
+class CoursePackage {
+    String packageId;
+    String courseId;
+    String name; // 如“10课时包”
+    int lessonCount;
+    BigDecimal price;
+    int validityPeriod; // 有效期天数
+    String refundPolicy; // 退款规则描述
+    PackageStatus status; // ACTIVE, INACTIVE
+}
+
+// 课程资料
+class CourseMaterial {
+    String materialId;
+    String courseId;
+    String name;
+    MaterialType type; // HANDOUT, VOCAB, PPT, VIDEO, AUDIO
+    String fileUrl; // 对象存储地址
+    long fileSize;
+    int version;
+    Visibility visibility; // STUDENT_ONLY, PARENT_VISIBLE, PUBLIC
+    String uploaderId;
+    DateTime uploadTime;
+    String description;
+}
+
+// 科目
+class Subject {
+    String subjectId;
+    String name;
+    String description;
+}
+
+// 级别
+class Level {
+    String levelId;
+    String name;
+}
+```
+
+#### 服务接口初步描述
+- `createCourse(Course course)`：创建课程
+- `updateCourse(String courseId, CourseUpdateDTO dto)`：更新课程
+- `publishCourse(String courseId)` / `unpublishCourse(String courseId)`：发布/下架课程
+- `listCourses(CourseFilter filter)`：查询课程列表（支持分页、过滤）
+- `getCourse(String courseId)`：获取课程详情
+- `addCoursePackage(String courseId, CoursePackage pkg)`：添加课时包
+- `updateCoursePackage(String packageId, CoursePackageUpdateDTO dto)`：更新课时包
+- `deleteCoursePackage(String packageId)`：删除课时包
+- `uploadMaterial(String courseId, CourseMaterial material, MultipartFile file)`：上传资料
+- `listMaterials(String courseId, MaterialFilter filter)`：获取课程资料列表
+- `deleteMaterial(String materialId)`：删除资料
+- `updateMaterialVisibility(String materialId, Visibility visibility)`：更新资料可见范围
+- `getCourseCapacity(String courseId)`：获取课程容量与候补规则
 
 ---
 
-## 服务间通信设计
+### 3. 排课服务 (Scheduling Service)
 
-- **同步API**（REST/gRPC）：用于实时性要求高的查询，如排课服务查询用户信息。
-- **异步事件**（RabbitMQ/Kafka）：用于跨服务状态变更，如点名完成 -> 课时服务扣减课时；课程取消 -> 排课服务触发候补。
-- **数据最终一致性**：通过事件保证，必要时使用Saga模式处理分布式事务（如购买课时包后需同步更新用户权限）。
+#### 职责
+管理课程的具体排期（班次），包括上课时间、教室、教师分配，处理排课需求、调课/取消、智能排课建议，维护教师日程和教室资源。
+
+#### 需求细节（来自用例）
+- **排课需求**：学导为学生创建，包含学生ID、目标科目、总课时、期望开始时间、上课频率、可接受时间窗、校区偏好、优先级等（UC-SCHED-01）。
+- **班次**：一个课程的具体实例，有固定上课时间（如每周一19:00-21:00）、开始/结束日期、校区、教室、教师、容量、已选学生列表（UC-SCHED-02）。
+- **教师日程**：教师可用时间块，避免冲突（UC-SCHED-02）。
+- **教室资源**：教室的可用时间段（UC-SCHED-02）。
+- **智能排课建议**：系统根据教师可用性、学生偏好、跨校区成本等生成多个方案（UC-SCHED-02）。
+- **调课/取消申请**：学生发起，包含原班次、新时间偏好、原因，需审批（UC-CL-01）。
+- **审批流程**：调课申请需教务审批（可与审批服务集成）。
+- **候补补位触发**：当班次名额释放时，通知选课服务处理候补（UC-CL-01）。
+
+#### 领域模型
+
+```java
+// 排课需求
+class SchedulingRequest {
+    String requestId;
+    String studentId;
+    String courseId; // 关联课程
+    String targetSubject;
+    int totalLessons;
+    Date expectedStartDate;
+    int frequency; // 每周次数
+    List<TimeSlot> preferredTimeSlots; // 如周一19-21
+    String preferredCampusId;
+    String specialRequirements;
+    Priority priority; // NORMAL, VIP
+    RequestStatus status; // PENDING, PROCESSING, COMPLETED, REJECTED
+    String createdBy; // 学导ID
+    DateTime createdTime;
+}
+
+// 班次
+class CourseSession {
+    String sessionId;
+    String courseId;
+    String name; // 如“雅思6.5分班 周一晚班”
+    Date startDate;
+    Date endDate;
+    List<WeeklyTimeSlot> schedule; // 每周上课时间
+    String campusId;
+    String classroomId;
+    String teacherId;
+    int capacity;
+    List<String> enrolledStudentIds;
+    SessionStatus status; // SCHEDULED, ONGOING, COMPLETED, CANCELLED
+}
+
+// 教师日程（可由排班模块生成）
+class TeacherSchedule {
+    String teacherId;
+    TimeRange timeSlot;
+    ScheduleStatus status; // AVAILABLE, BUSY, UNAVAILABLE
+}
+
+// 教室
+class Classroom {
+    String classroomId;
+    String campusId;
+    String name;
+    int capacity;
+    String facilities;
+}
+
+// 调课申请
+class RescheduleRequest {
+    String requestId;
+    String studentId;
+    String originalSessionId;
+    List<TimeSlot> preferredNewTimeSlots;
+    String reason;
+    RequestStatus status; // PENDING, APPROVED, REJECTED, CANCELLED
+    String approvedBy; // 教务ID
+    DateTime approvedTime;
+    String newSessionId; // 若重新安排
+    DateTime createdTime;
+}
+
+// 时间段值对象
+class TimeSlot {
+    int dayOfWeek; // 1=周一, 7=周日
+    LocalTime startTime;
+    LocalTime endTime;
+}
+
+class WeeklyTimeSlot extends TimeSlot {
+    // 继承
+}
+```
+
+#### 服务接口初步描述
+- `createSchedulingRequest(SchedulingRequest request)`：创建排课需求
+- `getSchedulingRequest(String requestId)`：查询排课需求
+- `processRequest(String requestId)`：教务处理需求（获取待处理列表）
+- `generateSchedulingOptions(String requestId)`：生成智能排课建议（返回多个方案）
+- `createSessionFromOption(String requestId, Option option)`：根据选定方案创建班次并 enroll 学生
+- `createSessionManually(CourseSession session)`：手动创建班次
+- `listSessions(SessionFilter filter)`：查询班次列表
+- `getSession(String sessionId)`：获取班次详情（含学生名单）
+- `createRescheduleRequest(RescheduleRequest request)`：学生申请调课
+- `approveRescheduleRequest(String requestId, String newSessionId)`：审批通过调课
+- `rejectRescheduleRequest(String requestId, String reason)`：拒绝调课
+- `cancelRescheduleRequest(String requestId)`：学生主动取消申请
+- `updateSession(String sessionId, SessionUpdateDTO dto)`：教务调整班次（检查冲突）
+- `cancelSession(String sessionId, String reason)`：取消班次（需处理已选学生）
+- `getTeacherAvailability(String teacherId, DateRange range)`：获取教师可用时间
+- `getClassroomAvailability(String classroomId, DateRange range)`：获取教室可用时间
+- `enrollStudent(String sessionId, String studentId)`：将学生加入班次
+- `removeStudent(String sessionId, String studentId, String reason)`：从班次移除学生
 
 ---
 
-## 多租户支持
+### 4. 选课服务 (Enrollment Service)
 
-- 每个服务的数据库表中都包含`tenant_id`字段，实现数据行级隔离。
-- 租户服务维护租户配置（如域名、功能开关），其他服务通过中间件或拦截器注入当前租户上下文。
-- 部分服务（如文件服务）可使用租户隔离的存储桶。
+#### 职责
+管理学生对班次的选课、候补队列、名额释放、预约权限控制，确保并发安全，并与排课服务、通知服务交互。
+
+#### 需求细节（来自用例）
+- **选课/预约**：学生选择班次，若有空位直接占座，否则可加入候补队列（UC-WS-01）。
+- **候补队列**：每个班次一个候补队列，先进先出；补位时通知队首学生，并在规定时间内确认（UC-WS-01）。
+- **预约权限控制**：根据学生状态（如是否被处罚）判断是否允许预约（UC-WS-02）。
+- **并发控制**：防止超卖（UC-WS-01）。
+- **取消预约**：学生取消已预约班次，释放名额，触发候补补位（UC-WS-01）。
+- **处罚规则**：当周取消或旷课达到次数，禁止下周预约（由出勤服务调用选课服务设置处罚）（UC-WS-02）。
+- **课时消耗关联**：选课成功可能需检查课时余额（若课程需扣课时），但实际扣减由点名触发（UC-WS-03）。
+
+#### 领域模型
+
+```java
+// 选课记录
+class Enrollment {
+    String enrollmentId;
+    String studentId;
+    String sessionId;
+    EnrollmentStatus status; // ENROLLED, WAITLISTED, CANCELLED, COMPLETED, EXPIRED
+    DateTime enrolledTime;
+    Integer waitlistPosition; // 仅在候补中有效
+    EnrollmentSource source; // DIRECT, WAITLIST_CONFIRMATION, MANUAL
+    DateTime confirmedTime; // 补位确认时间
+    DateTime expirationTime; // 补位确认截止时间
+    DateTime cancelledTime;
+    String cancelledReason;
+}
+
+// 候补队列条目
+class WaitlistEntry {
+    String waitlistId;
+    String sessionId;
+    String studentId;
+    int position;
+    DateTime joinTime;
+    WaitlistStatus status; // WAITING, NOTIFIED, CONFIRMED, EXPIRED, CANCELLED
+}
+
+// 学生选课资格
+class EnrollmentEligibility {
+    String studentId;
+    boolean eligible;
+    String reason; // 如“本周已取消2次，禁止预约”
+    Date nextAvailableDate; // 处罚解禁日期
+}
+
+// 选课规则（可配置）
+class EnrollmentRule {
+    String ruleId;
+    String name;
+    int maxCancellationsPerWeek;
+    int penaltyDuration; // 处罚周数
+    int waitlistConfirmationHours; // 补位确认时限（小时）
+}
+```
+
+#### 服务接口初步描述
+- `checkEligibility(String studentId, String sessionId)`：检查学生是否有资格预约该班次
+- `enroll(String studentId, String sessionId)`：学生预约班次（若有空位直接占座，否则加入候补）
+- `cancelEnrollment(String enrollmentId, String reason)`：取消预约（释放名额，触发候补处理）
+- `joinWaitlist(String studentId, String sessionId)`：直接加入候补（不占座）
+- `leaveWaitlist(String waitlistId)`：离开候补队列
+- `processWaitlist(String sessionId)`：当名额释放时调用，通知队首学生
+- `confirmWaitlist(String waitlistId)`：被补位学生确认，正式占座
+- `expireWaitlistConfirmations()`：定时任务，处理超时未确认的候补
+- `listEnrollments(String studentId, EnrollmentFilter filter)`：获取学生选课列表
+- `getSessionEnrollments(String sessionId)`：获取班次选课情况（含候补列表）
+- `setEnrollmentPenalty(String studentId, boolean penalty, Date nextAvailableDate)`：设置/解除处罚（由其他服务调用）
+- `getWaitlistPosition(String studentId, String sessionId)`：获取学生在某班次候补中的位置
+
+---
+
+以上是对四个核心微服务的详细分析。其他服务的分析与设计可遵循类似模式，根据职责从用例中提取需求、构建领域模型、定义服务接口。这样的划分确保了各服务职责单一、独立部署、易于扩展，符合微服务架构的设计原则。

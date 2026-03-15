@@ -8,6 +8,15 @@
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
+    "audit": {
+      "type": "library",
+      "root": "libs/audit",
+      "entryFile": "index",
+      "sourceRoot": "libs/audit/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/audit/tsconfig.lib.json"
+      }
+    },
     "contracts": {
       "type": "library",
       "root": "libs/contracts",
@@ -15,6 +24,15 @@
       "sourceRoot": "libs/contracts/src",
       "compilerOptions": {
         "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
+    "course-service": {
+      "type": "application",
+      "root": "apps/course-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/course-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/course-service/tsconfig.app.json"
       }
     },
     "gateway": {

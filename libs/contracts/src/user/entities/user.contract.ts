@@ -1,9 +1,7 @@
 ﻿import { Expose } from 'class-transformer';
+import { BaseEntityContract } from '@app/contracts/base-entity.contract';
 
-export class UserContract {
-  @Expose()
-  id!: number;
-
+export class UserContract extends BaseEntityContract {
   @Expose()
   username!: string;
 
@@ -11,14 +9,8 @@ export class UserContract {
   email!: string;
 
   @Expose()
-  tenantId!: number;
+  phone!: string;
 
   @Expose()
-  roles!: string;
-
-  @Expose()
-  createdAt!: Date;
-
-  @Expose()
-  updatedAt!: Date;
+  role!: string;
 }

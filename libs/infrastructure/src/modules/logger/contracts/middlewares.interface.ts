@@ -9,5 +9,5 @@ export interface Filter {
 }
 
 export interface Processor {
-  process(entry: LogEntry): LogEntry;
+  process(entry: LogEntry): Promise<LogEntry>;
 }

@@ -1,4 +1,4 @@
-﻿import { Sink } from '@app/infrastructure/modules/logger/pipeline/middlewares.interface';
+﻿import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 
 export class NullSink implements Sink {
   async emit(): Promise<void> {

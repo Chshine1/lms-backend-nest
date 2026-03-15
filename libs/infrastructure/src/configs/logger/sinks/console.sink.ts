@@ -1,5 +1,5 @@
-﻿import { Sink } from '@app/infrastructure/modules/logger/pipeline/middlewares.interface';
-import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 
 export class ConsoleSink implements Sink {
   emit(entry: LogEntry): Promise<void> {

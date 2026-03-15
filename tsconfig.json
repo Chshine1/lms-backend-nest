@@ -5,7 +5,7 @@
     "moduleResolution": "nodenext",
     "types": [
       "node",
-      "jest"
+      "jest",
     ],
     "outDir": "./dist",
     "rootDir": ".",
@@ -13,6 +13,12 @@
     "paths": {
       "@/*": [
         "apps/*"
+      ],
+      "@app/audit": [
+        "libs/audit/src"
+      ],
+      "@app/audit/*": [
+        "libs/audit/src/*"
       ],
       "@app/contracts": [
         "libs/contracts/src"
