@@ -1,9 +1,9 @@
 ﻿import { LoaderMiddleware } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { merge } from 'lodash';
-import { EventBusService } from '@app/infrastructure/modules/event-bus/event-bus.service';
 import { LoggerService } from '@app/infrastructure/modules/logger/logger.service';
 import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
 
 export const configurationLoadersMiddlewaresToken = Symbol(
   'configurationLoadersMiddlewares',
@@ -14,7 +14,7 @@ export class LoaderPipelineService {
   constructor(
     @Inject(forwardRef(() => LoggerService))
     private readonly loggerService: LoggerService,
-    private readonly eventBusService: EventBusService,
+    private readonly eventBusService: BootstrapEventBus,
     @Inject(configurationLoadersMiddlewaresToken)
     private readonly middlewares: LoaderMiddleware[],
   ) {}

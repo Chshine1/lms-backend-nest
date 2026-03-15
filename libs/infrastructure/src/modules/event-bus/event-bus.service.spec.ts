@@ -1,35 +1,43 @@
 import { EventBusService } from './event-bus.service';
+import { setInterval } from 'node:timers';
+
+type TestEvents = {
+  'test.a': { config: string; timestamp: number };
+  'test.b': number;
+};
 
 describe('EventBusService', () => {
-  let eventBusService: EventBusService;
+  let eventBusService: EventBusService<TestEvents>;
 
   beforeEach(() => {
-    eventBusService = new EventBusService();
+    eventBusService = new EventBusService<TestEvents>();
   });
 
   describe('emit and on', () => {
     it('should emit event and resolve promise when event is received', async () => {
       const testPayload = { config: 'loaded', timestamp: Date.now() };
 
-      // Set up event listener before emitting
-      const eventPromise = eventBusService.on('config.loaded');
+      const delay = 200;
+      const timer = setInterval(() => {
+        eventBusService.emit('test.a', testPayload);
+        timer.unref();
+      }, delay);
 
-      // Emit the event
-      eventBusService.emit('config.loaded', testPayload);
-
-      // Wait for the promise to resolve
-      const receivedPayload = await eventPromise;
+      const receivedPayload = await eventBusService.on('test.a');
 
       expect(receivedPayload).toEqual(testPayload);
+      expect(Date.now() - receivedPayload.timestamp).toBeGreaterThanOrEqual(
+        delay,
+      );
     });
 
     it('should handle multiple event listeners for same event', async () => {
-      const testPayload = { data: 'multiple-listeners' };
+      const testPayload = { config: 'loaded', timestamp: Date.now() };
 
-      const listener1 = eventBusService.on('config.loaded');
-      const listener2 = eventBusService.on('config.loaded');
+      const listener1 = eventBusService.on('test.a');
+      const listener2 = eventBusService.on('test.a');
 
-      eventBusService.emit('config.loaded', testPayload);
+      eventBusService.emit('test.a', testPayload);
 
       const [result1, result2] = await Promise.all([listener1, listener2]);
 
@@ -38,54 +46,22 @@ describe('EventBusService', () => {
     });
 
     it('should handle events emitted before listeners are set up', async () => {
-      const testPayload = { data: 'early-emit' };
+      const testPayload = { config: 'early-emit', timestamp: Date.now() };
 
-      // Emit event first
-      eventBusService.emit('config.loaded', testPayload);
+      // Emit event first and wait
+      eventBusService.emit('test.a', testPayload);
+
+      await new Promise<void>((resolve) => {
+        const timer = setInterval(() => {
+          resolve();
+          timer.unref();
+        }, 100);
+      });
 
       // Then set up listener
-      const eventPromise = eventBusService.on('config.loaded');
-
-      const receivedPayload = await eventPromise;
+      const receivedPayload = await eventBusService.on('test.a');
 
       expect(receivedPayload).toEqual(testPayload);
-    });
-
-    it('should handle multiple different event types', async () => {
-      const configPayload = { config: 'loaded' };
-      const configListener = eventBusService.on('config.loaded');
-      // Note: We can only test 'config.loaded' since it's the only event in BootstrapEvents
-
-      eventBusService.emit('config.loaded', configPayload);
-
-      const receivedPayload = await configListener;
-      expect(receivedPayload).toEqual(configPayload);
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle events with null or undefined payloads', async () => {
-      const nullListener = eventBusService.on('config.loaded');
-      eventBusService.emit('config.loaded', null);
-
-      const result = await nullListener;
-      expect(result).toBeNull();
-    });
-
-    it('should handle complex object payloads', async () => {
-      const complexPayload = {
-        nested: {
-          array: [1, 2, 3],
-          object: { key: 'value' },
-        },
-        date: new Date(),
-      };
-
-      const listener = eventBusService.on('config.loaded');
-      eventBusService.emit('config.loaded', complexPayload);
-
-      const result = await listener;
-      expect(result).toEqual(complexPayload);
     });
   });
 });

@@ -2,10 +2,10 @@
 import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
 import { ModuleLoader } from '@app/infrastructure/modules/module-loader.interface';
-import { EventBusService } from '@app/infrastructure/modules/event-bus/event-bus.service';
 import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
+import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
 
 @Injectable()
 export class LoggerLoader implements ModuleLoader {
@@ -13,7 +13,7 @@ export class LoggerLoader implements ModuleLoader {
 
   constructor(
     private readonly serviceDependencies: LoggerServiceDependencies,
-    private readonly eventBusService: EventBusService,
+    private readonly eventBusService: BootstrapEventBus,
     @Inject(forwardRef(() => ConfigurationService))
     private readonly configurationService: ConfigurationService,
   ) {}

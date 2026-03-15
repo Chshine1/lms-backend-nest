@@ -1,36 +1,27 @@
-﻿import { Injectable } from '@nestjs/common';
-import mitt, { Emitter } from 'mitt';
-
-export type BootstrapEvents = {
-  'config.loaded': unknown;
-};
+﻿import mitt, { Emitter } from 'mitt';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class EventBusService {
-  private readonly eventBus: Emitter<BootstrapEvents> = mitt<BootstrapEvents>();
+export class EventBusService<TEvents extends Record<string, unknown>> {
+  private readonly eventBus: Emitter<TEvents> = mitt<TEvents>();
   private readonly eventCache = new Map<
-    keyof BootstrapEvents,
-    BootstrapEvents[keyof BootstrapEvents]
+    keyof TEvents,
+    TEvents[keyof TEvents]
   >();
 
-  emit<K extends keyof BootstrapEvents>(
-    event: K,
-    payload: BootstrapEvents[K],
-  ): void {
+  emit<K extends keyof TEvents>(event: K, payload: TEvents[K]): void {
     this.eventCache.set(event, payload);
     this.eventBus.emit(event, payload);
   }
 
-  async on<K extends keyof BootstrapEvents>(
-    event: K,
-  ): Promise<BootstrapEvents[K]> {
+  async on<K extends keyof TEvents>(event: K): Promise<TEvents[K]> {
     const cached = this.eventCache.get(event);
     if (cached !== undefined) {
-      return cached;
+      return cached as TEvents[K];
     }
 
     return new Promise((resolve) => {
-      const handler = (payload: BootstrapEvents[K]): void => {
+      const handler = (payload: TEvents[K]): void => {
         this.eventBus.off(event, handler);
         resolve(payload);
       };

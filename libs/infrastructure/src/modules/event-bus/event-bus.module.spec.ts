@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventBusModule } from './event-bus.module';
-import { EventBusService } from './event-bus.service';
+import { BootstrapEventBus, EventBusModule } from './event-bus.module';
 
 describe('EventBusModule', () => {
   let module: TestingModule;
@@ -16,13 +15,8 @@ describe('EventBusModule', () => {
   });
 
   it('should provide EventBusService', () => {
-    const service = module.get(EventBusService);
+    const service = module.get(BootstrapEventBus);
     expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(EventBusService);
-  });
-
-  it('should export EventBusService', () => {
-    const service = module.get(EventBusService);
-    expect(service).toBeDefined();
+    expect(service).toBeInstanceOf(BootstrapEventBus);
   });
 });
