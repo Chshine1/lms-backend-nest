@@ -1,5 +1,4 @@
 import { EventBusService } from './event-bus.service';
-import { setInterval } from 'node:timers';
 
 type TestEvents = {
   'test.a': { config: string; timestamp: number };
@@ -18,7 +17,7 @@ describe('EventBusService', () => {
       const testPayload = { config: 'loaded', timestamp: Date.now() };
 
       const delay = 200;
-      const timer = setInterval(() => {
+      const timer = setTimeout(() => {
         eventBusService.emit('test.a', testPayload);
         timer.unref();
       }, delay);
@@ -52,7 +51,7 @@ describe('EventBusService', () => {
       eventBusService.emit('test.a', testPayload);
 
       await new Promise<void>((resolve) => {
-        const timer = setInterval(() => {
+        const timer = setTimeout(() => {
           resolve();
           timer.unref();
         }, 100);
@@ -62,6 +61,35 @@ describe('EventBusService', () => {
       const receivedPayload = await eventBusService.on('test.a');
 
       expect(receivedPayload).toEqual(testPayload);
+    });
+
+    it('should handle different events independently', async () => {
+      const payloadA = { config: 'independent A', timestamp: Date.now() };
+      const payloadB = 42;
+
+      const promiseA = eventBusService.on('test.a');
+      const promiseB = eventBusService.on('test.b');
+
+      eventBusService.emit('test.b', payloadB);
+
+      const timeoutError = new Error('timeout');
+      const timeout = new Promise((_, reject) => {
+        const timer = setTimeout(() => {
+          reject(timeoutError);
+          timer.unref();
+        }, 500);
+      });
+      await expect(Promise.race([promiseA, promiseB, timeout])).resolves.toBe(
+        payloadB,
+      );
+      await expect(Promise.race([promiseA, timeout])).rejects.toThrow(
+        timeoutError,
+      );
+
+      eventBusService.emit('test.a', payloadA);
+
+      const resultA = await promiseA;
+      expect(resultA).toEqual(payloadA);
     });
   });
 });
