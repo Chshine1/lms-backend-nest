@@ -4,6 +4,7 @@ import {
   LogLevel,
 } from '@app/infrastructure/modules/logger/contracts/log.entry';
 import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+import { LoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
 
 describe('ConditionalSink', () => {
   let trueSink: jest.Mocked<Sink>;
@@ -61,9 +62,10 @@ describe('ConditionalSink', () => {
       expect(trueSink.emit).not.toHaveBeenCalled();
     });
 
-    it('should handle errors from trueSink', async () => {
+    it('should handle errors from trueSink and wrap them in LoggerSinkError', async () => {
       const predicate = jest.fn().mockReturnValue(true);
-      trueSink.emit.mockRejectedValue(new Error('true sink error'));
+      const originalError = new Error('true sink error');
+      trueSink.emit.mockRejectedValue(originalError);
       conditionalSink = new ConditionalSink(
         'conditional-1',
         predicate,
@@ -72,13 +74,18 @@ describe('ConditionalSink', () => {
       );
 
       await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        'true sink error',
+        LoggerSinkError,
       );
+      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: originalError,
+      });
     });
 
-    it('should handle errors from falseSink', async () => {
+    it('should handle errors from falseSink and wrap them in LoggerSinkError', async () => {
       const predicate = jest.fn().mockReturnValue(false);
-      falseSink.emit.mockRejectedValue(new Error('false sink error'));
+      const originalError = new Error('false sink error');
+      falseSink.emit.mockRejectedValue(originalError);
       conditionalSink = new ConditionalSink(
         'conditional-1',
         predicate,
@@ -87,8 +94,61 @@ describe('ConditionalSink', () => {
       );
 
       await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        'false sink error',
+        LoggerSinkError,
       );
+      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: originalError,
+      });
+    });
+
+    it('should handle predicate throwing an error', async () => {
+      const predicate = jest.fn().mockImplementation(() => {
+        throw new Error('predicate error');
+      });
+      conditionalSink = new ConditionalSink(
+        'conditional-1',
+        predicate,
+        trueSink,
+        falseSink,
+      );
+
+      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
+        LoggerSinkError,
+      );
+      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: new Error('predicate error'),
+      });
+    });
+
+    it('should handle nested LoggerSinkError from trueSink', async () => {
+      const predicate = jest.fn().mockReturnValue(true);
+      const nestedError = new LoggerSinkError(
+        [{ type: 'nested', id: 'nested-sink' }],
+        new Error('nested sink error'),
+      );
+      trueSink.emit.mockRejectedValue(nestedError);
+      conditionalSink = new ConditionalSink(
+        'conditional-1',
+        predicate,
+        trueSink,
+        falseSink,
+      );
+
+      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
+        LoggerSinkError,
+      );
+      const error = await conditionalSink.emit(testEntry).catch((e) => e);
+      expect(error.context?.sinkErrorStack).toHaveLength(2);
+      expect(error.context?.sinkErrorStack[0]).toMatchObject({
+        type: 'nested',
+        id: 'nested-sink',
+      });
+      expect(error.context?.sinkErrorStack[1]).toMatchObject({
+        type: 'conditional',
+        id: 'conditional-1',
+      });
     });
   });
 });

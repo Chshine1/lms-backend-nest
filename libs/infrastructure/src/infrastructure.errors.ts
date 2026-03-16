@@ -2,11 +2,14 @@
 import { ClassConstructor } from 'class-transformer';
 import { ErrorCode } from '@app/contracts/errors/error.codes';
 import { ValidationError } from '@nestjs/common';
-import { toError } from '@app/contracts/errors/to-error.util';
 
-export class InfrastructureError extends BaseError {}
+export class InfrastructureError<
+  TContext extends Record<string, unknown>,
+> extends BaseError<TContext> {}
 
-export class ConfigLoadPipelineMiddlewareError extends InfrastructureError {
+export class ConfigLoadPipelineMiddlewareError extends InfrastructureError<{
+  middleware: string;
+}> {
   constructor(
     public readonly middleware: ClassConstructor<object>,
     cause: unknown,
@@ -17,12 +20,16 @@ export class ConfigLoadPipelineMiddlewareError extends InfrastructureError {
       {
         middleware: middleware.name,
       },
-      toError(cause),
+      cause,
     );
   }
 }
 
-export class ConfigLoadPipelineValidationError extends InfrastructureError {
+export class ConfigLoadPipelineValidationError extends InfrastructureError<{
+  middleware: string;
+  location: { type: 'dependencies'; dependency: string } | { type: 'target' };
+  validationErrors: ValidationError[];
+}> {
   constructor(
     public readonly middleware: ClassConstructor<object>,
     public readonly location:

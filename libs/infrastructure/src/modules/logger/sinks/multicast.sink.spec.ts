@@ -4,6 +4,7 @@ import {
   LogLevel,
 } from '@app/infrastructure/modules/logger/contracts/log.entry';
 import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+import { LoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
 
 describe('MulticastSink', () => {
   let sink1: jest.Mocked<Sink>;
@@ -47,16 +48,36 @@ describe('MulticastSink', () => {
       expect(sink3.emit).toHaveBeenCalledWith(testEntry);
     });
 
-    it('should handle multiple failures', async () => {
-      sink1.emit.mockRejectedValue(new Error('sink1 failed'));
-      sink3.emit.mockRejectedValue(new Error('sink3 failed'));
+    it('should handle multiple failures and throw LoggerSinkError', async () => {
+      const sink1Error = new Error('sink1 failed');
+      const sink3Error = new Error('sink3 failed');
+
+      sink1.emit.mockRejectedValue(sink1Error);
+      sink3.emit.mockRejectedValue(sink3Error);
+
       const multicastSink: Sink = new MulticastSink('multicast-1', [
         sink1,
         sink2,
         sink3,
       ]);
 
-      await multicastSink.emit(testEntry);
+      await expect(multicastSink.emit(testEntry)).rejects.toThrow(
+        LoggerSinkError,
+      );
+      const error = await multicastSink.emit(testEntry).catch((e) => e);
+
+      expect(error.message).toBe('Logging pipeline breaks due to sink errors');
+      expect(error.context?.sinkErrorStack).toHaveLength(1);
+      expect(error.context?.sinkErrorStack[0]).toMatchObject({
+        type: 'multicast',
+        id: 'multicast-1',
+        details: {
+          errorSinks: expect.arrayContaining([
+            expect.objectContaining({ id: 'sink-1', message: 'sink1 failed' }),
+            expect.objectContaining({ id: 'sink-3', message: 'sink3 failed' }),
+          ]),
+        },
+      });
 
       expect(sink1.emit).toHaveBeenCalledWith(testEntry);
       expect(sink2.emit).toHaveBeenCalledWith(testEntry);
@@ -67,6 +88,65 @@ describe('MulticastSink', () => {
       const multicastSink: Sink = new MulticastSink('multicast-1', []);
 
       await expect(multicastSink.emit(testEntry)).resolves.toBeUndefined();
+    });
+
+    it('should handle all sinks failing', async () => {
+      const sink1Error = new Error('sink1 failed');
+      const sink2Error = new Error('sink2 failed');
+      const sink3Error = new Error('sink3 failed');
+
+      sink1.emit.mockRejectedValue(sink1Error);
+      sink2.emit.mockRejectedValue(sink2Error);
+      sink3.emit.mockRejectedValue(sink3Error);
+
+      const multicastSink: Sink = new MulticastSink('multicast-1', [
+        sink1,
+        sink2,
+        sink3,
+      ]);
+
+      await expect(multicastSink.emit(testEntry)).rejects.toThrow(
+        LoggerSinkError,
+      );
+      const error = await multicastSink.emit(testEntry).catch((e) => e);
+
+      expect(error.context?.sinkErrorStack[0].details.errorSinks).toHaveLength(
+        3,
+      );
+      expect(sink1.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink2.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink3.emit).toHaveBeenCalledWith(testEntry);
+    });
+
+    it('should handle nested LoggerSinkError from sinks', async () => {
+      const nestedError = new LoggerSinkError(
+        [{ type: 'nested', id: 'nested-sink' }],
+        new Error('nested sink error'),
+      );
+
+      sink1.emit.mockRejectedValue(nestedError);
+      sink2.emit.mockRejectedValue(new Error('sink2 failed'));
+
+      const multicastSink: Sink = new MulticastSink('multicast-1', [
+        sink1,
+        sink2,
+        sink3,
+      ]);
+
+      await expect(multicastSink.emit(testEntry)).rejects.toThrow(
+        LoggerSinkError,
+      );
+      const error = await multicastSink.emit(testEntry).catch((e) => e);
+
+      expect(error.context?.sinkErrorStack).toHaveLength(2);
+      expect(error.context?.sinkErrorStack[0]).toMatchObject({
+        type: 'nested',
+        id: 'nested-sink',
+      });
+      expect(error.context?.sinkErrorStack[1]).toMatchObject({
+        type: 'multicast',
+        id: 'multicast-1',
+      });
     });
   });
 });

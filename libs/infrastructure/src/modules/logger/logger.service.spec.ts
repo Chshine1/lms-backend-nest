@@ -97,7 +97,7 @@ describe('LoggerService', () => {
     it('should handle log entries with error objects', async () => {
       class TestError extends BaseError {
         constructor() {
-          super('Test error', ErrorCode.UNKNOWN);
+          super('Test error', ErrorCode.UNKNOWN, {});
         }
       }
       const testError = new TestError();

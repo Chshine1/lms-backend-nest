@@ -11,7 +11,7 @@ export interface LogParams {
   level: LogLevel;
   message: string;
   context?: Record<string, unknown>;
-  error?: BaseError;
+  error?: BaseError<Record<string, unknown>>;
 }
 
 @Injectable()

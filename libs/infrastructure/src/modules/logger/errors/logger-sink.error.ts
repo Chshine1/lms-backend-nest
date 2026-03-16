@@ -1,9 +1,5 @@
 ﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
-import {
-  LoggerError,
-  LoggerUnknownError,
-} from '@app/infrastructure/modules/logger/errors/logger.error';
-import { toError } from '@app/contracts/errors/to-error.util';
+import { LoggerError } from '@app/infrastructure/modules/logger/errors/logger.error';
 
 interface SinkErrorFrame {
   type: string;
@@ -11,8 +7,10 @@ interface SinkErrorFrame {
   details?: Record<string, unknown>;
 }
 
-export class LoggerSinkError extends LoggerError {
-  constructor(sinkErrorStack: SinkErrorFrame[], rootError: Error) {
+export class LoggerSinkError extends LoggerError<{
+  sinkErrorStack: SinkErrorFrame[];
+}> {
+  constructor(sinkErrorStack: SinkErrorFrame[], rootError: unknown) {
     super(
       `Logging pipeline breaks due to sink errors`,
       ErrorCode.LOGGER_SINK_ERROR,
@@ -28,26 +26,15 @@ export function createLoggerSinkError(
   currentFrame: SinkErrorFrame,
   originalError: unknown,
 ): LoggerSinkError {
-  let stack: SinkErrorFrame[];
+  const newStack: SinkErrorFrame[] =
+    originalError instanceof LoggerSinkError
+      ? [...originalError.context.sinkErrorStack, { ...currentFrame }]
+      : [{ ...currentFrame }];
 
-  if (originalError instanceof LoggerSinkError) {
-    const originalStack = (originalError.context || {})['sinkErrorStack'] as
-      | SinkErrorFrame[]
-      | undefined;
-    if (originalStack) {
-      stack = [...originalStack];
-    } else {
-      throw new LoggerUnknownError(
-        'Malformed LoggerSinkError detected, resetting error stack',
-        {},
-        originalStack,
-      );
-    }
+  const rootError: unknown =
+    originalError instanceof LoggerSinkError
+      ? originalError.cause
+      : originalError;
 
-    stack.push({ ...currentFrame });
-  } else {
-    stack = [{ ...currentFrame }];
-  }
-
-  return new LoggerSinkError(stack, toError(originalError));
+  return new LoggerSinkError(newStack, rootError);
 }

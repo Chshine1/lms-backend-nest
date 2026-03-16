@@ -5,7 +5,7 @@ import {
 import { NullSink } from '@app/infrastructure/modules/logger/sinks/null.sink';
 import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 
-describe('TransformSink', () => {
+describe('NullSink', () => {
   let nullSink: Sink;
   let testEntry: LogEntry;
 
