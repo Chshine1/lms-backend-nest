@@ -1,11 +1,39 @@
 ﻿import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { createLoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
 
 export class MulticastSink implements Sink {
-  constructor(private sinks: Sink[]) {}
+  constructor(
+    public readonly id: string,
+    private sinks: Sink[],
+  ) {}
 
   async emit(entry: LogEntry): Promise<void> {
     const promises = this.sinks.map((sink) => sink.emit(entry));
-    await Promise.all(promises);
+    const results = await Promise.allSettled(promises);
+
+    const errors = results
+      .map((result, index) => {
+        return result.status === 'rejected'
+          ? {
+              reason: result.reason as unknown,
+              id: this.sinks[index]?.id || 'unknown',
+            }
+          : undefined;
+      })
+      .filter((result) => result !== undefined);
+
+    if (errors.length > 0) {
+      throw createLoggerSinkError(
+        {
+          type: 'multicast',
+          id: this.id,
+          details: {
+            errorSinks: errors.map((e) => e.id),
+          },
+        },
+        new AggregateError(errors.map((e) => e.reason)),
+      );
+    }
   }
 }

@@ -16,4 +16,7 @@
 
   // Configuration (02)
   GET_CONFIG_VALIDATION_ERROR = '0200',
+
+  // Logger (03)
+  LOGGER_SINK_ERROR = '0300',
 }
