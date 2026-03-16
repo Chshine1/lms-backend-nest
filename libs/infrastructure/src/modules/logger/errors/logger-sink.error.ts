@@ -1,5 +1,9 @@
 ﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
-import { LoggerError } from '@app/infrastructure/modules/logger/errors/logger.error';
+import {
+  LoggerError,
+  LoggerUnknownError,
+} from '@app/infrastructure/modules/logger/errors/logger.error';
+import { toError } from '@app/contracts/errors/to-error.util';
 
 interface SinkErrorFrame {
   type: string;
@@ -10,7 +14,7 @@ interface SinkErrorFrame {
 export class LoggerSinkError extends LoggerError {
   constructor(sinkErrorStack: SinkErrorFrame[], rootError: Error) {
     super(
-      `Logging pipeline breaks`,
+      `Logging pipeline breaks due to sink errors`,
       ErrorCode.LOGGER_SINK_ERROR,
       {
         sinkErrorStack,
@@ -33,7 +37,11 @@ export function createLoggerSinkError(
     if (originalStack) {
       stack = [...originalStack];
     } else {
-      throw new Error(`Wrong instance of LoggerSinkError`);
+      throw new LoggerUnknownError(
+        'Malformed LoggerSinkError detected, resetting error stack',
+        {},
+        originalStack,
+      );
     }
 
     stack.push({ ...currentFrame });
@@ -41,10 +49,5 @@ export function createLoggerSinkError(
     stack = [{ ...currentFrame }];
   }
 
-  return new LoggerSinkError(
-    stack,
-    originalError instanceof Error
-      ? originalError
-      : new Error(String(originalError)),
-  );
+  return new LoggerSinkError(stack, toError(originalError));
 }

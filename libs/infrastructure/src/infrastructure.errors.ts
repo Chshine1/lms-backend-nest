@@ -2,6 +2,7 @@
 import { ClassConstructor } from 'class-transformer';
 import { ErrorCode } from '@app/contracts/errors/error.codes';
 import { ValidationError } from '@nestjs/common';
+import { toError } from '@app/contracts/errors/to-error.util';
 
 export class InfrastructureError extends BaseError {}
 
@@ -16,7 +17,7 @@ export class ConfigLoadPipelineMiddlewareError extends InfrastructureError {
       {
         middleware: middleware.name,
       },
-      cause instanceof Error ? cause : new Error(String(cause)),
+      toError(cause),
     );
   }
 }

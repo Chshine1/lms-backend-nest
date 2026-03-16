@@ -29,7 +29,15 @@ export class MulticastSink implements Sink {
           type: 'multicast',
           id: this.id,
           details: {
-            errorSinks: errors.map((e) => e.id),
+            errorSinks: errors.map((e) => {
+              return {
+                id: e.id,
+                message:
+                  e.reason instanceof Error
+                    ? e.reason.message
+                    : String(e.reason),
+              };
+            }),
           },
         },
         new AggregateError(errors.map((e) => e.reason)),

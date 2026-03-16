@@ -29,13 +29,10 @@ export class FailoverSink implements Sink {
         }
       }
 
-      const finalError: unknown =
-        fallbackErrors.length === 0
-          ? primaryError
-          : new AggregateError([
-              primaryError,
-              new AggregateError(fallbackErrors),
-            ]);
+      const finalError = new AggregateError([
+        primaryError,
+        ...fallbackErrors.map((e) => e.reason),
+      ]);
       const allFailed = fallbackErrors.length === this.fallbacks.length;
       if (allFailed) {
         console.log(JSON.stringify(entry));
