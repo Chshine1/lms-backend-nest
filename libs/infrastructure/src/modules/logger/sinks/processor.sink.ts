@@ -4,7 +4,7 @@ import {
   Sink,
 } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 
-export class TransformSink implements Sink {
+export class ProcessorSink implements Sink {
   constructor(
     private processor: Processor,
     private next: Sink,

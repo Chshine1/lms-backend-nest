@@ -16,7 +16,7 @@ export class FailoverSink implements Sink {
           await fb.emit(entry);
           return;
         } catch {
-          // 继续尝试下一个
+          // try next one
         }
       }
       throw new Error('All sinks failed for log entry');
