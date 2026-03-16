@@ -35,7 +35,7 @@ export class FailoverSink implements Sink {
       ]);
       const allFailed = fallbackErrors.length === this.fallbacks.length;
       if (allFailed) {
-        console.log(JSON.stringify(entry));
+        // TODO: Emergency fallback needed here
       }
       throw createLoggerSinkError(
         {

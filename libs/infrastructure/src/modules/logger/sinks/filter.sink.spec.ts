@@ -10,13 +10,16 @@ import {
 
 describe('FilterSink', () => {
   let filter: jest.Mocked<Filter>;
-  let nextSink: jest.Mocked<{ emit: jest.Mock }>;
+  let nextSink: jest.Mocked<Sink>;
   let filterSink: Sink;
   let testEntry: LogEntry;
 
   beforeEach(() => {
     filter = { filter: jest.fn() };
-    nextSink = { emit: jest.fn().mockResolvedValue(undefined) };
+    nextSink = {
+      id: 'next-sink-1',
+      emit: jest.fn().mockResolvedValue(undefined),
+    };
     testEntry = {
       level: LogLevel.INFO,
       message: 'test message',
@@ -28,7 +31,7 @@ describe('FilterSink', () => {
   describe('emit', () => {
     it('should pass entry to next sink when filter returns true', async () => {
       filter.filter.mockReturnValue(true);
-      filterSink = new FilterSink(filter, nextSink);
+      filterSink = new FilterSink('filter-1', filter, nextSink);
 
       await filterSink.emit(testEntry);
 
@@ -38,7 +41,7 @@ describe('FilterSink', () => {
 
     it('should not pass entry to next sink when filter returns false', async () => {
       filter.filter.mockReturnValue(false);
-      filterSink = new FilterSink(filter, nextSink);
+      filterSink = new FilterSink('filter-1', filter, nextSink);
 
       await filterSink.emit(testEntry);
 
@@ -49,7 +52,7 @@ describe('FilterSink', () => {
     it('should handle errors from next sink', async () => {
       filter.filter.mockReturnValue(true);
       nextSink.emit.mockRejectedValue(new Error('next sink error'));
-      filterSink = new FilterSink(filter, nextSink);
+      filterSink = new FilterSink('filter-1', filter, nextSink);
 
       await expect(filterSink.emit(testEntry)).rejects.toThrow(
         'next sink error',

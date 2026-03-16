@@ -10,13 +10,16 @@ import {
 
 describe('TransformSink', () => {
   let processor: jest.Mocked<Processor>;
-  let nextSink: jest.Mocked<{ emit: jest.Mock }>;
+  let nextSink: jest.Mocked<Sink>;
   let processorSink: Sink;
   let testEntry: LogEntry;
 
   beforeEach(() => {
     processor = { process: jest.fn() };
-    nextSink = { emit: jest.fn().mockResolvedValue(undefined) };
+    nextSink = {
+      id: 'next-sink-1',
+      emit: jest.fn().mockResolvedValue(undefined),
+    };
     testEntry = {
       level: LogLevel.INFO,
       message: 'test message',
@@ -43,7 +46,7 @@ describe('TransformSink', () => {
       };
 
       processor.process.mockResolvedValue(processedEntry);
-      processorSink = new ProcessorSink(processor, nextSink);
+      processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
       await processorSink.emit(originalEntry);
 
@@ -53,7 +56,7 @@ describe('TransformSink', () => {
 
     it('should handle processor errors', async () => {
       processor.process.mockRejectedValue(new Error('processor failed'));
-      processorSink = new ProcessorSink(processor, nextSink);
+      processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
       await expect(processorSink.emit(testEntry)).rejects.toThrow(
         'processor failed',
@@ -80,7 +83,7 @@ describe('TransformSink', () => {
 
       processor.process.mockResolvedValue(processedEntry);
       nextSink.emit.mockRejectedValue(new Error('next sink failed'));
-      processorSink = new ProcessorSink(processor, nextSink);
+      processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
       await expect(processorSink.emit(originalEntry)).rejects.toThrow(
         'next sink failed',

@@ -1,4 +1,4 @@
-﻿import {
+import {
   LogEntry,
   LogLevel,
 } from '@app/infrastructure/modules/logger/contracts/log.entry';
@@ -20,7 +20,7 @@ describe('TransformSink', () => {
 
   describe('emit', () => {
     it('should result in nothing', async () => {
-      nullSink = new NullSink();
+      nullSink = new NullSink('null-1');
       await nullSink.emit(testEntry);
     });
   });
