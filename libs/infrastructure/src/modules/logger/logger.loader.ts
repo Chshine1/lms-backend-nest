@@ -1,14 +1,13 @@
 ﻿import { LoggerServiceDependencies } from '@app/infrastructure/modules/logger/logger.service';
 import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
-import { ModuleLoader } from '@app/infrastructure/modules/module-loader.interface';
 import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
 import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
 
 @Injectable()
-export class LoggerLoader implements ModuleLoader {
+export class LoggerLoader {
   private ready: boolean = false;
 
   constructor(

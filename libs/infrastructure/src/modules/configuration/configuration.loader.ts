@@ -1,10 +1,9 @@
 ﻿import { ConfigurationServiceDependencies } from '@app/infrastructure/modules/configuration/configuration.service';
 import { Injectable } from '@nestjs/common';
 import { LoaderPipelineService } from '@app/infrastructure/modules/configuration/pipeline/loader-pipeline.service';
-import { ModuleLoader } from '@app/infrastructure/modules/module-loader.interface';
 
 @Injectable()
-export class ConfigurationLoader implements ModuleLoader {
+export class ConfigurationLoader {
   private ready: boolean = false;
 
   constructor(
