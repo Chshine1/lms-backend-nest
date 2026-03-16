@@ -1,4 +1,6 @@
-﻿export enum LogLevel {
+﻿import { BaseError } from '@app/contracts/errors/base-error';
+
+export enum LogLevel {
   DEBUG = 'debug',
   INFO = 'info',
   WARN = 'warn',
@@ -25,13 +27,7 @@ export interface LogEntry {
 
   context?: Record<string, unknown>;
 
-  error?: {
-    name: string;
-    message: string;
-    stack?: string;
-    code?: string | number;
-    cause?: unknown;
-  };
+  error?: BaseError;
 
   durationMs?: number;
   source?: {

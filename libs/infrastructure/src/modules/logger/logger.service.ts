@@ -5,12 +5,13 @@ import { LogEnrichmentService } from '@app/infrastructure/modules/logger/service
 import { Injectable } from '@nestjs/common';
 import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
+import { BaseError } from '@app/contracts/errors/base-error';
 
 export interface LogParams {
   level: LogLevel;
   message: string;
   context?: Record<string, unknown>;
-  error?: Error;
+  error?: BaseError;
 }
 
 @Injectable()

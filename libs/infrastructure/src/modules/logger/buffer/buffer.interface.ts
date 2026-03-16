@@ -4,7 +4,4 @@ import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.i
 export interface LogBuffer {
   write(entry: LogEntry): boolean;
   flush(sink: Sink): Promise<void>;
-  clear(): void;
-  size(): number;
-  getEntries(): LogEntry[];
 }

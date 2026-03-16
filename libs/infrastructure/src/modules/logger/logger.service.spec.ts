@@ -5,65 +5,45 @@ import {
   LogLevel,
 } from '@app/infrastructure/modules/logger/contracts/log.entry';
 import { LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.interface';
-
-class MockSink implements Sink {
-  emittedEntries: LogEntry[] = [];
-
-  emit(entry: LogEntry): Promise<void> {
-    this.emittedEntries.push(entry);
-    return Promise.resolve();
-  }
-}
-
-class MockBuffer implements LogBuffer {
-  entries: LogEntry[] = [];
-  writeCalled = false;
-  flushCalled = false;
-
-  write(entry: LogEntry): boolean {
-    this.writeCalled = true;
-    this.entries.push(entry);
-    return true; // Always accept entries
-  }
-
-  async flush(sink: Sink): Promise<void> {
-    this.flushCalled = true;
-    for (const entry of this.entries) {
-      await sink.emit(entry);
-    }
-    this.entries = [];
-  }
-
-  clear(): void {
-    throw new Error('Method not implemented.');
-  }
-  size(): number {
-    throw new Error('Method not implemented.');
-  }
-  getEntries(): LogEntry[] {
-    throw new Error('Method not implemented.');
-  }
-}
-
-class MockEnrichmentService {
-  enrich(params: LogParams): Promise<LogEntry> {
-    return Promise.resolve({
-      ...params,
-      timestamp: new Date(),
-    } as LogEntry);
-  }
-}
+import { BaseError } from '@app/contracts/errors/base-error';
+import { ErrorCode } from '@app/contracts/errors/error.codes';
 
 describe('LoggerService', () => {
   let loggerService: LoggerService;
-  let mockSink: MockSink;
-  let mockBuffer: MockBuffer;
-  let mockEnrichmentService: MockEnrichmentService;
+  let mockSink: jest.Mocked<Sink>;
+  let mockBuffer: jest.Mocked<LogBuffer>;
+  let mockEnrichmentService: { enrich: jest.Mock };
+  let bufferEntries: LogEntry[];
 
   beforeEach(() => {
-    mockSink = new MockSink();
-    mockBuffer = new MockBuffer();
-    mockEnrichmentService = new MockEnrichmentService();
+    jest.clearAllMocks();
+
+    mockSink = {
+      emit: jest.fn().mockResolvedValue(undefined),
+    };
+
+    bufferEntries = [];
+    mockBuffer = {
+      write: jest.fn((entry: LogEntry) => {
+        bufferEntries.push(entry);
+        return true;
+      }),
+      flush: jest.fn(async (sink: Sink) => {
+        for (const entry of bufferEntries) {
+          await sink.emit(entry);
+        }
+        bufferEntries = [];
+      }),
+    };
+
+    mockEnrichmentService = {
+      enrich: jest.fn().mockImplementation((params: LogParams) =>
+        Promise.resolve({
+          ...params,
+          timestamp: new Date(),
+        } as LogEntry),
+      ),
+    };
 
     loggerService = new LoggerService({
       sink: mockSink,
@@ -82,33 +62,19 @@ describe('LoggerService', () => {
 
       await loggerService.log(logParams);
 
-      expect(mockBuffer.writeCalled).toBe(true);
-      expect(mockBuffer.entries).toHaveLength(1);
-
-      const entry = mockBuffer.entries[0];
-      expect(entry).toBeDefined();
-
-      expect(entry?.level).toBe('info');
-      expect(entry?.message).toBe('Test message');
-      expect((entry?.context || {})['userId']).toBe(123);
-      expect(entry?.timestamp).toBeDefined();
+      expect(mockBuffer.write).toHaveBeenCalledTimes(1);
+      const entry = mockBuffer.write.mock.calls[0]![0];
+      expect(entry.level).toBe('info');
+      expect(entry.message).toBe('Test message');
+      expect(entry.context?.['userId']).toBe(123);
+      expect(entry.timestamp).toBeDefined();
     });
 
     it('should emit directly to sink when buffer rejects entry', async () => {
-      // Create a buffer that rejects entries
-      class RejectingBuffer implements LogBuffer {
-        write: (entry: LogEntry) => boolean = jest.fn().mockReturnValue(false);
-        flush: () => Promise<void> = jest.fn();
-
-        clear(): void {}
-        getEntries(): LogEntry[] {
-          return [];
-        }
-        size(): number {
-          return 0;
-        }
-      }
-      const rejectingBuffer = new RejectingBuffer();
+      const rejectingBuffer = {
+        write: jest.fn().mockReturnValue(false),
+        flush: jest.fn(),
+      } as jest.Mocked<LogBuffer>;
 
       const testLogger = new LoggerService({
         sink: mockSink,
@@ -123,13 +89,18 @@ describe('LoggerService', () => {
 
       await testLogger.log(logParams);
 
-      expect(rejectingBuffer.write).toHaveBeenCalled();
-      expect(mockSink.emittedEntries).toHaveLength(1);
-      expect(mockSink.emittedEntries[0]?.message).toBe('Direct emit test');
+      expect(rejectingBuffer.write).toHaveBeenCalledTimes(1);
+      expect(mockSink.emit).toHaveBeenCalledTimes(1);
+      expect(mockSink.emit.mock.calls[0]![0].message).toBe('Direct emit test');
     });
 
     it('should handle log entries with error objects', async () => {
-      const testError = new Error('Test error');
+      class TestError extends BaseError {
+        constructor() {
+          super('Test error', ErrorCode.UNKNOWN);
+        }
+      }
+      const testError = new TestError();
 
       await loggerService.log({
         level: LogLevel.ERROR,
@@ -137,24 +108,25 @@ describe('LoggerService', () => {
         error: testError,
       });
 
-      expect(mockBuffer.entries).toHaveLength(1);
-      expect(mockBuffer.entries[0]?.error).toBe(testError);
+      expect(mockBuffer.write).toHaveBeenCalledTimes(1);
+      const entry = mockBuffer.write.mock.calls[0]![0];
+      expect(entry.error).toBe(testError);
     });
   });
 
   describe('flush', () => {
     it('should flush buffer to sink', async () => {
-      // Add some entries to buffer
       await loggerService.log({ level: LogLevel.INFO, message: 'Message 1' });
       await loggerService.log({ level: LogLevel.INFO, message: 'Message 2' });
 
-      expect(mockBuffer.entries).toHaveLength(2);
+      expect(mockBuffer.write).toHaveBeenCalledTimes(2);
 
       await loggerService.flush();
 
-      expect(mockBuffer.flushCalled).toBe(true);
-      expect(mockBuffer.entries).toHaveLength(0);
-      expect(mockSink.emittedEntries).toHaveLength(2);
+      expect(mockBuffer.flush).toHaveBeenCalledTimes(1);
+      expect(mockSink.emit).toHaveBeenCalledTimes(2);
+      expect(mockSink.emit.mock.calls[0]![0].message).toBe('Message 1');
+      expect(mockSink.emit.mock.calls[1]![0].message).toBe('Message 2');
     });
   });
 });
