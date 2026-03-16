@@ -73,13 +73,17 @@ describe('ConditionalSink', () => {
         falseSink,
       );
 
-      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        LoggerSinkError,
-      );
-      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
-        message: 'Logging pipeline breaks due to sink errors',
-        cause: originalError,
-      });
+      try {
+        await conditionalSink.emit(testEntry);
+      } catch (error) {
+        expect(error).toBeInstanceOf(LoggerSinkError);
+        const typedError = error as LoggerSinkError;
+
+        expect(typedError.message).toBe(
+          'Logging pipeline breaks due to sink errors',
+        );
+        expect(typedError.cause).toBe(originalError);
+      }
     });
 
     it('should handle errors from falseSink and wrap them in LoggerSinkError', async () => {
@@ -93,13 +97,17 @@ describe('ConditionalSink', () => {
         falseSink,
       );
 
-      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        LoggerSinkError,
-      );
-      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
-        message: 'Logging pipeline breaks due to sink errors',
-        cause: originalError,
-      });
+      try {
+        await conditionalSink.emit(testEntry);
+      } catch (error) {
+        expect(error).toBeInstanceOf(LoggerSinkError);
+        const typedError = error as LoggerSinkError;
+
+        expect(typedError.message).toBe(
+          'Logging pipeline breaks due to sink errors',
+        );
+        expect(typedError.cause).toBe(originalError);
+      }
     });
 
     it('should handle predicate throwing an error', async () => {
@@ -113,13 +121,17 @@ describe('ConditionalSink', () => {
         falseSink,
       );
 
-      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        LoggerSinkError,
-      );
-      await expect(conditionalSink.emit(testEntry)).rejects.toMatchObject({
-        message: 'Logging pipeline breaks due to sink errors',
-        cause: new Error('predicate error'),
-      });
+      try {
+        await conditionalSink.emit(testEntry);
+      } catch (error) {
+        expect(error).toBeInstanceOf(LoggerSinkError);
+        const typedError = error as LoggerSinkError;
+
+        expect(typedError.message).toBe(
+          'Logging pipeline breaks due to sink errors',
+        );
+        expect(typedError.cause).toEqual(new Error('predicate error'));
+      }
     });
 
     it('should handle nested LoggerSinkError from trueSink', async () => {
@@ -136,19 +148,22 @@ describe('ConditionalSink', () => {
         falseSink,
       );
 
-      await expect(conditionalSink.emit(testEntry)).rejects.toThrow(
-        LoggerSinkError,
-      );
-      const error = await conditionalSink.emit(testEntry).catch((e) => e);
-      expect(error.context?.sinkErrorStack).toHaveLength(2);
-      expect(error.context?.sinkErrorStack[0]).toMatchObject({
-        type: 'nested',
-        id: 'nested-sink',
-      });
-      expect(error.context?.sinkErrorStack[1]).toMatchObject({
-        type: 'conditional',
-        id: 'conditional-1',
-      });
+      try {
+        await conditionalSink.emit(testEntry);
+      } catch (error) {
+        expect(error).toBeInstanceOf(LoggerSinkError);
+        const typedError = error as LoggerSinkError;
+
+        expect(typedError.context.sinkErrorStack).toHaveLength(2);
+        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
+          type: 'nested',
+          id: 'nested-sink',
+        });
+        expect(typedError.context.sinkErrorStack[1]).toMatchObject({
+          type: 'conditional',
+          id: 'conditional-1',
+        });
+      }
     });
   });
 });

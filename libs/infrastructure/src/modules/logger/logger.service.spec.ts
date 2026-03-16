@@ -19,6 +19,7 @@ describe('LoggerService', () => {
     jest.clearAllMocks();
 
     mockSink = {
+      id: 'test',
       emit: jest.fn().mockResolvedValue(undefined),
     };
 
