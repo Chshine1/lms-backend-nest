@@ -21,7 +21,7 @@ export class LoggerLoader {
     await this.eventBusService.on('config.loaded');
     this.configurationService.get<LoggerLibConfig>(LoggerLibConfig);
 
-    this.serviceDependencies.sink = new ConsoleSink();
+    this.serviceDependencies.sink = new ConsoleSink('console-sink');
     this.serviceDependencies.buffer = new MemoryBuffer();
     this.ready = true;
   }

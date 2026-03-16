@@ -16,7 +16,7 @@ export interface LogParams {
 
 @Injectable()
 export class LoggerServiceDependencies {
-  public sink: Sink = new ConsoleSink();
+  public sink: Sink = new ConsoleSink('console-sink');
   public buffer: LogBuffer = new MemoryBuffer();
 
   constructor(public enrichmentService: LogEnrichmentService) {}
