@@ -61,37 +61,36 @@ describe('MulticastSink', () => {
         sink3,
       ]);
 
-      try {
-        await multicastSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(multicastSink.emit(testEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.context.sinkErrorStack).toHaveLength(1);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'multicast',
-          id: 'multicast-1',
-          details: {
-            errorSinks: [
-              {
-                id: 'sink-1',
-                message: 'sink1 failed',
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        context: {
+          sinkErrorStack: [
+            {
+              type: 'multicast',
+              id: 'multicast-1',
+              details: {
+                errorSinks: [
+                  {
+                    id: 'sink-1',
+                    message: 'sink1 failed',
+                  },
+                  {
+                    id: 'sink-3',
+                    message: 'sink3 failed',
+                  },
+                ],
               },
-              {
-                id: 'sink-3',
-                message: 'sink3 failed',
-              },
-            ],
-          },
-        });
+            },
+          ],
+        },
+      });
 
-        expect(sink1.emit).toHaveBeenCalledWith(testEntry);
-        expect(sink2.emit).toHaveBeenCalledWith(testEntry);
-        expect(sink3.emit).toHaveBeenCalledWith(testEntry);
-      }
+      expect(sink1.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink2.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink3.emit).toHaveBeenCalledWith(testEntry);
     });
 
     it('should work with empty sinks array', async () => {
@@ -115,19 +114,28 @@ describe('MulticastSink', () => {
         sink3,
       ]);
 
-      try {
-        await multicastSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(multicastSink.emit(testEntry)).rejects;
 
-        expect(
-          typedError.context.sinkErrorStack[0]?.details?.['errorSinks'],
-        ).toHaveLength(3);
-        expect(sink1.emit).toHaveBeenCalledWith(testEntry);
-        expect(sink2.emit).toHaveBeenCalledWith(testEntry);
-        expect(sink3.emit).toHaveBeenCalledWith(testEntry);
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        context: {
+          sinkErrorStack: [
+            {
+              details: {
+                errorSinks: [
+                  { id: 'sink-1', message: 'sink1 failed' },
+                  { id: 'sink-2', message: 'sink2 failed' },
+                  { id: 'sink-3', message: 'sink3 failed' },
+                ],
+              },
+            },
+          ],
+        },
+      });
+
+      expect(sink1.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink2.emit).toHaveBeenCalledWith(testEntry);
+      expect(sink3.emit).toHaveBeenCalledWith(testEntry);
     });
 
     it('should handle nested LoggerSinkError from sinks', async () => {
@@ -145,22 +153,23 @@ describe('MulticastSink', () => {
         sink3,
       ]);
 
-      try {
-        await multicastSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(multicastSink.emit(testEntry)).rejects;
 
-        expect(typedError.context.sinkErrorStack).toHaveLength(2);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'nested',
-          id: 'nested-sink',
-        });
-        expect(typedError.context.sinkErrorStack[1]).toMatchObject({
-          type: 'multicast',
-          id: 'multicast-1',
-        });
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        context: {
+          sinkErrorStack: [
+            {
+              type: 'nested',
+              id: 'nested-sink',
+            },
+            {
+              type: 'multicast',
+              id: 'multicast-1',
+            },
+          ],
+        },
+      });
     });
   });
 });

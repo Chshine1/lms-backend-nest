@@ -56,19 +56,16 @@ describe('FilterSink', () => {
       nextSink.emit.mockRejectedValue(originalError);
       filterSink = new FilterSink('filter-1', filter, nextSink);
 
-      try {
-        await filterSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(filterSink.emit(testEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.cause).toBe(originalError);
-        expect(filter.filter).toHaveBeenCalledWith(testEntry);
-        expect(nextSink.emit).toHaveBeenCalledWith(testEntry);
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: originalError,
+      });
+
+      expect(filter.filter).toHaveBeenCalledWith(testEntry);
+      expect(nextSink.emit).toHaveBeenCalledWith(testEntry);
     });
 
     it('should handle filter throwing an error', async () => {
@@ -77,18 +74,15 @@ describe('FilterSink', () => {
       });
       filterSink = new FilterSink('filter-1', filter, nextSink);
 
-      try {
-        await filterSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(filterSink.emit(testEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.cause).toEqual(new Error('filter error'));
-        expect(nextSink.emit).not.toHaveBeenCalled();
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: new Error('filter error'),
+      });
+
+      expect(nextSink.emit).not.toHaveBeenCalled();
     });
 
     it('should handle nested LoggerSinkError from next sink', async () => {
@@ -100,24 +94,26 @@ describe('FilterSink', () => {
       nextSink.emit.mockRejectedValue(nestedError);
       filterSink = new FilterSink('filter-1', filter, nextSink);
 
-      try {
-        await filterSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(filterSink.emit(testEntry)).rejects;
 
-        expect(typedError.context.sinkErrorStack).toHaveLength(2);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'nested',
-          id: 'nested-sink',
-        });
-        expect(typedError.context.sinkErrorStack[1]).toMatchObject({
-          type: 'filter',
-          id: 'filter-1',
-        });
-        expect(filter.filter).toHaveBeenCalledWith(testEntry);
-        expect(nextSink.emit).toHaveBeenCalledWith(testEntry);
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        context: {
+          sinkErrorStack: [
+            {
+              type: 'nested',
+              id: 'nested-sink',
+            },
+            {
+              type: 'filter',
+              id: 'filter-1',
+            },
+          ],
+        },
+      });
+
+      expect(filter.filter).toHaveBeenCalledWith(testEntry);
+      expect(nextSink.emit).toHaveBeenCalledWith(testEntry);
     });
   });
 });

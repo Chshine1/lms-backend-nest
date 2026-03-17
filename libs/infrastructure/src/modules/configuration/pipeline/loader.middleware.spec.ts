@@ -1,4 +1,4 @@
-﻿import { Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { IsDefined, IsString, IsNumber } from 'class-validator';
 import {
   ConfigLoadPipelineValidationError,
@@ -84,23 +84,20 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello' };
 
-      await expect(middleware.loadValidated(loaded)).rejects.toThrow(
-        ConfigLoadPipelineValidationError,
+      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
+
+      await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
+      await expectedRejects.toThrow(
+        expect.objectContaining({
+          context: expect.objectContaining({
+            middleware: TestLoaderMiddleware.name,
+            location: {
+              type: 'dependencies',
+              dependency: DependencyB.name,
+            },
+          }),
+        }),
       );
-
-      try {
-        await middleware.loadValidated(loaded);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ConfigLoadPipelineValidationError);
-
-        const context =
-          (error as ConfigLoadPipelineValidationError).context || {};
-        expect(context['middleware']).toEqual(TestLoaderMiddleware.name);
-        expect(context['location']).toEqual({
-          type: 'dependencies',
-          dependency: DependencyB.name,
-        });
-      }
     });
 
     it('should catch the inner error and encapsulated by ConfigLoadPipelineMiddlewareError', async () => {
@@ -118,26 +115,19 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello', b: 42 };
 
-      await expect(middleware.loadValidated(loaded)).rejects.toThrow(
-        ConfigLoadPipelineMiddlewareError,
+      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
+
+      await expectedRejects.toThrow(ConfigLoadPipelineMiddlewareError);
+      await expectedRejects.toThrow(
+        expect.objectContaining({
+          cause: expect.objectContaining({
+            message: 'Simulated load error',
+          }),
+          context: expect.objectContaining({
+            middleware: ThrowingLoaderMiddleware.name,
+          }),
+        }),
       );
-
-      try {
-        await middleware.loadValidated(loaded);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ConfigLoadPipelineMiddlewareError);
-
-        expect(
-          (error as ConfigLoadPipelineMiddlewareError).cause,
-        ).toBeInstanceOf(Error);
-        expect(
-          ((error as ConfigLoadPipelineMiddlewareError).cause as Error).message,
-        ).toBe('Simulated load error');
-
-        const context =
-          (error as ConfigLoadPipelineMiddlewareError).context || {};
-        expect(context['middleware']).toEqual(ThrowingLoaderMiddleware.name);
-      }
     });
 
     it('should throw ConfigLoadPipelineValidationError, indicating target validation error', async () => {
@@ -156,22 +146,19 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello', b: 42 };
 
-      await expect(middleware.loadValidated(loaded)).rejects.toThrow(
-        ConfigLoadPipelineValidationError,
+      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
+
+      await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
+      await expectedRejects.toThrow(
+        expect.objectContaining({
+          context: expect.objectContaining({
+            middleware: InvalidTargetMiddleware.name,
+            location: {
+              type: 'target',
+            },
+          }),
+        }),
       );
-
-      try {
-        await middleware.loadValidated(loaded);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ConfigLoadPipelineValidationError);
-
-        const context =
-          (error as ConfigLoadPipelineValidationError).context || {};
-        expect(context['middleware']).toEqual(InvalidTargetMiddleware.name);
-        expect(context['location']).toEqual({
-          type: 'target',
-        });
-      }
     });
   });
 });

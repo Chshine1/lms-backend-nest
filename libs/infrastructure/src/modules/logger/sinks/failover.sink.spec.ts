@@ -13,168 +13,271 @@ describe('FailoverSink', () => {
   let failoverSink: Sink;
   let testEntry: LogEntry;
 
-  beforeEach(() => {
-    primarySink = {
-      id: 'primary-sink-1',
+  function createMockSink(id: string): jest.Mocked<Sink> {
+    return {
+      id,
       emit: jest.fn().mockResolvedValue(undefined),
     };
-    fallbackSink1 = {
-      id: 'fallback-1',
-      emit: jest.fn().mockResolvedValue(undefined),
-    };
-    fallbackSink2 = {
-      id: 'fallback-2',
-      emit: jest.fn().mockResolvedValue(undefined),
-    };
-    testEntry = {
+  }
+
+  function createFailoverSink(primary: Sink, fallbacks: Sink[]): FailoverSink {
+    return new FailoverSink('failover-1', primary, fallbacks);
+  }
+
+  function createTestEntry(): LogEntry {
+    return {
       level: LogLevel.INFO,
       message: 'test message',
       timestamp: new Date(),
       serviceName: 'testService',
     };
+  }
+
+  beforeEach(() => {
+    primarySink = createMockSink('primary-sink-1');
+    fallbackSink1 = createMockSink('fallback-1');
+    fallbackSink2 = createMockSink('fallback-2');
+    testEntry = createTestEntry();
   });
 
   describe('emit', () => {
-    it('should use primary sink when it succeeds', async () => {
-      failoverSink = new FailoverSink('failover-1', primarySink, [
-        fallbackSink1,
-        fallbackSink2,
-      ]);
+    describe('when primary sink succeeds', () => {
+      it('should use primary sink and not call fallback sinks', async () => {
+        failoverSink = createFailoverSink(primarySink, [
+          fallbackSink1,
+          fallbackSink2,
+        ]);
 
-      await failoverSink.emit(testEntry);
-
-      expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
-      expect(fallbackSink1.emit).not.toHaveBeenCalled();
-      expect(fallbackSink2.emit).not.toHaveBeenCalled();
-    });
-
-    it('should fallback to first available sink when primary fails', async () => {
-      primarySink.emit.mockRejectedValue(new Error('primary failed'));
-      failoverSink = new FailoverSink('failover-1', primarySink, [
-        fallbackSink1,
-        fallbackSink2,
-      ]);
-
-      await failoverSink.emit(testEntry);
-
-      expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
-      expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
-      expect(fallbackSink2.emit).not.toHaveBeenCalled();
-    });
-
-    it('should fallback to second sink when first fallback fails', async () => {
-      primarySink.emit.mockRejectedValue(new Error('primary failed'));
-      fallbackSink1.emit.mockRejectedValue(new Error('fallback1 failed'));
-      failoverSink = new FailoverSink('failover-1', primarySink, [
-        fallbackSink1,
-        fallbackSink2,
-      ]);
-
-      await failoverSink.emit(testEntry);
-
-      expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
-      expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
-      expect(fallbackSink2.emit).toHaveBeenCalledWith(testEntry);
-    });
-
-    it('should throw LoggerSinkError when all sinks fail', async () => {
-      const primaryError = new Error('primary failed');
-      const fallback1Error = new Error('fallback1 failed');
-      const fallback2Error = new Error('fallback2 failed');
-
-      primarySink.emit.mockRejectedValue(primaryError);
-      fallbackSink1.emit.mockRejectedValue(fallback1Error);
-      fallbackSink2.emit.mockRejectedValue(fallback2Error);
-
-      failoverSink = new FailoverSink('failover-1', primarySink, [
-        fallbackSink1,
-        fallbackSink2,
-      ]);
-
-      try {
         await failoverSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.context.sinkErrorStack).toHaveLength(1);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'failover',
-          id: 'failover-1',
-          details: {
-            allFailed: true,
-            errorSinks: [
-              {
-                type: 'primary',
-                id: 'primary-sink-1',
+        expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
+        expect(fallbackSink1.emit).not.toHaveBeenCalled();
+        expect(fallbackSink2.emit).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when primary sink fails', () => {
+      let primaryError: Error;
+      beforeEach(() => {
+        primaryError = new Error('primary failed');
+        primarySink.emit.mockRejectedValue(primaryError);
+      });
+
+      describe('and first fallback sink succeeds', () => {
+        it('should call primary sink and first fallback sink', async () => {
+          failoverSink = createFailoverSink(primarySink, [
+            fallbackSink1,
+            fallbackSink2,
+          ]);
+
+          const expectedRejects = expect(failoverSink.emit(testEntry)).rejects;
+
+          await expectedRejects.toThrow(LoggerSinkError);
+          await expectedRejects.toMatchObject({
+            message: 'Logging pipeline breaks due to sink errors',
+            context: {
+              sinkErrorStack: [
+                {
+                  type: 'failover',
+                  id: failoverSink.id,
+                  details: {
+                    allFailed: false,
+                    errorSinks: [
+                      {
+                        type: 'primary',
+                        id: primarySink.id,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            cause: expect.objectContaining({
+              errors: [primaryError],
+            }) as AggregateError,
+          });
+
+          expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
+          expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
+          expect(fallbackSink2.emit).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('and first fallback sink fails', () => {
+        let fallbackError1: Error;
+        beforeEach(() => {
+          fallbackError1 = new Error('fallback1 failed');
+          fallbackSink1.emit.mockRejectedValue(fallbackError1);
+        });
+
+        describe('and second fallback sink succeeds', () => {
+          it('should call primary sink, first fallback sink, and second fallback sink', async () => {
+            failoverSink = createFailoverSink(primarySink, [
+              fallbackSink1,
+              fallbackSink2,
+            ]);
+
+            const expectedRejects = expect(
+              failoverSink.emit(testEntry),
+            ).rejects;
+
+            await expectedRejects.toThrow(LoggerSinkError);
+            await expectedRejects.toMatchObject({
+              message: 'Logging pipeline breaks due to sink errors',
+              context: {
+                sinkErrorStack: [
+                  {
+                    type: 'failover',
+                    id: failoverSink.id,
+                    details: {
+                      allFailed: false,
+                      errorSinks: [
+                        {
+                          type: 'primary',
+                          id: primarySink.id,
+                        },
+                        {
+                          type: 'fallback',
+                          id: fallbackSink1.id,
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
-              { type: 'fallback', id: 'fallback-1' },
-              { type: 'fallback', id: 'fallback-2' },
-            ],
-          },
+              cause: expect.objectContaining({
+                errors: [primaryError, fallbackError1],
+              }) as AggregateError,
+            });
+
+            expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
+            expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
+            expect(fallbackSink2.emit).toHaveBeenCalledWith(testEntry);
+          });
         });
 
-        expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
-        expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
-        expect(fallbackSink2.emit).toHaveBeenCalledWith(testEntry);
-      }
-    });
+        describe('and all fallback sinks fail', () => {
+          let fallbackError2: Error;
+          beforeEach(() => {
+            fallbackError2 = new Error('fallback2 failed');
+            fallbackSink2.emit.mockRejectedValue(fallbackError2);
+          });
 
-    it('should work with empty fallbacks array and throw LoggerSinkError', async () => {
-      const primaryError = new Error('primary failed');
-      primarySink.emit.mockRejectedValue(primaryError);
-      failoverSink = new FailoverSink('failover-1', primarySink, []);
+          it('should throw LoggerSinkError with complete error context', async () => {
+            failoverSink = createFailoverSink(primarySink, [
+              fallbackSink1,
+              fallbackSink2,
+            ]);
 
-      try {
-        await failoverSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+            const expectedRejects = expect(
+              failoverSink.emit(testEntry),
+            ).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(
-          typedError.context.sinkErrorStack[0]?.details?.['allFailed'],
-        ).toBe(true);
-        expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
-      }
-    });
+            await expectedRejects.toThrow(LoggerSinkError);
+            await expectedRejects.toMatchObject({
+              message: 'Logging pipeline breaks due to sink errors',
+              context: {
+                sinkErrorStack: [
+                  {
+                    type: 'failover',
+                    id: failoverSink.id,
+                    details: {
+                      allFailed: true,
+                      errorSinks: [
+                        {
+                          type: 'primary',
+                          id: primarySink.id,
+                        },
+                        {
+                          type: 'fallback',
+                          id: fallbackSink1.id,
+                        },
+                        {
+                          type: 'fallback',
+                          id: fallbackSink2.id,
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+              cause: expect.objectContaining({
+                errors: [primaryError, fallbackError1, fallbackError2],
+              }) as AggregateError,
+            });
 
-    it('should handle nested LoggerSinkError from fallback sinks', async () => {
-      const primaryError = new Error('primary failed');
-      const nestedError = new LoggerSinkError(
-        [{ type: 'nested', id: 'nested-sink' }],
-        new Error('nested sink error'),
-      );
-
-      primarySink.emit.mockRejectedValue(primaryError);
-      fallbackSink1.emit.mockRejectedValue(nestedError);
-
-      failoverSink = new FailoverSink('failover-1', primarySink, [
-        fallbackSink1,
-        fallbackSink2,
-      ]);
-
-      try {
-        await failoverSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
-
-        expect(typedError.context.sinkErrorStack).toHaveLength(2);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'nested',
-          id: 'nested-sink',
+            expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
+            expect(fallbackSink1.emit).toHaveBeenCalledWith(testEntry);
+            expect(fallbackSink2.emit).toHaveBeenCalledWith(testEntry);
+          });
         });
-        expect(typedError.context.sinkErrorStack[1]).toMatchObject({
-          type: 'failover',
-          id: 'failover-1',
+      });
+
+      describe('with empty fallbacks array', () => {
+        describe('when primary sink fails', () => {
+          it('should throw LoggerSinkError with allFailed set to true', async () => {
+            const primaryError = new Error('primary failed');
+            primarySink.emit.mockRejectedValue(primaryError);
+            failoverSink = createFailoverSink(primarySink, []);
+
+            const expectedRejects = expect(
+              failoverSink.emit(testEntry),
+            ).rejects;
+
+            await expectedRejects.toThrow(LoggerSinkError);
+            await expectedRejects.toMatchObject({
+              message: 'Logging pipeline breaks due to sink errors',
+              context: {
+                sinkErrorStack: [
+                  {
+                    details: {
+                      allFailed: true,
+                    },
+                  },
+                ],
+              },
+            });
+
+            expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
+          });
         });
-      }
+      });
+
+      describe('when handling nested LoggerSinkError from fallback sinks', () => {
+        it('should combine error stacks from nested errors', async () => {
+          const primaryError = new Error('primary failed');
+          const nestedError = new LoggerSinkError(
+            [{ type: 'nested', id: 'nested-sink' }],
+            new Error('nested sink error'),
+          );
+
+          primarySink.emit.mockRejectedValue(primaryError);
+          fallbackSink1.emit.mockRejectedValue(nestedError);
+
+          failoverSink = createFailoverSink(primarySink, [
+            fallbackSink1,
+            fallbackSink2,
+          ]);
+
+          const expectedRejects = expect(failoverSink.emit(testEntry)).rejects;
+
+          await expectedRejects.toThrow(LoggerSinkError);
+          await expectedRejects.toMatchObject({
+            context: {
+              sinkErrorStack: [
+                {
+                  type: 'nested',
+                  id: 'nested-sink',
+                },
+                {
+                  type: 'failover',
+                  id: 'failover-1',
+                },
+              ],
+            },
+          });
+        });
+      });
     });
   });
 });

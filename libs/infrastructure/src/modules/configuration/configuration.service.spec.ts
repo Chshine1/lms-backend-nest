@@ -16,79 +16,89 @@ class TestConfig {
 }
 
 describe('ConfigurationService', () => {
-  let service: ConfigurationService;
+  function createConfigurationService(
+    configuration: Record<string, unknown>,
+  ): ConfigurationService {
+    return new ConfigurationService({ configuration });
+  }
 
-  beforeEach(() => {
-    service = new ConfigurationService({
-      configuration: {
-        name: 'test-app',
-        port: 3000,
-      },
-    });
-  });
+  function createValidConfiguration(): Record<string, unknown> {
+    return {
+      name: 'test-app',
+      port: 3000,
+    };
+  }
 
   describe('get', () => {
-    it('should return validated configuration object', () => {
-      const config = service.get(TestConfig);
+    describe('with valid configuration', () => {
+      it('should return validated configuration object', () => {
+        const validService = createConfigurationService(
+          createValidConfiguration(),
+        );
 
-      expect(config).toBeInstanceOf(TestConfig);
-      expect(config.name).toBe('test-app');
-      expect(config.port).toBe(3000);
-    });
+        const config = validService.get(TestConfig);
 
-    it('should throw GetConfigValidationError when validation fails', () => {
-      const invalidService = new ConfigurationService({
-        configuration: {
-          name: 'test-app',
-          // port is missing - required field
-        },
+        expect(config).toBeInstanceOf(TestConfig);
+        expect(config.name).toBe('test-app');
+        expect(config.port).toBe(3000);
       });
-
-      expect(() => invalidService.get(TestConfig)).toThrow(
-        GetConfigValidationError,
-      );
     });
 
-    it('should exclude extraneous values from configuration', () => {
-      const serviceWithExtra = new ConfigurationService({
-        configuration: {
+    describe('with invalid configuration', () => {
+      it('should throw GetConfigValidationError when required field is missing', () => {
+        const invalidConfiguration = {
+          name: 'test-app',
+        };
+        const invalidService = createConfigurationService(invalidConfiguration);
+
+        expect(() => invalidService.get(TestConfig)).toThrow(
+          GetConfigValidationError,
+        );
+      });
+    });
+
+    describe('with extraneous configuration values', () => {
+      it('should exclude extraneous values from configuration object', () => {
+        const configurationWithExtra = {
           name: 'test-app',
           port: 3000,
           extraField: 'should-be-ignored',
-        },
+        };
+        const serviceWithExtra = createConfigurationService(
+          configurationWithExtra,
+        );
+
+        const config = serviceWithExtra.get(TestConfig);
+
+        expect(config).toBeInstanceOf(TestConfig);
+        expect(config.name).toBe('test-app');
+        expect(config.port).toBe(3000);
+        expect(
+          (config as unknown as Record<string, unknown>)['extraField'],
+        ).toBeUndefined();
       });
-
-      const config = serviceWithExtra.get(TestConfig);
-
-      expect(config).toBeInstanceOf(TestConfig);
-      expect(config.name).toBe('test-app');
-      expect(config.port).toBe(3000);
-      expect(
-        (config as unknown as Record<string, unknown>)['extraField'],
-      ).toBeUndefined();
     });
   });
 
   describe('error handling', () => {
-    it('should include validation errors in GetConfigValidationError', () => {
-      const invalidService = new ConfigurationService({
-        configuration: {
-          // Both required fields are missing
-        },
-      });
+    describe('when configuration is completely invalid', () => {
+      it('should include validation errors in GetConfigValidationError', () => {
+        const emptyConfiguration = {};
+        const invalidService = createConfigurationService(emptyConfiguration);
 
-      try {
-        invalidService.get(TestConfig);
-        fail('Expected GetConfigValidationError to be thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(GetConfigValidationError);
-        expect(
-          (error as GetConfigValidationError).validationErrors,
-        ).toBeDefined();
-        expect(
-          (error as GetConfigValidationError).validationErrors.length,
-        ).toBeGreaterThan(0);
-      }
+        const expectedThrows = (): TestConfig => invalidService.get(TestConfig);
+
+        expect(expectedThrows).toThrow(GetConfigValidationError);
+        expect(expectedThrows).toThrow(
+          expect.objectContaining({
+            validationErrors: expect.arrayContaining([
+              expect.objectContaining({
+                property: expect.any(String),
+              }),
+            ]),
+          }),
+        );
+      });
     });
   });
 });

@@ -60,19 +60,16 @@ describe('ProcessorSink', () => {
       processor.process.mockRejectedValue(originalError);
       processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
-      try {
-        await processorSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(processorSink.emit(testEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.cause).toBe(originalError);
-        expect(processor.process).toHaveBeenCalledWith(testEntry);
-        expect(nextSink.emit).not.toHaveBeenCalled();
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: originalError,
+      });
+
+      expect(processor.process).toHaveBeenCalledWith(testEntry);
+      expect(nextSink.emit).not.toHaveBeenCalled();
     });
 
     it('should handle next sink errors and wrap them in LoggerSinkError', async () => {
@@ -95,19 +92,16 @@ describe('ProcessorSink', () => {
       nextSink.emit.mockRejectedValue(originalError);
       processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
-      try {
-        await processorSink.emit(originalEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(processorSink.emit(originalEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.cause).toBe(originalError);
-        expect(processor.process).toHaveBeenCalledWith(originalEntry);
-        expect(nextSink.emit).toHaveBeenCalledWith(processedEntry);
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: originalError,
+      });
+
+      expect(processor.process).toHaveBeenCalledWith(originalEntry);
+      expect(nextSink.emit).toHaveBeenCalledWith(processedEntry);
     });
 
     it('should handle processor throwing an error', async () => {
@@ -116,19 +110,13 @@ describe('ProcessorSink', () => {
       });
       processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
-      try {
-        await processorSink.emit(testEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(processorSink.emit(testEntry)).rejects;
 
-        expect(typedError.message).toBe(
-          'Logging pipeline breaks due to sink errors',
-        );
-        expect(typedError.cause).toEqual(new Error('processor sync error'));
-        expect(processor.process).toHaveBeenCalledWith(testEntry);
-        expect(nextSink.emit).not.toHaveBeenCalled();
-      }
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        message: 'Logging pipeline breaks due to sink errors',
+        cause: new Error('processor sync error'),
+      });
 
       expect(processor.process).toHaveBeenCalledWith(testEntry);
       expect(nextSink.emit).not.toHaveBeenCalled();
@@ -158,25 +146,26 @@ describe('ProcessorSink', () => {
       nextSink.emit.mockRejectedValue(nestedError);
       processorSink = new ProcessorSink('processor-1', processor, nextSink);
 
-      try {
-        await processorSink.emit(originalEntry);
-      } catch (error) {
-        expect(error).toBeInstanceOf(LoggerSinkError);
-        const typedError = error as LoggerSinkError;
+      const expectedRejects = expect(processorSink.emit(originalEntry)).rejects;
 
-        expect(typedError.context.sinkErrorStack).toHaveLength(2);
-        expect(typedError.context.sinkErrorStack[0]).toMatchObject({
-          type: 'nested',
-          id: 'nested-sink',
-        });
-        expect(typedError.context.sinkErrorStack[1]).toMatchObject({
-          type: 'processor',
-          id: 'processor-1',
-        });
+      await expectedRejects.toThrow(LoggerSinkError);
+      await expectedRejects.toMatchObject({
+        context: {
+          sinkErrorStack: [
+            {
+              type: 'nested',
+              id: 'nested-sink',
+            },
+            {
+              type: 'processor',
+              id: 'processor-1',
+            },
+          ],
+        },
+      });
 
-        expect(processor.process).toHaveBeenCalledWith(originalEntry);
-        expect(nextSink.emit).toHaveBeenCalledWith(processedEntry);
-      }
+      expect(processor.process).toHaveBeenCalledWith(originalEntry);
+      expect(nextSink.emit).toHaveBeenCalledWith(processedEntry);
     });
   });
 });
