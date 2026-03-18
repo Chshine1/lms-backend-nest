@@ -232,10 +232,19 @@ describe('FailoverSink', () => {
                   {
                     details: {
                       allFailed: true,
+                      errorSinks: [
+                        {
+                          type: 'primary',
+                          id: primarySink.id,
+                        },
+                      ],
                     },
                   },
                 ],
               },
+              cause: expect.objectContaining({
+                errors: [primaryError],
+              }) as AggregateError,
             });
 
             expect(primarySink.emit).toHaveBeenCalledWith(testEntry);
@@ -244,10 +253,10 @@ describe('FailoverSink', () => {
       });
 
       describe('when handling nested LoggerSinkError from fallback sinks', () => {
-        it('should combine error stacks from nested errors', async () => {
+        it('should break the error stack and throw an aggregated error', async () => {
           const primaryError = new Error('primary failed');
           const nestedError = new LoggerSinkError(
-            [{ type: 'nested', id: 'nested-sink' }],
+            [{ type: 'nested', id: fallbackSink1.id }],
             new Error('nested sink error'),
           );
 
@@ -266,15 +275,27 @@ describe('FailoverSink', () => {
             context: {
               sinkErrorStack: [
                 {
-                  type: 'nested',
-                  id: 'nested-sink',
-                },
-                {
                   type: 'failover',
-                  id: 'failover-1',
+                  id: failoverSink.id,
+                  details: {
+                    allFailed: false,
+                    errorSinks: [
+                      {
+                        type: 'primary',
+                        id: primarySink.id,
+                      },
+                      {
+                        type: 'fallback',
+                        id: fallbackSink1.id,
+                      },
+                    ],
+                  },
                 },
               ],
             },
+            cause: expect.objectContaining({
+              errors: [primaryError, nestedError],
+            }) as AggregateError,
           });
         });
       });

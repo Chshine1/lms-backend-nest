@@ -152,15 +152,15 @@ describe('MulticastSink', () => {
       });
 
       describe('when handling nested LoggerSinkError', () => {
-        it('should combine error stacks from nested errors', async () => {
-          const rootError = new Error('nested sink error');
-          const nestedError = new LoggerSinkError(
+        it('should break the error stack and throw an aggregated error', async () => {
+          const nestedError1 = new LoggerSinkError(
             [{ type: 'nested', id: sink1.id }],
-            rootError,
+            new Error('nested sink error'),
           );
+          const nestedError2 = new Error('sink2 failed');
 
-          sink1.emit.mockRejectedValue(nestedError);
-          sink2.emit.mockRejectedValue(new Error('sink2 failed'));
+          sink1.emit.mockRejectedValue(nestedError1);
+          sink2.emit.mockRejectedValue(nestedError2);
 
           multicastSink = createMulticastSink([sink1, sink2, sink3]);
 
@@ -172,16 +172,26 @@ describe('MulticastSink', () => {
             context: {
               sinkErrorStack: [
                 {
-                  type: 'nested',
-                  id: sink1.id,
-                },
-                {
                   type: 'multicast',
                   id: multicastSink.id,
+                  details: {
+                    errorSinks: [
+                      {
+                        id: sink1.id,
+                        message: nestedError1.message,
+                      },
+                      {
+                        id: sink2.id,
+                        message: nestedError2.message,
+                      },
+                    ],
+                  },
                 },
               ],
             },
-            cause: rootError,
+            cause: expect.objectContaining({
+              errors: [nestedError1, nestedError2],
+            }) as AggregateError,
           });
 
           expect(sink1.emit).toHaveBeenCalledWith(testEntry);
