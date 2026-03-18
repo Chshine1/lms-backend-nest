@@ -1,12 +1,12 @@
 import { Expose } from 'class-transformer';
 
-export class ParentContract {
+export class AdminContract {
   @Expose()
   userId!: number;
 
   @Expose()
-  relationToStudent!: string;
+  department!: string;
 
   @Expose()
-  occupation?: string;
+  jobTitle?: string;
 }

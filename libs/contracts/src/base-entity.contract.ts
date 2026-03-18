@@ -1,4 +1,4 @@
-﻿import { Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class BaseEntityContract {
   @Expose()
@@ -9,4 +9,10 @@ export class BaseEntityContract {
 
   @Expose()
   updatedAt!: Date;
+
+  @Expose()
+  deletedAt?: Date;
+
+  @Expose()
+  version!: number;
 }

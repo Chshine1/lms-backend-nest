@@ -102,16 +102,6 @@ This keeps the core design extensible.
 
 ## Supporting Tables for Use Cases
 
-### user_roles (tenant‑wide roles)
-
-| Column     | Type        | Description                        |
-|------------|-------------|------------------------------------|
-| id         | bigint      | PK                                 |
-| user_id    | bigint      | FK → users.id                      |
-| role       | varchar(50) | e.g., tenant_admin, campus_manager |
-| campus_id  | bigint      | FK → campuses.id (nullable, scope) |
-| created_at | timestamptz |                                    |
-
 ### communication_logs
 
 | Column             | Type        | Description                          |

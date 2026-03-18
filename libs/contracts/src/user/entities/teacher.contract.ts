@@ -1,18 +1,15 @@
-﻿import { Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class TeacherContract {
   @Expose()
   userId!: number;
 
   @Expose()
-  teacherNo!: string;
+  employeeId!: string;
 
   @Expose()
-  subjects!: string[];
+  qualifications!: string;
 
   @Expose()
-  homeCampusId!: number;
-
-  @Expose()
-  qualification!: string;
+  hireDate!: Date;
 }
