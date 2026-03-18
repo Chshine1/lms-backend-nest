@@ -1,4 +1,4 @@
-﻿# User Service Internal Modules & Interaction
+# User Service Internal Modules
 
 ## Internal Layering
 
@@ -32,8 +32,6 @@ The User Service follows a typical hexagonal (ports & adapters) architecture:
 - **User Management**: CRUD for users, tenants, campuses.
 - **Role Management**: Assign/revoke tenant‑wide roles.
 - **Profile Module**: Retrieves user details (including type‑specific data).
-- **Communication Logs**: Records staff‑student interactions.
-- **Task & Report Module**: Manages learning tasks and reports (optional; could be split if too heavy).
 
 Each module has its own service class and repository.
 
@@ -59,15 +57,7 @@ The User Service emits events when important changes occur:
 - `user.role.assigned`
 - `user.role.revoked`
 
-Other services subscribe to these events to keep their local caches or permission tables consistent. For example, the
-Course Service may maintain a denormalized list of teachers to speed up authorization checks.
-
-### External Integrations
-
-- **File Storage**: For uploading evidence (exam screenshots, communication attachments), the User Service delegates to
-  a dedicated file service (e.g., S3 with presigned URLs). It stores only the URL.
-- **Notification Service**: Sends emails/push notifications via an external service. The User Service triggers
-  notifications on events like user creation, role change, etc.
+Other services subscribe to these events to keep their local caches or permission tables consistent.
 
 ## Deployment
 

@@ -1,8 +1,7 @@
-﻿# Database Schema Design
+# Database Schema Design
 
 This document defines the database tables for the User Service, following the **class‑table inheritance** pattern for
-user identities. The schema is designed to support the core entities (Tenant, User, Campus) and to accommodate the
-requirements from the use cases (e.g., roles, communication logs, learning tasks, reports).
+user identities. The schema is designed to support the core entities (Tenant, User, Campus) and user identity types.
 
 ## Naming Conventions
 
@@ -59,13 +58,12 @@ Each user type has a dedicated table with a 1:1 relationship to `users`. The `us
 
 ### students
 
-| Column                           | Type        | Description                    |
-|----------------------------------|-------------|--------------------------------|
-| user_id                          | bigint      | PK, FK → users.id              |
-| student_id                       | varchar(50) | External student ID (optional) |
-| grade_level                      | varchar(50) | e.g., Grade 9, A-Level         |
-| enrollment_date                  | date        |                                |
-| ... (other type‑specific fields) |             |                                |
+| Column          | Type        | Description                    |
+|-----------------|-------------|--------------------------------|
+| user_id         | bigint      | PK, FK → users.id              |
+| student_id      | varchar(50) | External student ID (optional) |
+| grade_level     | varchar(50) | e.g., Grade 9, A-Level         |
+| enrollment_date | date        |                                |
 
 ### teachers
 
@@ -98,111 +96,8 @@ If a user needs multiple identities in the future, a bridge table `user_identiti
 - `identity_type` (student, teacher, …)
 - `identity_id` (FK to the corresponding type table)
 
-This keeps the core design extensible.
-
-## Supporting Tables for Use Cases
-
-### communication_logs
-
-| Column             | Type        | Description                          |
-|--------------------|-------------|--------------------------------------|
-| id                 | bigint      | PK                                   |
-| user_id            | bigint      | FK → users.id (the student)          |
-| actor_id           | bigint      | FK → users.id (the staff who logged) |
-| communication_type | varchar(50) | phone, wechat, face‑to‑face          |
-| target             | varchar(50) | student, parent                      |
-| summary            | text        |                                      |
-| follow_up          | text        |                                      |
-| attachments        | jsonb       | Array of file URLs (optional)        |
-| created_at         | timestamptz |                                      |
-
-### learning_tasks
-
-| Column       | Type         | Description                     |
-|--------------|--------------|---------------------------------|
-| id           | bigint       | PK                              |
-| user_id      | bigint       | FK → users.id (student)         |
-| title        | varchar(255) |                                 |
-| description  | text         |                                 |
-| due_date     | timestamptz  |                                 |
-| status       | varchar(20)  | pending, completed, overdue     |
-| completed_at | timestamptz  |                                 |
-| created_by   | bigint       | FK → users.id (teacher/advisor) |
-| created_at   | timestamptz  |                                 |
-| updated_at   | timestamptz  |                                 |
-
-### reports
-
-| Column       | Type        | Description                                            |
-|--------------|-------------|--------------------------------------------------------|
-| id           | bigint      | PK                                                     |
-| user_id      | bigint      | FK → users.id (student)                                |
-| type         | varchar(50) | mock, midterm, final, post‑exam                        |
-| content      | jsonb       | Structured report data (scores, analysis, suggestions) |
-| status       | varchar(20) | draft, pending_review, published                       |
-| reviewed_by  | bigint      | FK → users.id (teacher/advisor)                        |
-| published_at | timestamptz |                                                        |
-| created_at   | timestamptz |                                                        |
-| updated_at   | timestamptz |                                                        |
-
-### exam_records
-
-| Column          | Type         | Description                 |
-|-----------------|--------------|-----------------------------|
-| id              | bigint       | PK                          |
-| user_id         | bigint       | FK → users.id               |
-| exam_type       | varchar(50)  | IELTS, TOEFL, internal mock |
-| exam_date       | date         |                             |
-| total_score     | numeric(5,2) |                             |
-| listening_score | numeric(5,2) |                             |
-| reading_score   | numeric(5,2) |                             |
-| writing_score   | numeric(5,2) |                             |
-| speaking_score  | numeric(5,2) |                             |
-| evidence_url    | text         | Link to uploaded screenshot |
-| status          | varchar(20)  | pending, confirmed          |
-| created_at      | timestamptz  |                             |
-| updated_at      | timestamptz  |                             |
-
-### course_enrollments
-
-| Column      | Type        | Description                          |
-|-------------|-------------|--------------------------------------|
-| id          | bigint      | PK                                   |
-| user_id     | bigint      | FK → users.id (student)              |
-| course_id   | bigint      | References Course Service (external) |
-| role        | varchar(20) | student, teacher                     |
-| status      | varchar(20) | enrolled, dropped, completed         |
-| enrolled_at | timestamptz |                                      |
-| dropped_at  | timestamptz |                                      |
-| created_at  | timestamptz |                                      |
-
-Note: `course_id` is an external identifier; the User Service does not own course data.
-
-### notes (for onboarding, feedback, etc.)
-
-| Column     | Type        | Description                   |
-|------------|-------------|-------------------------------|
-| id         | bigint      | PK                            |
-| user_id    | bigint      | FK → users.id (student)       |
-| author_id  | bigint      | FK → users.id (staff)         |
-| content    | text        |                               |
-| note_type  | varchar(50) | onboarding, feedback, general |
-| created_at | timestamptz |                               |
-
-## Additional Indexes
-
-- Foreign keys: all `*_id` columns indexed.
-- `communication_logs` on `user_id`, `actor_id`, `created_at`.
-- `learning_tasks` on `user_id`, `due_date`, `status`.
-- `reports` on `user_id`, `type`, `status`.
-- `exam_records` on `user_id`, `exam_date`.
-
 ## Remarks
 
 - The schema is designed to be extensible: new user types only require a new extension table.
-- Tenant‑wide roles are optional; fine‑grained permissions are managed by business services.
-- Tables like `communication_logs`, `learning_tasks`, `reports` are owned by the User Service because they are closely
-  tied to user identity and are needed across multiple business domains. This follows the principle of keeping related
-  data together.
-- External references (e.g., `course_id`) are stored as plain IDs; the User Service does not maintain foreign key
-  constraints to external services.
+- Tenant‑wide roles are managed separately in authorization modules.
+- User Service focuses on core user identity management and authentication.
