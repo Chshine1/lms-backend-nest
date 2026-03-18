@@ -9,18 +9,26 @@ describe('NullSink', () => {
   let nullSink: Sink;
   let testEntry: LogEntry;
 
-  beforeEach(() => {
-    testEntry = {
+  function createNullSink(): NullSink {
+    return new NullSink('null-1');
+  }
+
+  function createTestEntry(): LogEntry {
+    return {
       level: LogLevel.INFO,
       message: 'test message',
       timestamp: new Date(),
       serviceName: 'testService',
     };
+  }
+
+  beforeEach(() => {
+    testEntry = createTestEntry();
   });
 
   describe('emit', () => {
     it('should result in nothing', async () => {
-      nullSink = new NullSink('null-1');
+      nullSink = createNullSink();
       await nullSink.emit(testEntry);
     });
   });
