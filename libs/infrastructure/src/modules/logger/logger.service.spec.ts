@@ -4,9 +4,9 @@ import {
   LogEntry,
   LogLevel,
 } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.interface';
 import { BaseError } from '@app/contracts/errors/base-error';
 import { ErrorCode } from '@app/contracts/errors/error.codes';
+import { LogBuffer } from '@app/infrastructure/modules/logger/contracts/buffer.interface';
 
 describe('LoggerService', () => {
   let loggerService: LoggerService;

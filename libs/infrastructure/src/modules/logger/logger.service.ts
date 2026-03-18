@@ -1,11 +1,11 @@
-﻿import { type LogBuffer } from '@app/infrastructure/modules/logger/buffer/buffer.interface';
-import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
+﻿import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
 import { type Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
 import { LogEnrichmentService } from '@app/infrastructure/modules/logger/services/log-enrichment.service';
 import { Injectable } from '@nestjs/common';
 import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
 import { BaseError } from '@app/contracts/errors/base-error';
+import { LogBuffer } from '@app/infrastructure/modules/logger/contracts/buffer.interface';
 
 export interface LogParams {
   level: LogLevel;
