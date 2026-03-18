@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserClientModule } from './user-client/user-client.module';
-import { TenantClientModule } from './tenant-client/tenant-client.module';
 import { JwtConfig } from '@app/contracts/config/jwt.config';
 import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 
@@ -26,7 +25,6 @@ import { ConfigurationService } from '@app/infrastructure/modules/configuration/
       },
     }),
     UserClientModule,
-    TenantClientModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
