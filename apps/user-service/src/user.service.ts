@@ -19,7 +19,7 @@ export class UserService {
     const hashedPassword = await hash(password, 10);
     const user = this.userRepository.create({
       ...rest,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
     });
     const createResult = await this.userRepository.save(user);
     return plainToInstance(UserContract, createResult, {
@@ -42,7 +42,10 @@ export class UserService {
     const findResult = await this.userRepository.findOne({
       where: { username },
     });
-    if (findResult === null || !(await compare(pass, findResult.password))) {
+    if (
+      findResult === null ||
+      !(await compare(pass, findResult.passwordHash))
+    ) {
       return null;
     }
     return plainToInstance(UserContract, findResult, {

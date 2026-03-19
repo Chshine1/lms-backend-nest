@@ -4,13 +4,17 @@ import { UserService } from './user.service';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
 import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
-import { RequirePermissions } from '@app/authentication/decorators/permission.decorator';
+import {
+  UserServiceAction,
+  UserServiceResource,
+} from '@/user-service/src/entities/user-permission.entity';
+import { RequirePermissions } from '@app/authentication/permission/permission.decorator';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @RequirePermissions('user:write')
+  @RequirePermissions(UserServiceResource.DOCUMENT, UserServiceAction.MANAGE)
   @MessagePattern('user.create')
   createUser(@Payload() createUserDto: CreateUserDto): Promise<UserContract> {
     return this.userService.create(createUserDto);

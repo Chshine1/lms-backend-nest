@@ -20,7 +20,7 @@ import {
 @Unique('UQ_user_tenant_email', ['tenantId', 'email'])
 // Manually created indices
 /*
-    CREATE INDEX "IDX_active_user_identity_covering"
+    CREATE INDEX "IDX_active_user_identity"
     ON "users" ("tenant_id", "identity_type")
     INCLUDE ("username")
     WHERE status = 1 AND deleted_at IS NULL;
