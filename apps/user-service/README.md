@@ -80,7 +80,6 @@ Permissions are decentralized: each service is responsible for its own authoriza
 
 The service exposes RESTful endpoints for:
 
-- Tenant management (CRUD)
 - User management (CRUD, authentication)
 - Campus management (CRUD)
 - User‑campus assignments

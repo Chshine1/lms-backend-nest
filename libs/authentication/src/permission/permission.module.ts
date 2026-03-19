@@ -1,5 +1,5 @@
 ﻿import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { Repository } from 'typeorm';
 import { PermissionService } from '@app/authentication/permission/permission.service';
@@ -26,6 +26,7 @@ export class PermissionModule {
 
     return {
       module: PermissionModule,
+      imports: [TypeOrmModule.forFeature([entity])],
       providers: [permissionServiceProvider, permissionGuardProvider],
     };
   }
