@@ -39,15 +39,15 @@ export class User implements UserContract {
   @Column()
   email!: string;
 
-  @Column({ nullable: true })
-  phone?: string;
+  @Column()
+  phone!: string;
 
   @Column({ name: 'password_hash' })
   passwordHash!: string;
 
   @Column({
     type: 'smallint',
-    default: UserStatus.ACTIVE,
+    default: UserStatus.INACTIVE,
     transformer: {
       to: (value: UserStatus) => value,
       from: (value: number) => value as UserStatus,

@@ -12,6 +12,7 @@ import { UserClientService } from './user-client/user-client.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
+import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
 
 @Controller()
 export class AppController {
@@ -23,12 +24,7 @@ export class AppController {
   @Post('auth/register')
   async register(
     @Body()
-    body: {
-      username: string;
-      password: string;
-      email: string;
-      tenantId?: number;
-    },
+    body: CreateUserDto,
   ): Promise<{
     access_token: string;
     user: UserContract;

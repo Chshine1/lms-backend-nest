@@ -59,7 +59,6 @@ class TypeOrmConfigSection {
       },
       inject: [ConfigurationService],
     }),
-    TypeOrmModule.forFeature([User]),
     PermissionModule.forFeature(UserPermission),
   ],
   controllers: [UserController],

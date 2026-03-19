@@ -14,7 +14,7 @@ import { RequirePermissions } from '@app/authentication/permission/permission.de
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @RequirePermissions(UserServiceResource.DOCUMENT, UserServiceAction.MANAGE)
+  @RequirePermissions(UserServiceResource.USER, UserServiceAction.MANAGE)
   @MessagePattern('user.create')
   createUser(@Payload() createUserDto: CreateUserDto): Promise<UserContract> {
     return this.userService.create(createUserDto);

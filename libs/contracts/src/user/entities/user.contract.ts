@@ -25,10 +25,7 @@ export class UserContract extends BaseEntityContract {
   email!: string;
 
   @Expose()
-  phone?: string;
-
-  @Expose()
-  passwordHash!: string;
+  phone!: string;
 
   @Expose()
   status!: UserStatus;

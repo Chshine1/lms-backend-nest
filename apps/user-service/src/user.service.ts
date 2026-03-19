@@ -16,10 +16,10 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<UserContract> {
     const { password, ...rest } = createUserDto;
-    const hashedPassword = await hash(password, 10);
+    const passwordHash = await hash(password, 10);
     const user = this.userRepository.create({
       ...rest,
-      passwordHash: hashedPassword,
+      passwordHash,
     });
     const createResult = await this.userRepository.save(user);
     return plainToInstance(UserContract, createResult, {

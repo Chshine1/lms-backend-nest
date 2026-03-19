@@ -9,9 +9,7 @@
 import { Permission } from '@app/authentication/permission/permission.interface';
 
 export enum UserServiceResource {
-  DOCUMENT = 1,
-  COMMENT = 2,
-  USER = 3,
+  USER = 1,
 }
 
 export enum UserServiceAction {
