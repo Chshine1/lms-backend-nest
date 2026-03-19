@@ -15,25 +15,12 @@ Upon successful login, the User Service issues a JWT containing:
 - `sub`: user ID
 - `tenant_id`: tenant ID
 - `identity_type`: e.g., `student`, `teacher`, `admin`
-- `roles`: optional list of tenant‑wide roles (e.g., `tenant_admin`, `campus_manager`)
-- `campus_id`: if the user is associated with a specific campus (optional)
 - `iat`, `exp`: standard timestamps
 
 The JWT is signed with a service‑shared secret (or asymmetric key) so that other services can verify it without calling
 the User Service.
 
-### 2. Tenant‑Wide Roles
-
-The User Service optionally manages a simple `user_roles` table (see schema). These roles are **coarse‑grained** and
-span multiple business domains. Examples:
-
-- `tenant_admin`: full access within the tenant.
-- `campus_manager`: manage resources for a specific campus (identified by `campus_id` in the role).
-
-These roles are included in the JWT. Business services can use them for broad access decisions (e.g., a `tenant_admin`
-may bypass resource‑level checks).
-
-### 3. User Profile Endpoints
+### 2. User Profile Endpoints
 
 Other services can query the User Service (via REST) to obtain additional user details when needed, e.g.,
 `GET /users/{id}`. This is typically done during request processing to enrich context or for audit logging. The User
@@ -59,7 +46,7 @@ typically:
 A teacher requests to update a course. The Course Service:
 
 1. Extracts `user_id` and `tenant_id` from JWT.
-2. Checks if the user has `tenant_admin` role (skip further checks).
+2. Checks if the user has permission.
 3. Otherwise, queries its `course_teachers` table to see if the user is assigned to this course.
 4. If yes, allow; else, deny.
 

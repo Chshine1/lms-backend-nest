@@ -106,6 +106,7 @@
     ],
     "moduleNameMapper": {
       "^@app/audit(|/.*)$": "<rootDir>/libs/audit/src/$1",
+      "^@app/authentication(|/.*)$": "<rootDir>/libs/authentication/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/health(|/.*)$": "<rootDir>/libs/health/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",

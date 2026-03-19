@@ -76,17 +76,6 @@ Permissions are decentralized: each service is responsible for its own authoriza
 - Optionally manages **tenant‑wide roles** (e.g., `tenant_admin`, `campus_manager`) that grant coarse‑grained
   permissions across services.
 
-### Roles (Optional)
-
-If tenant‑wide roles are needed, a simple `user_roles` table can be added:
-
-- `user_id`
-- `role` (e.g., `tenant_admin`, `campus_manager`)
-- `campus_id` (if the role is campus‑scoped)
-
-Fine‑grained permissions (e.g., “can edit course #123”) are stored and enforced within the respective domain services (
-Course Service, Grade Service, etc.). This keeps the User Service focused on identity and organizational structure.
-
 ## API Design (Outline)
 
 The service exposes RESTful endpoints for:

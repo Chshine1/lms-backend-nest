@@ -12,6 +12,7 @@
   },
   "moduleNameMapper": {
     "^@app/audit(|/.*)$": "<rootDir>/../libs/audit/src/$1",
+    "^@app/authentication(|/.*)$": "<rootDir>/../libs/authentication/src/$1",
     "^@app/bootstrap(|/.*)$": "<rootDir>/../libs/bootstrap/src/$1",
     "^@app/common(|/.*)$": "<rootDir>/../libs/common/src/$1",
     "^@app/config-lib(|/.*)$": "<rootDir>/../libs/config-lib/src/$1",
@@ -20,6 +21,7 @@
     "^@app/health(|/.*)$": "<rootDir>/../libs/health/src/$1",
     "^@app/infrastructure(|/.*)$": "<rootDir>/../libs/infrastructure/src/$1",
     "^@app/logger(|/.*)$": "<rootDir>/../libs/logger/src/$1",
+    "^@app/permission(|/.*)$": "<rootDir>/../libs/permission/src/$1",
     "^@app/typed-client(|/.*)$": "<rootDir>/../libs/typed-client/src/$1"
   }
 }

@@ -2,9 +2,13 @@
 
 This document describes how users authenticate and how subsequent requests are authorized.
 
+## Tenant Registration
+
+Use manual registration for now.
+
 ## Registration
 
-1. A new user is created via the User Service API (by an admin or via self‑registration).
+1. A new user is created via the User Service API (by an admin).
 2. The User Service creates a record in `users` and the appropriate identity extension table (e.g., `students`).
 3. A welcome email/notification may be sent (optional).
 
@@ -17,11 +21,9 @@ This document describes how users authenticate and how subsequent requests are a
     - Builds JWT payload:
       ```json
       {
-        "sub": "123",
-        "tenant_id": "456",
+        "sub": 123,
+        "tenant_id": 456,
         "identity_type": "teacher",
-        "roles": ["campus_manager"],
-        "campus_id": 789,
         "iat": 1617298342,
         "exp": 1617301942
       }
