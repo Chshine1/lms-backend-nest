@@ -1,7 +1,4 @@
-﻿## 1. Meta-Document: `DOCUMENTATION_STANDARDS.md`
-
-````markdown
-# Documentation Standards
+﻿# Documentation Standards
 
 This document defines the structure, format, and naming conventions for all documentation files in this project. It is
 intended for both human contributors and AI assistants.
@@ -14,7 +11,7 @@ We maintain four main types of documentation:
 | ---------------- | -------------------- | ------------------------------------------ |
 | ADR              | `docs/adr/`          | Architecture Decision Records              |
 | Root AGENTS.md   | `/AGENTS.md`         | Global AI behavior and project overview    |
-| Module AGENTS.md | `<module>/AGENTS.md` | Internal development guidelines per module |
+| Module README.md | `<module>/README.md` | Internal development guidelines per module |
 | Module API.md    | `<module>/API.md`    | Public API contract for external usage     |
 
 ## 2. General Rules (All Documents)
@@ -53,9 +50,23 @@ What becomes easier or harder after this decision.
 
 How to enforce this decision (e.g., linting rules, code review, AI instructions).
 ```
-````
 
 - File naming: `0001-title.md`, with leading zeros to keep order.
+
+### 3.1 Module-Level ADRs
+
+Modules may also have their own architecture decisions specific to their internal design. These decisions are captured
+in ADRs located under the module’s own documentation directory.
+
+- **Location**: `<module_root>/docs/adr/NNNN-title.md`
+- **Format**: Same structure as global ADRs (see above).
+- **Purpose**: Document decisions that affect only the module’s internal architecture, component interactions, or
+  local trade-offs that do not warrant a global ADR.
+- **Relation to module README**: The module `README.md` should reference relevant module ADRs (e.g., under the
+  **Architecture** section) to provide rationale for the module’s design, but avoid duplicating content. The ADR
+  contains the full decision context, while the README summarizes the resulting architecture.
+
+When a module’s internal decisions later become relevant at the project level, they may be promoted to global ADRs.
 
 ## 4. Root `AGENTS.md`
 
@@ -68,37 +79,44 @@ This file is the primary entry point for AI assistants. It must contain:
 
 See the existing root `AGENTS.md` for reference; updates must preserve the core sections.
 
-## 5. Module-Level `AGENTS.md` (for apps and libs)
+## 5. Module-Level `README.md` (for apps and libs)
 
-Each module that contains code may have an `AGENTS.md` file in its root (e.g., `apps/course-service/AGENTS.md`). This
+Each module that contains code may have a `README.md` file in its root (e.g., `apps/course-service/README.md`). This
 file is for **internal development only**.
 
 Required sections:
 
 ```markdown
-# <Module Name> – Internal Development Guide
+# <Module Name>
+
+## Purpose
+
+One-sentence summary of what this module does.
+
+## Architecture
+
+High-level description of the module's internal structure, key components, and how they interact. Reference any ADRs that influenced the design (both global and module-level ADRs).
 
 ## File Structure
 
-- Describe the folder layout and purpose of each subdirectory.
+Describe the folder layout and purpose of each subdirectory.
 
 ## Internal Dependencies
 
 - Which shared libraries are allowed (e.g., `@app/infrastructure`).
 - Which external libraries are used.
 
-## Coding Conventions
+## Coding Conventions (if deviating from global rules)
 
-- Module-specific naming, patterns, or TypeScript rules.
+List any module-specific naming, patterns, or TypeScript rules that override or extend the global standards defined in root `AGENTS.md`.
 
 ## Testing
 
-- Coverage expectations, testing patterns, mock strategies.
+Coverage expectations, testing patterns, mock strategies (if different from project defaults).
 
-## Exports
+## Local Development
 
-- What is exposed to the outside world (via `index.ts` or `public-api.ts`). If index exports are forbidden, state that
-  explicitly.
+Any special steps to run, build, or debug this module in isolation.
 ```
 
 ## 6. Module-Level `API.md` (for apps and libs)
@@ -159,10 +177,9 @@ Any special considerations (e.g., performance, thread safety, versioning).
 
 ## 7. When to Create/Update Documentation
 
-- **New ADR**: When a significant architectural decision is made.
-- **New module**: Create both `AGENTS.md` and `API.md` in the module root.
+- **New ADR**: When a significant architectural decision is made (global or module-level).
 - **Changes to public API**: Update the module's `API.md`.
-- **Changes to internal practices**: Update the module's `AGENTS.md`.
+- **Changes to internal practices**: Update the module's `README.md`.
 - **Changes to global AI rules**: Update root `AGENTS.md`.
 
 ## 8. AI Workflow for Documentation Tasks
@@ -170,10 +187,10 @@ Any special considerations (e.g., performance, thread safety, versioning).
 When asked to **create or update any documentation**, the AI must:
 
 1. **Read this `DOCUMENTATION_STANDARDS.md`** to understand the expected format.
-2. **Locate the target document** based on the type (ADR, root AGENTS, module AGENTS, module API).
+2. **Locate the target document** based on the type (ADR, root AGENTS, module README, module API).
 3. **Gather context**:
-   - For module docs: read the module's source code, its `package.json`, and any existing `AGENTS.md`/`API.md`.
-   - For ADRs: review related code and previous ADRs to maintain consistency.
+    - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
+    - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
 4. **Generate or modify** the document following the section requirements above.
 5. **Preserve existing sections** unless explicitly asked to replace.
 6. **Output the final document content** with a brief summary of changes.
@@ -187,47 +204,3 @@ After writing/updating a document, verify:
 - [ ] Code examples are correct and use proper imports.
 - [ ] No internal implementation details leaked in `API.md`.
 - [ ] The document is self-contained (references to other docs are optional but encouraged).
-
-````
-
----
-
-## 2. Integrating the Meta-Document into Root `AGENTS.md`
-
-Add a section in your root `AGENTS.md` that instructs AI to always consult the meta-document when handling documentation tasks. For example:
-
-```markdown
-## Documentation Tasks
-
-When you are asked to create or modify any documentation file (ADR, AGENTS.md, API.md), you **must** first read the file `DOCUMENTATION_STANDARDS.md` in the project root. It contains the exact format, structure, and naming conventions for each document type.
-
-Follow the workflow described in that meta-document to ensure consistency.
-````
-
-This ensures that every time the AI is asked to work on documentation, it will automatically load the standards.
-
----
-
-## 3. Example: AI Assigned to Create a Module's Documentation
-
-**User prompt**:
-
-> “Create `AGENTS.md` and `API.md` for the `user-service` app. Follow our documentation standards.”
-
-**AI internal steps** (if following the meta-document):
-
-1. Read `DOCUMENTATION_STANDARDS.md`.
-2. Locate `apps/user-service/`.
-3. Analyze the source code of `user-service` to understand its structure, public services, and dependencies.
-4. Create `apps/user-service/AGENTS.md` with sections:
-   - File structure: list folders like `src/controllers/`, `src/services/`, `src/entities/`.
-   - Internal dependencies: `@app/infrastructure`, `@app/authentication`, `@app/contracts`.
-   - Coding conventions: use of DTOs with class-validator, repository pattern, etc.
-   - Testing: must cover all public methods, use `jest`.
-   - Exports: state that no `index.ts` exports are allowed; explicit imports only.
-5. Create `apps/user-service/API.md` with sections:
-   - Purpose: Manage users, profiles, and authentication integration.
-   - Provided services: `UserService`, `UserController` (maybe list endpoints), DTOs from `@app/contracts`.
-   - Usage example: show how to import `UserService` from `@app/user-service` (if aliased) or from the module.
-   - Error handling: uses `UserError` codes from contracts.
-6. Output both files with a summary.

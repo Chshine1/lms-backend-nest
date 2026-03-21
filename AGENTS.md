@@ -20,7 +20,7 @@
 
 ## Documentation Tasks
 
-When you are asked to create or modify any documentation file (ADR, AGENTS.md, API.md), you **must** first read the file `DOCUMENTATION_STANDARDS.md` in the project root. It contains the exact format, structure, and naming conventions for each document type.
+When you are asked to create or modify any documentation file (ADR, AGENTS.md, README.md, API.md), you **must** first read the file `DOCUMENTATION_STANDARDS.md` in the project root. It contains the exact format, structure, and naming conventions for each document type.
 
 **You may use the allowed filesystem commands (`mkdir -p`, `touch`, `echo`) to create directories and files as needed, but only to produce the documentation structure.** Follow the workflow described in `DOCUMENTATION_STANDARDS.md` to ensure consistency.
 
