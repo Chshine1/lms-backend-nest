@@ -1,4 +1,4 @@
-# ADR 0004: Service Loader Pattern for Infrastructure
+# ADR 0003: Service Loader Pattern for Infrastructure
 
 ## Status
 

@@ -1,4 +1,4 @@
-# ADR 0003: Progressive Infrastructure Bootstrapping
+# ADR 0002: Progressive Infrastructure Bootstrapping
 
 ## Status
 

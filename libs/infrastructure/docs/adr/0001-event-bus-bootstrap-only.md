@@ -1,4 +1,4 @@
-# ADR 0002: Event Bus – Bootstrap-Only Module
+# ADR 0001: Event Bus – Bootstrap-Only Module
 
 ## Status
 
