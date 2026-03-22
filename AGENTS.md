@@ -24,6 +24,20 @@ When you are asked to create or modify any documentation file (ADR, AGENTS.md, R
 
 **You may use the allowed filesystem commands (`mkdir -p`, `touch`, `echo`) to create directories and files as needed, but only to produce the documentation structure.** Follow the workflow described in `DOCUMENTATION_STANDARDS.md` to ensure consistency.
 
+### Verification Before Creating New Documentation
+
+Before claiming something is **not documented** and creating new documentation:
+
+1. **Read existing documentation** in the relevant module (README.md, API.md, docs/adr/\*.md)
+2. **Search for existing patterns** using grep to find if the concept is already covered
+3. **Verify the gap**: Only create new documentation if it truly adds architectural value not already captured
+
+**Common mistakes to avoid**:
+
+- Claiming a pattern is undocumented after code exploration without checking existing docs
+- Creating duplicate documentation for concepts already covered elsewhere
+- Mixing implementation details (class names, file paths) into ADRs — these belong in README/API
+
 ## Project Overview
 
 This is a NestJS monorepo with microservices architecture. The project contains:

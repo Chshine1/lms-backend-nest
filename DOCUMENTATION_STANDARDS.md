@@ -53,7 +53,39 @@ How to enforce this decision (e.g., linting rules, code review, AI instructions)
 
 - File naming: `0001-title.md`, with leading zeros to keep order.
 
-### 3.1 Module-Level ADRs
+### 3.1 What Belongs in an ADR
+
+ADRs capture **architectural decisions** — the high-level design choices that shape the system's structure. They should contain:
+
+- **Design patterns and architectural ideas** (e.g., "sinks are composable through decorator pattern")
+- **Abstraction contracts** (e.g., "sinks must implement an interface accepting log entries")
+- **Composition rules** (e.g., "wrapper sinks delegate to child sinks")
+- **Trade-offs and consequences** at the architectural level
+- **Compliance requirements** for future implementations
+
+### 3.2 What Does NOT Belong in an ADR
+
+ADRs are not implementation specifications. They should NOT contain:
+
+- **Specific class/function names** (e.g., "EnvLoader", "MulticastSink")
+- **Concrete library names** (e.g., "uses mitt", "uses class-validator")
+- **Configuration values or defaults** (e.g., "loads from /basePath/environment")
+- **Code examples with actual code** (pseudocode or diagrams are acceptable)
+- **Step-by-step implementation details**
+
+**Rule of thumb**: If a non-developer (e.g., a technical architect) can understand and agree on the decision, it's ADR material. If it requires reading code to understand, it's README/API material.
+
+### 3.3 ADR vs README
+
+| Aspect   | ADR                             | README                    |
+| -------- | ------------------------------- | ------------------------- |
+| Purpose  | Record design decisions         | Guide implementation      |
+| Audience | Architects, reviewers           | Developers                |
+| Content  | Why and what                    | How and where             |
+| Examples | Design patterns, abstract flows | Class names, file paths   |
+| Updates  | Never (historical record)       | As implementation evolves |
+
+### 3.4 Module-Level ADRs
 
 Modules may also have their own architecture decisions specific to their internal design. These decisions are captured
 in ADRs located under the module’s own documentation directory.
@@ -189,8 +221,8 @@ When asked to **create or update any documentation**, the AI must:
 1. **Read this `DOCUMENTATION_STANDARDS.md`** to understand the expected format.
 2. **Locate the target document** based on the type (ADR, root AGENTS, module README, module API).
 3. **Gather context**:
-    - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
-    - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
+   - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
+   - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
 4. **Generate or modify** the document following the section requirements above.
 5. **Preserve existing sections** unless explicitly asked to replace.
 6. **Output the final document content** with a brief summary of changes.
