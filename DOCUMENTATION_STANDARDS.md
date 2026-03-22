@@ -5,14 +5,15 @@ intended for both human contributors and AI assistants.
 
 ## 1. Document Types
 
-We maintain four main types of documentation:
+We maintain five main types of documentation:
 
-| Type             | Location             | Purpose                                    |
-| ---------------- | -------------------- | ------------------------------------------ |
-| ADR              | `docs/adr/`          | Architecture Decision Records              |
-| Root AGENTS.md   | `/AGENTS.md`         | Global AI behavior and project overview    |
-| Module README.md | `<module>/README.md` | Internal development guidelines per module |
-| Module API.md    | `<module>/API.md`    | Public API contract for external usage     |
+| Type             | Location             | Purpose                                             |
+|------------------|----------------------|-----------------------------------------------------|
+| ADR              | `docs/adr/`          | Architecture Decision Records                       |
+| Root AGENTS.md   | `/AGENTS.md`         | Global AI behavior and project overview             |
+| Module README.md | `<module>/README.md` | Internal development guidelines per module          |
+| Module API.md    | `<module>/API.md`    | Public API contract for external usage              |
+| Module DOMAIN.md | `<module>/DOMAIN.md` | Domain model for business microservice applications |
 
 ## 2. General Rules (All Documents)
 
@@ -55,7 +56,8 @@ How to enforce this decision (e.g., linting rules, code review, AI instructions)
 
 ### 3.1 What Belongs in an ADR
 
-ADRs capture **architectural decisions** — the high-level design choices that shape the system's structure. They should contain:
+ADRs capture **architectural decisions** — the high-level design choices that shape the system's structure. They should
+contain:
 
 - **Design patterns and architectural ideas** (e.g., "sinks are composable through decorator pattern")
 - **Abstraction contracts** (e.g., "sinks must implement an interface accepting log entries")
@@ -73,12 +75,13 @@ ADRs are not implementation specifications. They should NOT contain:
 - **Code examples with actual code** (pseudocode or diagrams are acceptable)
 - **Step-by-step implementation details**
 
-**Rule of thumb**: If a non-developer (e.g., a technical architect) can understand and agree on the decision, it's ADR material. If it requires reading code to understand, it's README/API material.
+**Rule of thumb**: If a non-developer (e.g., a technical architect) can understand and agree on the decision, it's ADR
+material. If it requires reading code to understand, it's README/API material.
 
 ### 3.3 ADR vs README
 
 | Aspect   | ADR                             | README                    |
-| -------- | ------------------------------- | ------------------------- |
+|----------|---------------------------------|---------------------------|
 | Purpose  | Record design decisions         | Guide implementation      |
 | Audience | Architects, reviewers           | Developers                |
 | Content  | Why and what                    | How and where             |
@@ -127,7 +130,8 @@ One-sentence summary of what this module does.
 
 ## Architecture
 
-High-level description of the module's internal structure, key components, and how they interact. Reference any ADRs that influenced the design (both global and module-level ADRs).
+High-level description of the module's internal structure, key components, and how they interact. Reference any ADRs
+that influenced the design (both global and module-level ADRs).
 
 ## File Structure
 
@@ -140,7 +144,8 @@ Describe the folder layout and purpose of each subdirectory.
 
 ## Coding Conventions (if deviating from global rules)
 
-List any module-specific naming, patterns, or TypeScript rules that override or extend the global standards defined in root `AGENTS.md`.
+List any module-specific naming, patterns, or TypeScript rules that override or extend the global standards defined in
+root `AGENTS.md`.
 
 ## Testing
 
@@ -207,27 +212,83 @@ What errors can be thrown? Use error codes from `@app/contracts/errors`.
 Any special considerations (e.g., performance, thread safety, versioning).
 ```
 
-## 7. When to Create/Update Documentation
+## 7. Module-Level `DOMAIN.md` (for business microservice applications)
+
+Each business microservice application (located in `apps/`) must contain a `DOMAIN.md` file that documents the domain
+model. This file provides a clear overview of the domain concepts, business rules, and domain logic. It serves as the
+authoritative reference for understanding the business domain modeled by the service.
+
+> **Note**: The gateway service and infrastructure libraries are exempt from this requirement, as they do not model
+> business domains in the traditional DDD sense.
+
+Required sections:
+
+```markdown
+# Domain Model – <Service Name>
+
+## Overview
+
+Brief description of the domain and its purpose within the system.
+
+## Aggregates
+
+An aggregate is a cluster of related entities and value objects that form a consistency boundary. Define the key
+aggregates in this domain, their purpose, and the business invariants they enforce. Each aggregate should have a clear
+responsibility and transactional boundary.
+
+## Entities
+
+List the entities in this domain, describing their identity, lifecycle, and state transitions. Explain what makes each
+entity unique and how they relate to aggregates. Describe the key state changes and business rules that govern entity
+behavior.
+
+## Value Objects
+
+Describe the value objects used in this domain. Value objects are immutable and defined by their attributes rather than
+identity. Explain what concepts they model and why they are modeled as value objects rather than entities.
+
+## Domain Events
+
+Document the domain events that capture significant business occurrences. For each event, describe the triggering
+conditions, the data it carries, and how consumers (within or across services) use it. Domain events represent the
+historical record of what happened in the business.
+
+## Business Invariants
+
+Define the business invariants—rules that must always hold true in this domain. Explain which invariants are enforced by
+entities, which by aggregates, and which by domain services. Invariants represent the core business constraints that
+maintain consistency and validity.
+
+## Domain Services
+
+Describe the domain services that encapsulate operations that do not naturally belong to a single entity or value
+object. Explain what complex business operations they orchestrate and how they coordinate multiple aggregates or
+entities. Domain services should contain pure domain logic without infrastructure concerns.
+```
+
+## 8. When to Create/Update Documentation
 
 - **New ADR**: When a significant architectural decision is made (global or module-level).
+- **New domain model**: When creating a new business microservice, create its `DOMAIN.md`.
 - **Changes to public API**: Update the module's `API.md`.
+- **Changes to domain model**: Update the module's `DOMAIN.md` when business concepts, aggregates, or invariants change.
 - **Changes to internal practices**: Update the module's `README.md`.
 - **Changes to global AI rules**: Update root `AGENTS.md`.
 
-## 8. AI Workflow for Documentation Tasks
+## 9. AI Workflow for Documentation Tasks
 
 When asked to **create or update any documentation**, the AI must:
 
 1. **Read this `DOCUMENTATION_STANDARDS.md`** to understand the expected format.
 2. **Locate the target document** based on the type (ADR, root AGENTS, module README, module API).
 3. **Gather context**:
-   - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
-   - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
+    - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
+    - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
 4. **Generate or modify** the document following the section requirements above.
 5. **Preserve existing sections** unless explicitly asked to replace.
 6. **Output the final document content** with a brief summary of changes.
 
-## 9. Validation Checklist (for Humans and AI)
+## 10. Validation Checklist (for Humans and AI)
 
 After writing/updating a document, verify:
 
