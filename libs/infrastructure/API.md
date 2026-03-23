@@ -14,7 +14,7 @@ Main logging service for structured logging across the application.
 ```typescript
 export class LoggerService {
   log(params: LogParams): Promise<void>;
-  
+
   flush(): Promise<void>;
 }
 ```
@@ -26,6 +26,11 @@ Service for retrieving and validating application configuration.
 ```typescript
 export class ConfigurationService {
   get<TConfig extends object>(
+    cls: new (...args: unknown[]) => TConfig,
+  ): TConfig;
+
+  getByKey<TConfig extends object>(
+    key: string,
     cls: new (...args: unknown[]) => TConfig,
   ): TConfig;
 }
@@ -102,17 +107,20 @@ class AppConfig {
   isProduction!: boolean;
 }
 
-constructor(private
-readonly
-config: ConfigurationService
-)
-{
+class DbConfig {
+  host!: string;
+  port!: number;
 }
 
-setup()
-{
+constructor(private readonly config: ConfigurationService) {
+}
+
+setup() {
   const appConfig = this.config.get(AppConfig);
   console.log(`App: ${appConfig.name} on port ${appConfig.port}`);
+
+  const dbConfig = this.config.getByKey('database', DbConfig);
+  console.log(`DB: ${dbConfig.host}:${dbConfig.port}`);
 }
 ```
 
@@ -126,8 +134,7 @@ import { InfrastructureModule } from '@app/infrastructure/infrastructure.module'
 @Module({
   imports: [InfrastructureModule.forRoot()],
 })
-export class AppModule {
-}
+export class AppModule {}
 ```
 
 Individual sub-modules can also be imported separately:
@@ -139,8 +146,7 @@ import { ConfigurationModule } from '@app/infrastructure/modules/configuration/c
 @Module({
   imports: [LoggerModule, ConfigurationModule],
 })
-export class SomeModule {
-}
+export class SomeModule {}
 ```
 
 ## Error Handling

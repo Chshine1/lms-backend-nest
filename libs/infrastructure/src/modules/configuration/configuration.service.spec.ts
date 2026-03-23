@@ -101,4 +101,76 @@ describe('ConfigurationService', () => {
       });
     });
   });
+
+  describe('getByKey', () => {
+    describe('with valid configuration key', () => {
+      it('should return validated configuration object for the specified key', () => {
+        const nestedConfiguration = {
+          db: {
+            host: 'localhost',
+            port: 5432,
+          },
+        };
+        const service = createConfigurationService(nestedConfiguration);
+
+        class DbConfig {
+          @Expose()
+          @IsDefined()
+          @IsString()
+          host!: string;
+
+          @Expose()
+          @IsDefined()
+          @IsNumber()
+          port!: number;
+        }
+
+        const config = service.getByKey('db', DbConfig);
+
+        expect(config).toBeInstanceOf(DbConfig);
+        expect(config.host).toBe('localhost');
+        expect(config.port).toBe(5432);
+      });
+    });
+
+    describe('with key but invalid configuration', () => {
+      it('should throw GetConfigValidationError when required fields are missing', () => {
+        const configuration = {
+          db: {},
+        };
+        const service = createConfigurationService(configuration);
+
+        class DbConfig {
+          @Expose()
+          @IsDefined()
+          @IsString()
+          host!: string;
+        }
+
+        expect(() => service.getByKey('db', DbConfig)).toThrow(
+          GetConfigValidationError,
+        );
+      });
+    });
+
+    describe('with non-existent key', () => {
+      it('should throw GetConfigValidationError when key does not exist', () => {
+        const configuration = {
+          existingKey: { value: 1 },
+        };
+        const service = createConfigurationService(configuration);
+
+        class MissingConfig {
+          @Expose()
+          @IsDefined()
+          @IsString()
+          value!: string;
+        }
+
+        expect(() => service.getByKey('missingKey', MissingConfig)).toThrow(
+          GetConfigValidationError,
+        );
+      });
+    });
+  });
 });
