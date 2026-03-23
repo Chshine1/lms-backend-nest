@@ -6,27 +6,33 @@ Accepted
 
 ## Context
 
-Each infrastructure service needs a way to expose a stable public interface while allowing its internal implementation to evolve during the bootstrapping process. The service loader pattern provides this capability by separating the service's public API from its internal dependencies, making it easy to replace dependencies without changing the service's contract.
+Each infrastructure service needs a way to expose a stable public interface while allowing its internal implementation
+to evolve during the bootstrapping process. The service loader pattern provides this capability by separating the
+service's public API from its internal dependencies, making it easy to replace dependencies without changing the
+service's contract.
 
 ## Decision
 
 Each infrastructure will follow the service loader pattern with these requirements:
 
-1. **Service Exposure**: The service is exposed outside the module without revealing how its implementation changes over time. Consumers interact with a stable interface.
+1. **Service Exposure**: The service is exposed outside the module without revealing how its implementation changes over
+   time. Consumers interact with a stable interface.
 
-2. **Loader-Managed Dependencies**: The loader is responsible for replacing the service's dependencies during the bootstrapping process. The service itself does not manage or care about how dependencies are implemented.
+2. **Loader-Managed Dependencies**: The loader is responsible for replacing the service's dependencies during the
+   bootstrapping process. The service itself does not manage or care about how dependencies are implemented.
 
 3. **Clear & Configurable Dependencies**: Service dependencies should be:
-   - Explicitly defined as interfaces or configuration objects
-   - Easy to replace by the loader without modifying the service
-   - Encapsulated so the service doesn't need to know the implementation details
+    - Explicitly defined as interfaces or configuration objects
+    - Easy to replace by the loader without modifying the service
+    - Encapsulated so the service doesn't need to know the implementation details
 
-4. **Dependency Injection**: The service receives its dependencies through constructor injection (or equivalent), allowing the loader to provide different implementations at different bootstrapping stages.
+4. **Dependency Injection**: The service receives its dependencies through constructor injection (or equivalent),
+   allowing the loader to provide different implementations at different bootstrapping stages.
 
 5. **Loader Responsibilities**:
-   - Initialize dependencies in the correct order
-   - Replace dependencies as the bootstrapping progresses
-   - Ensure dependencies are ready before the service attempts to use them
+    - Initialize dependencies in the correct order
+    - Replace dependencies as the bootstrapping progresses
+    - Ensure dependencies are ready before the service attempts to use them
 
 ## Consequences
 

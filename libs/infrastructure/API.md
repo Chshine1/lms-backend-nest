@@ -2,7 +2,8 @@
 
 ## Purpose
 
-Provides core cross-cutting infrastructure services for the entire application, including logging and configuration management. This module is globally available to all apps and libraries.
+Provides core cross-cutting infrastructure services for the entire application, including logging and configuration
+management. This module is globally available to all apps and libraries.
 
 ## Exported Services
 
@@ -13,6 +14,7 @@ Main logging service for structured logging across the application.
 ```typescript
 export class LoggerService {
   log(params: LogParams): Promise<void>;
+  
   flush(): Promise<void>;
 }
 ```
@@ -66,9 +68,21 @@ export interface LogParams {
 ```typescript
 import { LoggerService, LogLevel } from '@app/infrastructure/modules/logger/logger.service';
 
-constructor(private readonly logger: LoggerService) {}
+constructor(private
+readonly
+logger: LoggerService
+)
+{
+}
 
-async logUserAction(userId: number, action: string) {
+async
+logUserAction(userId
+:
+number, action
+:
+string
+)
+{
   await this.logger.log({
     level: LogLevel.INFO,
     message: `User performed action: ${action}`,
@@ -88,9 +102,15 @@ class AppConfig {
   isProduction!: boolean;
 }
 
-constructor(private readonly config: ConfigurationService) {}
+constructor(private
+readonly
+config: ConfigurationService
+)
+{
+}
 
-setup() {
+setup()
+{
   const appConfig = this.config.get(AppConfig);
   console.log(`App: ${appConfig.name} on port ${appConfig.port}`);
 }
@@ -106,7 +126,8 @@ import { InfrastructureModule } from '@app/infrastructure/infrastructure.module'
 @Module({
   imports: [InfrastructureModule.forRoot()],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 Individual sub-modules can also be imported separately:
@@ -118,7 +139,8 @@ import { ConfigurationModule } from '@app/infrastructure/modules/configuration/c
 @Module({
   imports: [LoggerModule, ConfigurationModule],
 })
-export class SomeModule {}
+export class SomeModule {
+}
 ```
 
 ## Error Handling

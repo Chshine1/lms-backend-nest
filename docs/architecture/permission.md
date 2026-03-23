@@ -74,7 +74,8 @@ keep the original creation timestamp).
 **Revoke Permission**: Set `deleted_at = now()` on the active row.
 
 **Cache Invalidation**: After any modification, invalidate the corresponding Redis cache key(s). For a grant/revoke of
-a specific `(user, resource, action)`, invalidate `permission:{user}:{resource}:{action}`. Optionally, if a bulk operation
+a specific `(user, resource, action)`, invalidate `permission:{user}:{resource}:{action}`. Optionally, if a bulk
+operation
 affects multiple permissions, you can use cache keys with wildcards or simply clear all permission keys for that user
 (trade-off between simplicity and cache efficiency).
 

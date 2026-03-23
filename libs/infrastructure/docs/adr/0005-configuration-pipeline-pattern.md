@@ -6,7 +6,9 @@ Accepted
 
 ## Context
 
-Configuration loading in a microservices environment often requires combining multiple sources: environment variables, local config files, and remote parameter stores. Each source may have dependencies on values from previous sources (e.g., region needed to query remote store).
+Configuration loading in a microservices environment often requires combining multiple sources: environment variables,
+local config files, and remote parameter stores. Each source may have dependencies on values from previous sources (
+e.g., region needed to query remote store).
 
 We need a pattern that:
 
@@ -49,7 +51,8 @@ Failures are caught immediately at the problematic stage with clear error contex
 
 ### Composition
 
-Middlewares are composed into a pipeline. The output of one middleware becomes the input of the next, with each stage adding its configuration segment.
+Middlewares are composed into a pipeline. The output of one middleware becomes the input of the next, with each stage
+adding its configuration segment.
 
 ## Consequences
 

@@ -20,18 +20,19 @@ We adopt a **Decentralized Permission Model** with **Unified Data Schema**:
    service.
 
 2. **Unified Permission Schema**: All business services adopt a standard permission data model:
-   - Each service owns its own permission table named `{service_name}_permissions`.
-   - Core columns: `user_id`, `resource` (enum), `action` (enum).
-   - Primary key: `(user_id, resource, action)` — ensures at most one active (non-deleted) permission per
-     user/resource/action combination.
-   - Permission rows are immutable once inserted; the only allowed change is deletion (soft delete).
+    - Each service owns its own permission table named `{service_name}_permissions`.
+    - Core columns: `user_id`, `resource` (enum), `action` (enum).
+    - Primary key: `(user_id, resource, action)` — ensures at most one active (non-deleted) permission per
+      user/resource/action combination.
+    - Permission rows are immutable once inserted; the only allowed change is deletion (soft delete).
 
 ## Consequences
 
 ### Positive
 
 - **Single Responsibility**: The user service focuses on identity and organizational structure, not business logic.
-- **No Single Points of Failure**: Avoids performance bottlenecks that would occur if every request went through the user
+- **No Single Points of Failure**: Avoids performance bottlenecks that would occur if every request went through the
+  user
   service.
 - **Business Cohesion**: Permissions are tightly coupled with business logic, making business services more cohesive.
 - **Uniformity**: All business services adopt a consistent permission data model, simplifying development and
@@ -47,6 +48,7 @@ We adopt a **Decentralized Permission Model** with **Unified Data Schema**:
 
 ## Compliance
 
-- Each business service must implement permission management following the schema defined in `docs/architecture/permission.md`.
+- Each business service must implement permission management following the schema defined in
+  `docs/architecture/permission.md`.
 - Code reviews should verify that permission tables follow the `{service_name}_permissions` naming convention.
 - The permission implementation documentation must be kept up-to-date with any schema changes.
