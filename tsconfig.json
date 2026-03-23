@@ -72,6 +72,6 @@
   "include": [
     "apps/**/*",
     "libs/**/*",
-    "@types",
+    "@types"
   ]
 }
