@@ -7,13 +7,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { FileService } from './file-service.service';
+import { FileService } from './file.service';
 import { FileContract } from '@app/contracts/file/entities/file.contract';
 import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
 import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
 
 @Controller('files')
-export class FileServiceController {
+export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()

@@ -25,19 +25,19 @@ export class S3Config {
   region!: string;
 
   @Expose()
-  @IsOptional()
+  @IsDefined()
   @IsString()
-  accessKeyId?: string;
+  accessKeyId!: string;
 
   @Expose()
-  @IsOptional()
+  @IsDefined()
   @IsString()
-  secretAccessKey?: string;
+  secretAccessKey!: string;
 
   @Expose()
-  @IsOptional()
+  @IsDefined()
   @IsString()
-  endpoint?: string;
+  endpoint!: string;
 
   @Expose()
   @IsOptional()

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { File } from './entities/file.entity';
-import { FileServiceController } from './file-service.controller';
-import { FileService } from './file-service.service';
+import { FileController } from './file.controller';
+import { FileService } from './file.service';
 import {
   STORAGE_PROVIDER_TOKEN,
   IStorageProvider,
@@ -36,7 +36,7 @@ const storageProviderFactory = (
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([File]),
   ],
-  controllers: [FileServiceController],
+  controllers: [FileController],
   providers: [
     FileService,
     {
@@ -47,4 +47,4 @@ const storageProviderFactory = (
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class FileServiceModule {}
+export class FileModule {}

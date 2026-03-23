@@ -21,17 +21,18 @@ export class S3StorageProvider implements IStorageProvider {
 
   constructor(private readonly configurationService: ConfigurationService) {
     const storageConfig = this.configurationService.get(StorageConfig);
-    this.s3Config = storageConfig.s3!;
+    if (storageConfig.s3 === undefined) {
+      // TODO: Not enough error handling
+      throw new Error();
+    }
+    this.s3Config = storageConfig.s3;
 
     this.s3Client = new S3Client({
       region: this.s3Config.region,
-      credentials:
-        this.s3Config.accessKeyId && this.s3Config.secretAccessKey
-          ? {
-              accessKeyId: this.s3Config.accessKeyId,
-              secretAccessKey: this.s3Config.secretAccessKey,
-            }
-          : undefined,
+      credentials: {
+        accessKeyId: this.s3Config.accessKeyId,
+        secretAccessKey: this.s3Config.secretAccessKey,
+      },
       endpoint: this.s3Config.endpoint,
       forcePathStyle: !!this.s3Config.endpoint,
     });
@@ -80,7 +81,7 @@ export class S3StorageProvider implements IStorageProvider {
     });
 
     const url = await getSignedUrl(this.s3Client, command, {
-      expires: expiresIn,
+      expiresIn: expiresIn,
     });
 
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
