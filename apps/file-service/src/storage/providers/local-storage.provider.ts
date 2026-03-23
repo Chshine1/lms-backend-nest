@@ -25,10 +25,7 @@ export class LocalStorageProvider implements IStorageProvider {
     }
   }
 
-  async upload(
-    stream: Readable,
-    options: UploadOptions,
-  ): Promise<{ key: string; url?: string }> {
+  async upload(stream: Readable, options: UploadOptions): Promise<string> {
     const key = this.generateKey(options.contentType);
     const fullPath = path.join(this.storagePath, key);
     const dir = path.dirname(fullPath);
@@ -45,7 +42,7 @@ export class LocalStorageProvider implements IStorageProvider {
       writeStream.on('error', reject);
     });
 
-    return { key, url: `/files/${key}` };
+    return key;
   }
 
   delete(key: string): Promise<void> {

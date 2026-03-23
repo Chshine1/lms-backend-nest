@@ -38,28 +38,20 @@ export class S3StorageProvider implements IStorageProvider {
     });
   }
 
-  async upload(
-    stream: Readable,
-    options: UploadOptions,
-  ): Promise<{ key: string; url?: string }> {
+  async upload(stream: Readable, options: UploadOptions): Promise<string> {
     const key = this.generateKey(options.contentType);
-    const chunks: Buffer[] = [];
-
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk));
-    }
 
     const command = new PutObjectCommand({
       Bucket: this.s3Config.bucket,
       Key: key,
-      Body: Buffer.concat(chunks),
+      Body: stream,
       ContentType: options.contentType,
       ContentLength: options.size,
     });
 
     await this.s3Client.send(command);
 
-    return { key };
+    return key;
   }
 
   async delete(key: string): Promise<void> {

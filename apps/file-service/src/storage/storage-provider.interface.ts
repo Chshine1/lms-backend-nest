@@ -8,10 +8,7 @@ export interface UploadOptions {
 export const STORAGE_PROVIDER_TOKEN = Symbol('STORAGE_PROVIDER');
 
 export interface IStorageProvider {
-  upload(
-    stream: Readable,
-    options: UploadOptions,
-  ): Promise<{ key: string; url?: string }>;
+  upload(stream: Readable, options: UploadOptions): Promise<string>;
   delete(key: string): Promise<void>;
   generateSignedUrl(
     key: string,

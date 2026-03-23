@@ -28,15 +28,23 @@ export class FileService {
       this.configurationService.get(FileConfig).signedUrlExpiry || 3600;
   }
 
-  async createFile(dto: CreateFileDto): Promise<FileContract> {
-    const file = this.fileRepository.create({
-      storageKey: dto.storageKey,
-      contentType: dto.contentType,
-      size: dto.size,
+  async createFile(
+    dto: CreateFileDto,
+    file: Express.Multer.File,
+  ): Promise<FileContract> {
+    // TODO: Verify checksum here
+    const key = await this.storageProvider.upload(file.stream, {
+      contentType: file.mimetype,
+      size: file.size,
+    });
+    const fileRef = this.fileRepository.create({
+      storageKey: key,
+      contentType: file.mimetype,
+      size: file.size,
       checksum: dto.checksum,
       createdBy: dto.createdBy,
     });
-    const result = await this.fileRepository.save(file);
+    const result = await this.fileRepository.save(fileRef);
     return plainToInstance(FileContract, result, {
       excludeExtraneousValues: true,
     });

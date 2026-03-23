@@ -6,19 +6,26 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileService } from './file.service';
 import { FileContract } from '@app/contracts/file/entities/file.contract';
 import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
 import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('files')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()
-  createFile(@Body() dto: CreateFileDto): Promise<FileContract> {
-    return this.fileService.createFile(dto);
+  @UseInterceptors(FileInterceptor('file'))
+  createFile(
+    @Body() dto: CreateFileDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<FileContract> {
+    return this.fileService.createFile(dto, file);
   }
 
   @Get(':id')

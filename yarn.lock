@@ -5464,6 +5464,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/multer@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@types/multer@npm:2.1.0"
+  dependencies:
+    "@types/express": "npm:*"
+  checksum: 10c0/f1f512918f79c5dac007d8d30de74372ad24932b34b43d09f250178dcce6da426297e0ea9c939322545519f133cd525dca0552781967d05f43d782ff0b169333
+  languageName: node
+  linkType: hard
+
 "@types/mysql@npm:2.15.27":
   version: 2.15.27
   resolution: "@types/mysql@npm:2.15.27"
@@ -9910,6 +9919,7 @@ __metadata:
     "@types/jest": "npm:^30.0.0"
     "@types/js-yaml": "npm:^4"
     "@types/lodash": "npm:^4"
+    "@types/multer": "npm:^2.1.0"
     "@types/node": "npm:^22.10.7"
     "@types/passport": "npm:^0"
     "@types/passport-jwt": "npm:^4"
