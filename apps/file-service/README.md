@@ -28,11 +28,18 @@ in [ADR 0005: Centralized File Service with Domain-Specific Associations](../../
 ```
 apps/file-service/
 ├── src/
-│   ├── file-service.module.ts      # Module definition
-│   ├── file-service.controller.ts  # HTTP endpoints
-│   └── file-service.service.ts     # Business logic
-├── docs/                           # Documentation
-└── API.md                          # Public API contract
+│   ├── file-service.module.ts         # Module definition
+│   ├── file-service.controller.ts     # HTTP endpoints
+│   ├── file-service.service.ts        # Core business logic
+│   ├── entities/
+│   │   └── file.entity.ts             # File entity
+│   └── storage/
+│       ├── storage-provider.interface.ts  # Storage abstraction interface
+│       └── providers/
+│           └── local-storage.provider.ts   # Local filesystem storage implementation
+├── docs/                              # Documentation
+├── API.md                             # Public API contract
+└── DOMAIN.md                          # Domain model
 ```
 
 ## Internal Dependencies

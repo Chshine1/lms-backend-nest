@@ -37,6 +37,7 @@ file operations.
 
 | Field       | Type   | Description                        |
 |-------------|--------|------------------------------------|
+| id          | number | Auto-generated primary key         |
 | storageKey  | string | Unique path/key in storage backend |
 | contentType | string | MIME type (e.g., "image/png")      |
 | size        | number | File size in bytes                 |
@@ -45,12 +46,13 @@ file operations.
 | createdAt   | Date   | Upload timestamp                   |
 | updatedAt   | Date   | Last modification timestamp        |
 | deletedAt   | Date   | Soft delete timestamp              |
+| version     | number | Optimistic locking version         |
 
 **Lifecycle:**
 
 - Created when file is uploaded
 - Updated when metadata changes
-- Soft-deleted (marks deletedAt); actual file removed by background process
+- Soft-deleted (marks deletedAt); actual file removed from storage immediately
 
 **Invariants:**
 
@@ -66,9 +68,7 @@ Represents a reference to stored file content.
 
 **Attributes:**
 
-- `provider`: string (e.g., "local", "s3")
-- `bucket`: string (storage bucket name)
-- `key`: string (path within bucket)
+- `key`: string (path within storage)
 - `url`: string (direct access URL, if applicable)
 
 ### SignedUrl
@@ -79,7 +79,6 @@ Represents a time-limited access URL.
 
 - `url`: string (the signed URL)
 - `expiresAt`: Date (expiration timestamp)
-- `method`: string (HTTP method allowed, typically "GET")
 
 ## Domain Events
 
@@ -87,7 +86,7 @@ Represents a time-limited access URL.
 |-----------------|----------------------|---------------------------------------------|
 | `file.uploaded` | File created         | `{ fileId, storageKey, contentType, size }` |
 | `file.deleted`  | File soft-deleted    | `{ fileId, deletedBy }`                     |
-| `file.accessed` | Signed URL generated | `{ fileId, expiresAt, ipAddress }`          |
+| `file.accessed` | Signed URL generated | `{ fileId, expiresAt }`                     |
 
 ## Business Invariants
 
@@ -95,54 +94,43 @@ Represents a time-limited access URL.
 2. **Content Type Validation**: Uploaded files must have an allowed content type.
 3. **Size Limit**: File size cannot exceed configured maximum (per file and per user).
 4. **Audit Trail**: All file operations must record user ID and timestamp.
-5. **Soft Delete**: Files are never hard-deleted; `deletedAt` is set and cleanup happens asynchronously.
-6. **Signed URL Expiry**: Generated URLs must have configurable expiration; default to 1 hour.
+5. **Soft Delete**: Files are never hard-deleted; `deletedAt` is set and file content is removed from storage.
+6. **Signed URL Expiry**: Generated URLs must have configurable expiration; default to 1 hour (3600 seconds).
 
-## Domain Services
+## Domain Service
 
-### FileManagementService
+### FileService
 
 **Responsibilities:**
 
 - Create file records after upload
 - Retrieve file metadata
 - Manage file lifecycle (soft delete)
-- List files with filters
+- Generate signed URLs for file access
 
 **Operations:**
 
-- `createFile(dto: CreateFileDto): Promise<File>`
-- `getFile(id: number): Promise<File>`
-- `listFiles(filters: FileFilters): Promise<File[]>`
+- `createFile(dto: CreateFileDto): Promise<FileContract>`
+- `getFile(id: number): Promise<FileContract>`
 - `deleteFile(id: number, userId: number): Promise<void>`
+- `generateSignedUrl(fileId: number, expiresIn?: number): Promise<SignedUrlResult>`
 
-### StorageService
+## Storage Abstraction
 
-**Responsibilities:**
+The storage layer is abstracted via the `IStorageProvider` interface:
 
-- Abstract storage operations
-- Upload file content to storage backend
-- Delete file content from storage
-- Generate pre-signed URLs
+### IStorageProvider
 
 **Operations:**
 
-- `upload(stream: Readable, options: UploadOptions): Promise<StorageRef>`
-- `delete(storageKey: string): Promise<void>`
-- `generateSignedUrl(storageKey: string, expiresIn: number): Promise<SignedUrl>`
+- `upload(stream: Readable, options: UploadOptions): Promise<{ key: string; url?: string }>`
+- `delete(key: string): Promise<void>`
+- `generateSignedUrl(key: string, expiresIn: number): Promise<{ url: string; expiresAt: Date }>`
+- `getPublicUrl(key: string): string`
 
-### UrlSigningService
+### LocalStorageProvider
 
-**Responsibilities:**
-
-- Generate time-limited signed URLs
-- Validate and verify signed URLs
-- Revoke active signed URLs
-
-**Operations:**
-
-- `sign(storageKey: string, expiresIn: number): Promise<SignedUrl>`
-- `verify(signedUrl: string): boolean`
+Default implementation using local filesystem. Stores files in a configurable path with date-based organization.
 
 ## Relationships
 
@@ -158,7 +146,7 @@ user-service manages avatars). The File Service only owns the central `files` ta
 
 - The File Service does not own domain-specific associations; these are managed by respective business services
 - Storage backend is abstracted to support local filesystem, S3, or other providers
-- Signed URLs provide security by limiting access time and optionally IP address
-- Background cleanup job handles physical deletion of soft-deleted files
+- Signed URLs provide security by limiting access time
+- File content is deleted from storage when file is soft-deleted
 - This service follows the platform/domain service pattern in DDD, providing infrastructure capabilities to business
   domains
