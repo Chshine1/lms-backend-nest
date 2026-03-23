@@ -97,6 +97,25 @@ Represents a time-limited access URL.
 5. **Soft Delete**: Files are never hard-deleted; `deletedAt` is set and file content is removed from storage.
 6. **Signed URL Expiry**: Generated URLs must have configurable expiration; default to 1 hour (3600 seconds).
 
+## File Creation Flow
+
+When a file is created, the following operations occur in sequence:
+
+1. **File Upload**: The client sends a multipart/form-data request with the file binary and a `CreateFileDto` (containing `checksum` and `createdBy`).
+
+2. **Storage Upload**: The `FileService` streams the file to the storage provider (local or S3). The storage provider returns a unique `storageKey` that identifies the file in the storage backend.
+
+3. **Metadata Creation**: A `File` entity is created with:
+   - `storageKey`: The key returned by the storage provider
+   - `contentType`: MIME type from the uploaded file
+   - `size`: Size in bytes from the uploaded file
+   - `checksum`: From the client's DTO
+   - `createdBy`: User ID from the client's DTO
+
+4. **Persistence**: The file entity is saved to the database, establishing the link between metadata and the actual stored file.
+
+The storage operation happens first to ensure the file is successfully stored before creating database records. If storage fails, no database record is created.
+
 ## Domain Service
 
 ### FileService
@@ -110,7 +129,7 @@ Represents a time-limited access URL.
 
 **Operations:**
 
-- `createFile(dto: CreateFileDto): Promise<FileContract>`
+- `createFile(dto: CreateFileDto, file: Express.Multer.File): Promise<FileContract>`
 - `getFile(id: number): Promise<FileContract>`
 - `deleteFile(id: number, userId: number): Promise<void>`
 - `generateSignedUrl(fileId: number, expiresIn?: number): Promise<SignedUrlResult>`

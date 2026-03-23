@@ -23,23 +23,32 @@ in [ADR 0005: Centralized File Service with Domain-Specific Associations](../../
 - **FileService**: Core business logic for file management
 - **Storage Provider**: Abstract storage layer (S3, local, etc.)
 
+### File Creation Flow
+
+1. Client uploads file via multipart/form-data with `checksum` and `createdBy`
+2. FileService streams file to storage provider → receives `storageKey`
+3. FileService creates File entity with metadata and saves to database
+
 ## File Structure
 
 ```
 apps/file-service/
 ├── src/
-│   ├── file-service.module.ts         # Module definition
-│   ├── file-service.controller.ts     # HTTP endpoints
-│   ├── file-service.service.ts        # Core business logic
+│   ├── file.module.ts              # Module definition
+│   ├── file.controller.ts          # HTTP endpoints
+│   ├── file.service.ts            # Core business logic
+│   ├── main.ts                    # Service entry point
 │   ├── entities/
-│   │   └── file.entity.ts             # File entity
+│   │   └── file.entity.ts         # File entity
 │   └── storage/
 │       ├── storage-provider.interface.ts  # Storage abstraction interface
 │       └── providers/
-│           └── local-storage.provider.ts   # Local filesystem storage implementation
-├── docs/                              # Documentation
-├── API.md                             # Public API contract
-└── DOMAIN.md                          # Domain model
+│           ├── local-storage.provider.ts   # Local filesystem storage implementation
+│           └── s3-storage.provider.ts      # S3 storage implementation
+├── docs/                          # Documentation
+├── API.md                         # Public API contract
+├── DOMAIN.md                      # Domain model
+└── README.md                      # This file
 ```
 
 ## Internal Dependencies
