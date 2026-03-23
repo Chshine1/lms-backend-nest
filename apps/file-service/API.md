@@ -14,11 +14,11 @@ Main service for file operations. Provides full file lifecycle management.
 ```typescript
 export class FileService {
   createFile(dto: CreateFileDto): Promise<FileContract>;
-  
+
   getFile(id: number): Promise<FileContract>;
-  
+
   deleteFile(id: number, userId: number): Promise<void>;
-  
+
   generateSignedUrl(
     fileId: number,
     expiresIn?: number,
@@ -75,7 +75,7 @@ class CreateFileDto {
 ## REST Endpoints
 
 | Method | Path                  | Description                  |
-|--------|-----------------------|------------------------------|
+| ------ | --------------------- | ---------------------------- |
 | POST   | /files                | Create a new file record     |
 | GET    | /files/:id            | Get file metadata by ID      |
 | DELETE | /files/:id            | Delete file (soft delete)    |
@@ -91,11 +91,31 @@ constructor(private readonly fileService: FileService) {}
 
 ## Configuration
 
-Configuration options:
+The service uses centralized configuration from `@app/infrastructure`. Configuration is loaded from environment variables.
 
-- `STORAGE_PROVIDER`: Storage backend type (local, s3, etc.)
-- `STORAGE_PATH`: Base path for file storage (via StorageConfig)
-- `SIGNED_URL_EXPIRY`: Default expiration time for signed URLs (in seconds), defaults to 3600
+### StorageConfig
+
+| Environment Variable | Type   | Description                       |
+| -------------------- | ------ | --------------------------------- |
+| STORAGE_PATH         | string | Base path for local file storage  |
+| PROVIDER             | string | Storage provider type (local, s3) |
+
+### S3Config (when PROVIDER=s3)
+
+| Environment Variable | Type   | Description                   |
+| -------------------- | ------ | ----------------------------- |
+| S3_BUCKET            | string | S3 bucket name                |
+| S3_REGION            | string | AWS region                    |
+| S3_ACCESS_KEY_ID     | string | AWS access key (optional)     |
+| S3_SECRET_ACCESS_KEY | string | AWS secret key (optional)     |
+| S3_ENDPOINT          | string | Custom S3 endpoint (optional) |
+| S3_SIGNED_URL_EXPIRY | number | Signed URL expiry in seconds  |
+
+### FileConfig
+
+| Environment Variable | Type   | Description                          |
+| -------------------- | ------ | ------------------------------------ |
+| SIGNED_URL_EXPIRY    | number | Default signed URL expiry in seconds |
 
 ## Error Handling
 
@@ -106,10 +126,10 @@ Service uses NestJS exceptions:
 
 ## Storage Abstraction
 
-The service uses an `IStorageProvider` interface that can be implemented by different storage backends:
+The service uses an `IStorageProvider` interface that can be implemented by different storage backends. The provider is selected via configuration:
 
-- `LocalStorageProvider`: Local filesystem storage
-- Future: S3, Azure Blob, etc.
+- `LocalStorageProvider`: Local filesystem storage (default)
+- `S3StorageProvider`: AWS S3 storage (when `provider: 's3'`)
 
 ## Notes
 

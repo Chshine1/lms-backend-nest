@@ -36,7 +36,7 @@ file operations.
 **Attributes:**
 
 | Field       | Type   | Description                        |
-|-------------|--------|------------------------------------|
+| ----------- | ------ | ---------------------------------- |
 | id          | number | Auto-generated primary key         |
 | storageKey  | string | Unique path/key in storage backend |
 | contentType | string | MIME type (e.g., "image/png")      |
@@ -83,7 +83,7 @@ Represents a time-limited access URL.
 ## Domain Events
 
 | Event Name      | Trigger              | Data Payload                                |
-|-----------------|----------------------|---------------------------------------------|
+| --------------- | -------------------- | ------------------------------------------- |
 | `file.uploaded` | File created         | `{ fileId, storageKey, contentType, size }` |
 | `file.deleted`  | File soft-deleted    | `{ fileId, deletedBy }`                     |
 | `file.accessed` | Signed URL generated | `{ fileId, expiresAt }`                     |
@@ -117,7 +117,7 @@ Represents a time-limited access URL.
 
 ## Storage Abstraction
 
-The storage layer is abstracted via the `IStorageProvider` interface:
+The storage layer is abstracted via the `IStorageProvider` interface. The provider is selected via configuration:
 
 ### IStorageProvider
 
@@ -131,6 +131,25 @@ The storage layer is abstracted via the `IStorageProvider` interface:
 ### LocalStorageProvider
 
 Default implementation using local filesystem. Stores files in a configurable path with date-based organization.
+
+**Configuration:**
+
+- `storagePath`: Base path for file storage
+- `provider`: Set to `'local'` to use this provider
+
+### S3StorageProvider
+
+AWS S3 implementation for cloud storage.
+
+**Configuration:**
+
+- `provider`: Set to `'s3'` to use this provider
+- `s3.bucket`: S3 bucket name
+- `s3.region`: AWS region
+- `s3.accessKeyId`: AWS access key (optional, uses IAM role if not provided)
+- `s3.secretAccessKey`: AWS secret key (optional)
+- `s3.endpoint`: Custom S3-compatible endpoint (optional)
+- `s3.signedUrlExpiry`: Signed URL expiry in seconds
 
 ## Relationships
 

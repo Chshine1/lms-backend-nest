@@ -10,6 +10,8 @@ import {
 } from '@/file-service/src/storage/storage-provider.interface';
 import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
 import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
+import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import { FileConfig } from '@app/contracts/config/file.config';
 
 @Injectable()
 export class FileService {
@@ -20,9 +22,10 @@ export class FileService {
     private fileRepository: Repository<File>,
     @Inject(STORAGE_PROVIDER_TOKEN)
     private storageProvider: IStorageProvider,
+    private configurationService: ConfigurationService,
   ) {
     this.defaultSignedUrlExpiry =
-      Number(process.env['SIGNED_URL_EXPIRY']) || 3600;
+      this.configurationService.get(FileConfig).signedUrlExpiry || 3600;
   }
 
   async createFile(dto: CreateFileDto): Promise<FileContract> {

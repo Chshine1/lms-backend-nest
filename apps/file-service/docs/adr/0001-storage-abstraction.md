@@ -2,7 +2,18 @@
 
 ## Status
 
-Accepted
+Accepted (Implemented)
+
+## Implementation Notes
+
+The storage abstraction has been implemented with the following components:
+
+1. **IStorageProvider interface**: Defined in `storage/storage-provider.interface.ts`
+2. **LocalStorageProvider**: Local filesystem implementation
+3. **S3StorageProvider**: AWS S3 implementation with signed URLs
+4. **Factory provider**: Module uses configuration to select the appropriate provider at runtime
+
+Configuration is managed through `@app/infrastructure` ConfigurationService, following ADR 0001 (Centralized Infrastructure Usage).
 
 ## Context
 
