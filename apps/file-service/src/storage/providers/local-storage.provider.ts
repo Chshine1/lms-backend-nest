@@ -6,14 +6,16 @@ import type { Readable } from 'stream';
 import {
   IStorageProvider,
   UploadOptions,
-} from '../interfaces/storage-provider.interface';
+} from '@/file-service/src/storage/storage-provider.interface';
+import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import { StorageConfig } from '@app/contracts/config/storage.config';
 
 @Injectable()
 export class LocalStorageProvider implements IStorageProvider {
   private readonly storagePath: string;
 
-  constructor() {
-    this.storagePath = process.env['STORAGE_PATH'] || '/tmp/file-storage';
+  constructor(configurationService: ConfigurationService) {
+    this.storagePath = configurationService.get(StorageConfig).storagePath;
     this.ensureStorageDirectory();
   }
 
@@ -46,20 +48,21 @@ export class LocalStorageProvider implements IStorageProvider {
     return { key, url: `/files/${key}` };
   }
 
-  async delete(key: string): Promise<void> {
+  delete(key: string): Promise<void> {
     const fullPath = path.join(this.storagePath, key);
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
     }
+    return Promise.resolve();
   }
 
-  async generateSignedUrl(
+  generateSignedUrl(
     key: string,
     expiresIn: number,
   ): Promise<{ url: string; expiresAt: Date }> {
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
-    const signedUrl = `/files/${key}?expires=${expiresAt.getTime()}`;
-    return { url: signedUrl, expiresAt };
+    const signedUrl = `/files/${key}?expires=${expiresAt.getTime().toString()}`;
+    return Promise.resolve({ url: signedUrl, expiresAt });
   }
 
   getPublicUrl(key: string): string {
@@ -70,7 +73,7 @@ export class LocalStorageProvider implements IStorageProvider {
     const ext = this.getExtension(contentType);
     const hash = crypto.randomUUID();
     const date = new Date();
-    const datePath = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    const datePath = `${date.getFullYear().toString()}/${(date.getMonth() + 1).toString()}/${date.getDate().toString()}`;
     return `${datePath}/${hash}${ext}`;
   }
 

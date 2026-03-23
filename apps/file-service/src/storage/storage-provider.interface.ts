@@ -5,6 +5,8 @@ export interface UploadOptions {
   size: number;
 }
 
+export const STORAGE_PROVIDER_TOKEN = Symbol('STORAGE_PROVIDER');
+
 export interface IStorageProvider {
   upload(
     stream: Readable,

@@ -8,29 +8,29 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileService } from './file-service.service';
-import { CreateFileDto, FileFilterDto } from './dto/file.dto';
+import { FileContract } from '@app/contracts/file/entities/file.contract';
+import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
+import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
 
 @Controller('files')
 export class FileServiceController {
   constructor(private readonly fileService: FileService) {}
 
   @Post()
-  createFile(@Body() dto: CreateFileDto) {
+  createFile(@Body() dto: CreateFileDto): Promise<FileContract> {
     return this.fileService.createFile(dto);
   }
 
   @Get(':id')
-  getFile(@Param('id') id: string) {
+  getFile(@Param('id') id: string): Promise<FileContract> {
     return this.fileService.getFile(Number(id));
   }
 
-  @Get()
-  listFiles(@Query() query: FileFilterDto) {
-    return this.fileService.listFiles(query);
-  }
-
   @Delete(':id')
-  deleteFile(@Param('id') id: string, @Body('userId') userId: number) {
+  deleteFile(
+    @Param('id') id: string,
+    @Body('userId') userId: number,
+  ): Promise<void> {
     return this.fileService.deleteFile(Number(id), userId);
   }
 
@@ -38,15 +38,10 @@ export class FileServiceController {
   getSignedUrl(
     @Param('id') id: string,
     @Query('expiresIn') expiresIn?: string,
-  ) {
+  ): Promise<SignedUrlResult> {
     return this.fileService.generateSignedUrl(
       Number(id),
       expiresIn ? Number(expiresIn) : undefined,
     );
-  }
-
-  @Get(':id/ref')
-  getStorageRef(@Param('id') id: string) {
-    return this.fileService.getStorageRef(Number(id));
   }
 }
