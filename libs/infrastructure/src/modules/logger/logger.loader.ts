@@ -19,7 +19,7 @@ export class LoggerLoader {
 
   async load(): Promise<void> {
     await this.eventBusService.on('config.loaded');
-    this.configurationService.get<LoggerLibConfig>(LoggerLibConfig);
+    this.configurationService.getByKey('logger', LoggerLibConfig);
 
     this.serviceDependencies.sink = new ConsoleSink('console-sink');
     this.serviceDependencies.buffer = new MemoryBuffer();

@@ -15,7 +15,7 @@ import { ConfigurationService } from '@app/infrastructure/modules/configuration/
       imports: [],
       inject: [ConfigurationService],
       useFactory: (configService: ConfigurationService) => {
-        const jwtSection = configService.get<JwtConfig>(JwtConfig);
+        const jwtSection = configService.getByKey('jwt', JwtConfig);
         return {
           secret: jwtSection.secret,
           signOptions: {

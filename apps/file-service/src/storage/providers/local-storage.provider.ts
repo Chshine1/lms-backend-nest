@@ -15,7 +15,7 @@ export class LocalStorageProvider implements IStorageProvider {
   private readonly storagePath: string;
 
   constructor(configurationService: ConfigurationService) {
-    this.storagePath = configurationService.get(StorageConfig).storagePath;
+    this.storagePath = configurationService.getByKey('storage', StorageConfig).storagePath;
     this.ensureStorageDirectory();
   }
 

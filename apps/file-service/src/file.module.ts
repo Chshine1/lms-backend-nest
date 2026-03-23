@@ -19,7 +19,7 @@ import {
 const storageProviderFactory = (
   configurationService: ConfigurationService,
 ): IStorageProvider => {
-  const storageConfig = configurationService.get(StorageConfig);
+  const storageConfig = configurationService.getByKey('storage', StorageConfig);
 
   switch (storageConfig.provider) {
     case StorageProviderType.S3:
