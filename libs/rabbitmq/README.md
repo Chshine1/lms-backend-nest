@@ -19,6 +19,13 @@ RabbitMQModule
 
 The module is marked as `@Global()` so it can be imported once at the application root and all services are available throughout the app.
 
+### Design Decisions
+
+Key architectural decisions are documented in ADRs:
+
+- [ADR 0001: Connection and Channel Lifecycle Management](docs/adr/0001-connection-channel-lifecycle.md) - Describes lazy initialization and auto-reconnect strategy
+- [ADR 0002: Transactional Outbox Pattern Implementation](docs/adr/0002-outbox-pattern.md) - Describes the outbox pattern design and trade-offs
+
 ### Error Handling
 
 All errors extend `RabbitMQError` which extends `BaseError`:
@@ -32,7 +39,7 @@ All errors extend `RabbitMQError` which extends `BaseError`:
 ## File Structure
 
 ```
-libs/infrastructure/src/modules/rabbitmq/
+libs/rabbitmq/
 ├── rabbitmq.module.ts           - NestJS module definition
 ├── contracts/
 │   └── rabbitmq-options.interface.ts - All configuration interfaces
@@ -51,6 +58,51 @@ libs/infrastructure/src/modules/rabbitmq/
     ├── rabbitmq-outbox.service.ts
     └── in-memory-outbox.repository.ts
 ```
+
+## Detailed Design
+
+### Connection Lifecycle
+
+The `RabbitMQConnectionService` manages the AMQP connection lifecycle:
+
+1. **Lazy Initialization**: Connection is established on first `getConnection()` call
+2. **Singleton Pattern**: Single connection is reused across all requests
+3. **Auto-Reconnect**: Listens for `error` and `close` events, clears connection state to trigger reconnection on next request
+4. **Graceful Shutdown**: Implements `OnModuleDestroy` to close connection on application termination
+
+### Channel Lifecycle
+
+The `RabbitMQChannelService` manages channel lifecycle:
+
+1. **Lazy Initialization**: Channel is created on first `getChannel()` call
+2. **Singleton Pattern**: Single channel is reused across all operations
+3. **Auto-Reconnect**: Listens for `error` and `close` events, clears channel state
+4. **Error Isolation**: Each channel operation catches errors and throws typed `RabbitMQChannelError`
+
+### Outbox Pattern
+
+The `RabbitMQOutboxService` implements the transactional outbox pattern for reliable message delivery:
+
+1. **Message Storage**: Messages are first stored in an `OutboxRepository` (in-memory or database-backed)
+2. **Async Relay**: Messages are relayed to RabbitMQ asynchronously via `processOutbox()` or automatic relay
+3. **Retry Mechanism**: Failed messages are retried up to `maxRetries` (default: 3), then marked as processed
+4. **Polling**: The relay polls at configurable intervals (default: 1000ms)
+
+### Consumer Acknowledgment
+
+The `RabbitMQConsumerService` provides automatic ack/nack:
+
+- Successful handler execution → automatic `ack`
+- Handler throws error → automatic `nack` (requeue: false)
+- Supports prefetch control for flow management
+
+### Error Handling Strategy
+
+All errors extend `RabbitMQError` which provides:
+
+- Standardized error codes from `@app/contracts/errors/error.codes`
+- Context-rich error messages (host, port, operation, queue, etc.)
+- Chained `cause` for debugging root issues
 
 ## Internal Dependencies
 

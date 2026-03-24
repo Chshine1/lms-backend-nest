@@ -4,6 +4,7 @@ import { RabbitMQConnectionService } from '@app/rabbitmq/services/rabbitmq-conne
 import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
 import { RabbitMQProducerService } from '@app/rabbitmq/services/rabbitmq-producer.service';
 import { RabbitMQConsumerService } from '@app/rabbitmq/services/rabbitmq-consumer.service';
+import { RabbitMQOutboxService } from '@app/rabbitmq/services/rabbitmq-outbox.service';
 
 export interface RabbitMQModuleOptions {
   connection: RabbitMQConnectionOptions;
@@ -22,12 +23,14 @@ export class RabbitMQModule {
           provide: RABBITMQ_MODULE_OPTIONS,
           useValue: options,
         },
+        RabbitMQOutboxService,
         RabbitMQConnectionService,
         RabbitMQChannelService,
         RabbitMQProducerService,
         RabbitMQConsumerService,
       ],
       exports: [
+        RabbitMQOutboxService,
         RabbitMQConnectionService,
         RabbitMQChannelService,
         RabbitMQProducerService,

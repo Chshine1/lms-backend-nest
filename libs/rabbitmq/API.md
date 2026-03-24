@@ -12,7 +12,8 @@ Provides RabbitMQ messaging capabilities including connection management, messag
 | `RabbitMQChannelService`    | Low-level channel operations (publish, consume, ack, nack, prefetch, assertExchange, assertQueue, bindQueue) |
 | `RabbitMQProducerService`   | High-level message publishing with JSON and event helpers                                                    |
 | `RabbitMQConsumerService`   | Message consumption with automatic ack/nack                                                                  |
-| `RabbitMQOutboxService`     | Outbox pattern implementation for reliable delivery                                                          |
+
+> **Note**: `RabbitMQOutboxService` and `InMemoryOutboxRepository` are not exported from the module. For outbox pattern usage, create a separate module that imports and exports these services along with a custom `OutboxRepository` implementation.
 
 ## Exported Types
 
@@ -287,5 +288,5 @@ All errors extend `RabbitMQError` which provides standardized error codes:
 - The module is `@Global()` - import once at application root
 - Connection and channel are automatically managed with reconnection on error/close
 - Consumer automatically handles ack/nack based on handler success
-- Outbox service requires a custom repository implementation for production use
 - All services are designed for async/await usage
+- See [ADR 0001](docs/adr/0001-connection-channel-lifecycle.md) and [ADR 0002](docs/adr/0002-outbox-pattern.md) for architectural details
