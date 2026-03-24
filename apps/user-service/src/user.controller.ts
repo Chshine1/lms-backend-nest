@@ -9,9 +9,11 @@ import {
   UserServiceResource,
 } from '@/user-service/src/entities/user-permission.entity';
 import { RequirePermissions } from '@app/authentication/permission/permission.decorator';
+import { ExtractController } from '@app/typed-client/types/extract.controller';
+import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 
 @Controller()
-export class UserController {
+export class UserController implements ExtractController<UserTypedClient> {
   constructor(private readonly userService: UserService) {}
 
   @RequirePermissions(UserServiceResource.USER, UserServiceAction.MANAGE)
@@ -38,8 +40,8 @@ export class UserController {
     routingKey: 'user.findById',
     queue: 'user-service-user-findById',
   })
-  findUserById(data: { id: number }): Promise<UserContract | null> {
-    return this.userService.findById(data.id);
+  findUserById(id: number): Promise<UserContract | null> {
+    return this.userService.findById(id);
   }
 
   @RabbitRPC({

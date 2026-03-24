@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UserTypedClient } from '@app/typed-client/user.typed-client';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
 import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
+import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 
 @Injectable()
 export class UserClientService {
@@ -18,9 +18,5 @@ export class UserClientService {
 
   findUserById(id: number): Promise<UserContract | null> {
     return this.client.findUserById(id);
-  }
-
-  findUsersByTenant(tenantId: number): Promise<UserContract[]> {
-    return this.client.findUsersByTenant(tenantId);
   }
 }
