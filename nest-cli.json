@@ -8,6 +8,15 @@
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
+    "assignment-service": {
+      "type": "application",
+      "root": "apps/assignment-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/assignment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/assignment-service/tsconfig.app.json"
+      }
+    },
     "audit": {
       "type": "library",
       "root": "libs/audit",
@@ -33,6 +42,24 @@
       "sourceRoot": "libs/contracts/src",
       "compilerOptions": {
         "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
+    "course-enrollment-service": {
+      "type": "application",
+      "root": "apps/course-enrollment-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/course-enrollment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/course-enrollment-service/tsconfig.app.json"
+      }
+    },
+    "course-scheduling-service": {
+      "type": "application",
+      "root": "apps/course-scheduling-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/course-scheduling-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/course-scheduling-service/tsconfig.app.json"
       }
     },
     "course-service": {
