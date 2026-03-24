@@ -1,6 +1,9 @@
 import { Inject } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TYPED_CLIENT_MODULE_OPTIONS, type TypedClientModuleOptions, } from './typed-client.module';
+import {
+  TYPED_CLIENT_MODULE_OPTIONS,
+  type TypedClientModuleOptions,
+} from './typed-client.module';
 
 export abstract class TypedClientBase<
   TPatterns extends Record<string, { request: unknown; response: unknown }>,
@@ -21,7 +24,7 @@ export abstract class TypedClientBase<
     data: TPatterns[T]['request'],
   ): Promise<TPatterns[T]['response']> {
     const routingKey = pattern as string;
-    
+
     return await this.amqpConnection.request<TPatterns[T]['response']>({
       exchange: this.exchange,
       routingKey,

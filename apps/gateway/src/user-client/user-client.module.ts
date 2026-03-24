@@ -26,7 +26,7 @@ class RabbitMQConfigSection {
       useFactory: (configService: ConfigurationService) => {
         const section = configService.get(RabbitMQConfigSection);
         return {
-          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port}`,
+          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
           connectionInitOptions: { wait: true },
         };
       },

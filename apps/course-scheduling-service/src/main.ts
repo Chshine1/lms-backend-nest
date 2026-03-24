@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { CourseSchedulingServiceModule } from './course-scheduling-service.module';
+import { CourseSchedulingModule } from './course-scheduling.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create(CourseSchedulingServiceModule);
-  await app.listen(process.env.port ?? 3000);
+async function bootstrap(): Promise<void> {
+  await NestFactory.createApplicationContext(CourseSchedulingModule);
 }
-bootstrap();
+
+void bootstrap();

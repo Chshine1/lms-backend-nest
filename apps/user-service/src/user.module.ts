@@ -87,7 +87,7 @@ class RabbitMQConfigSection {
               type: 'topic',
             },
           ],
-          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port}`,
+          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
           connectionInitOptions: { wait: true },
         };
       },
@@ -99,4 +99,4 @@ class RabbitMQConfigSection {
   providers: [UserService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class AppModule {}
+export class UserModule {}

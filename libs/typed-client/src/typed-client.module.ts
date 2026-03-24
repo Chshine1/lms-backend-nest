@@ -11,6 +11,7 @@ export const TYPED_CLIENT_MODULE_OPTIONS = Symbol(
 
 @Global()
 @Module({})
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TypedClientModule {
   static forFeature(options: TypedClientModuleOptions): DynamicModule {
     return {
@@ -25,5 +26,3 @@ export class TypedClientModule {
     };
   }
 }
-
-export { AmqpConnection } from '@golevelup/nestjs-rabbitmq';

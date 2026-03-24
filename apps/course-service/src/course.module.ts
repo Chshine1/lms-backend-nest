@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CourseServiceService } from './course-service.service';
+import { CourseService } from './course.service';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [CourseServiceService],
+  providers: [CourseService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class CourseServiceModule {}
+export class CourseModule {}
