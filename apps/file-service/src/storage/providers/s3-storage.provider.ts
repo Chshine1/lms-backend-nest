@@ -20,7 +20,10 @@ export class S3StorageProvider implements IStorageProvider {
   private readonly s3Config: S3Config;
 
   constructor(private readonly configurationService: ConfigurationService) {
-    const storageConfig = this.configurationService.getByKey('storage', StorageConfig);
+    const storageConfig = this.configurationService.getByKey(
+      'storage',
+      StorageConfig,
+    );
     if (storageConfig.s3 === undefined) {
       // TODO: Not enough error handling
       throw new Error();

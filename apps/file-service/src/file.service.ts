@@ -25,7 +25,8 @@ export class FileService {
     private configurationService: ConfigurationService,
   ) {
     this.defaultSignedUrlExpiry =
-      this.configurationService.getByKey('file', FileConfig).signedUrlExpiry || 3600;
+      this.configurationService.getByKey('file', FileConfig).signedUrlExpiry ||
+      3600;
   }
 
   async createFile(

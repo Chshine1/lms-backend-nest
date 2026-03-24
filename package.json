@@ -115,6 +115,7 @@
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/health(|/.*)$": "<rootDir>/libs/health/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
+      "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }
   }

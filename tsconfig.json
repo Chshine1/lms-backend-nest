@@ -40,6 +40,12 @@
       "@app/infrastructure/*": [
         "libs/infrastructure/src/*"
       ],
+      "@app/rabbitmq": [
+        "libs/rabbitmq/src"
+      ],
+      "@app/rabbitmq/*": [
+        "libs/rabbitmq/src/*"
+      ],
       "@app/typed-client": [
         "libs/typed-client/src"
       ],

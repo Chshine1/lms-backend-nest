@@ -1,25 +1,25 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import * as amqplib from 'amqplib';
-import type { RabbitMQConnectionOptions } from '@app/infrastructure/modules/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionError } from '@app/infrastructure/modules/rabbitmq/errors/rabbitmq-connection.error';
+import { ChannelModel, connect } from 'amqplib';
+import type { RabbitMQConnectionOptions } from '@app/rabbitmq/contracts/rabbitmq-options.interface';
+import { RabbitMQConnectionError } from '@app/rabbitmq/errors/rabbitmq-connection.error';
 
 @Injectable()
 export class RabbitMQConnectionService implements OnModuleDestroy {
-  private connection: amqplib.ChannelModel | null = null;
+  private connection: ChannelModel | null = null;
   private readonly options: RabbitMQConnectionOptions;
 
   constructor(options: RabbitMQConnectionOptions) {
     this.options = options;
   }
 
-  async connect(): Promise<amqplib.ChannelModel> {
+  async connect(): Promise<ChannelModel> {
     if (this.connection) {
       return this.connection;
     }
 
     const url = this.buildUrl();
     try {
-      this.connection = await amqplib.connect(url, {
+      this.connection = await connect(url, {
         heartbeat: this.options.heartbeat,
         timeout: this.options.timeout,
       });
@@ -42,7 +42,7 @@ export class RabbitMQConnectionService implements OnModuleDestroy {
     }
   }
 
-  async getConnection(): Promise<amqplib.ChannelModel> {
+  async getConnection(): Promise<ChannelModel> {
     if (!this.connection) {
       return this.connect();
     }

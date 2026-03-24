@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import type { RabbitMQOutboxMessage } from '@app/infrastructure/modules/rabbitmq/contracts/rabbitmq-options.interface';
-import type { OutboxRepository } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-outbox.service';
+import type { RabbitMQOutboxMessage } from '@app/rabbitmq/contracts/rabbitmq-options.interface';
+import type { OutboxRepository } from '@app/rabbitmq/services/rabbitmq-outbox.service';
 
 @Injectable()
 export class InMemoryOutboxRepository implements OutboxRepository {

@@ -1,9 +1,9 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import type { RabbitMQConnectionOptions } from '@app/infrastructure/modules/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-connection.service';
-import { RabbitMQChannelService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-channel.service';
-import { RabbitMQProducerService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-producer.service';
-import { RabbitMQConsumerService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-consumer.service';
+import type { RabbitMQConnectionOptions } from '@app/rabbitmq/contracts/rabbitmq-options.interface';
+import { RabbitMQConnectionService } from '@app/rabbitmq/services/rabbitmq-connection.service';
+import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
+import { RabbitMQProducerService } from '@app/rabbitmq/services/rabbitmq-producer.service';
+import { RabbitMQConsumerService } from '@app/rabbitmq/services/rabbitmq-consumer.service';
 
 export interface RabbitMQModuleOptions {
   connection: RabbitMQConnectionOptions;

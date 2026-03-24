@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import type * as amqplib from 'amqplib';
+import { Channel, Replies, Options, ConsumeMessage, Message } from 'amqplib';
 import type {
   RabbitMQExchangeOptions,
   RabbitMQQueueOptions,
   RabbitMQBindingOptions,
-} from '@app/infrastructure/modules/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-connection.service';
-import { RabbitMQChannelError } from '@app/infrastructure/modules/rabbitmq/errors/rabbitmq-channel.error';
+} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
+import { RabbitMQConnectionService } from '@app/rabbitmq/services/rabbitmq-connection.service';
+import { RabbitMQChannelError } from '@app/rabbitmq/errors/rabbitmq-channel.error';
 
 @Injectable()
 export class RabbitMQChannelService {
-  private channel: amqplib.Channel | null = null;
+  private channel: Channel | null = null;
 
   constructor(private readonly connectionService: RabbitMQConnectionService) {}
 
-  async getChannel(): Promise<amqplib.Channel> {
+  async getChannel(): Promise<Channel> {
     if (this.channel) {
       return this.channel;
     }
@@ -35,7 +35,7 @@ export class RabbitMQChannelService {
 
   async assertExchange(
     options: RabbitMQExchangeOptions,
-  ): Promise<amqplib.Replies.AssertExchange> {
+  ): Promise<Replies.AssertExchange> {
     try {
       const channel = await this.getChannel();
       return await channel.assertExchange(options.name, options.type, {
@@ -50,7 +50,7 @@ export class RabbitMQChannelService {
 
   async assertQueue(
     options: RabbitMQQueueOptions,
-  ): Promise<amqplib.Replies.AssertQueue> {
+  ): Promise<Replies.AssertQueue> {
     try {
       const channel = await this.getChannel();
       return await channel.assertQueue(options.name, {
@@ -66,7 +66,7 @@ export class RabbitMQChannelService {
 
   async bindQueue(
     options: RabbitMQBindingOptions,
-  ): Promise<amqplib.Replies.Empty> {
+  ): Promise<Replies.Empty> {
     try {
       const channel = await this.getChannel();
       return await channel.bindQueue(
@@ -87,7 +87,7 @@ export class RabbitMQChannelService {
     exchange: string,
     routingKey: string,
     content: Buffer,
-    options?: amqplib.Options.Publish,
+    options?: Options.Publish,
   ): Promise<boolean> {
     try {
       const channel = await this.getChannel();
@@ -102,9 +102,9 @@ export class RabbitMQChannelService {
 
   async consume(
     queue: string,
-    onMessage: (msg: amqplib.ConsumeMessage | null) => void,
-    options?: amqplib.Options.Consume,
-  ): Promise<amqplib.Replies.Consume> {
+    onMessage: (msg: ConsumeMessage | null) => void,
+    options?: Options.Consume,
+  ): Promise<Replies.Consume> {
     try {
       const channel = await this.getChannel();
       return await channel.consume(queue, onMessage, options);
@@ -113,25 +113,25 @@ export class RabbitMQChannelService {
     }
   }
 
-  async ack(message: amqplib.Message): Promise<void> {
+  async ack(message: Message): Promise<void> {
     try {
       const channel = await this.getChannel();
-      await channel.ack(message);
+      channel.ack(message);
     } catch (cause) {
       throw new RabbitMQChannelError('ack', cause);
     }
   }
 
-  async nack(message: amqplib.Message, allUpTo?: boolean): Promise<void> {
+  async nack(message: Message, allUpTo?: boolean): Promise<void> {
     try {
       const channel = await this.getChannel();
-      await channel.nack(message, allUpTo, false);
+      channel.nack(message, allUpTo, false);
     } catch (cause) {
       throw new RabbitMQChannelError('nack', cause);
     }
   }
 
-  async prefetch(count: number): Promise<amqplib.Replies.Empty> {
+  async prefetch(count: number): Promise<Replies.Empty> {
     try {
       const channel = await this.getChannel();
       return await channel.prefetch(count);

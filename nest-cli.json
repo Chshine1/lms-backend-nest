@@ -80,6 +80,15 @@
         "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
       }
     },
+    "rabbitmq": {
+      "type": "library",
+      "root": "libs/rabbitmq",
+      "entryFile": "index",
+      "sourceRoot": "libs/rabbitmq/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
+      }
+    },
     "typed-client": {
       "type": "library",
       "root": "libs/typed-client",

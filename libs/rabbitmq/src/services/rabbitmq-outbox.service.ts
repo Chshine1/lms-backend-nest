@@ -3,9 +3,9 @@ import { randomUUID } from 'crypto';
 import type {
   RabbitMQOutboxMessage,
   RabbitMQMessageProperties,
-} from '@app/infrastructure/modules/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQChannelService } from '@app/infrastructure/modules/rabbitmq/services/rabbitmq-channel.service';
-import { RabbitMQOutboxError } from '@app/infrastructure/modules/rabbitmq/errors/rabbitmq-outbox.error';
+} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
+import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
+import { RabbitMQOutboxError } from '@app/rabbitmq/errors/rabbitmq-outbox.error';
 
 export interface OutboxRepository {
   findPending(limit: number): Promise<RabbitMQOutboxMessage[]>;
