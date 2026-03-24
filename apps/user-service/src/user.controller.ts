@@ -1,5 +1,5 @@
-﻿import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { UserService } from './user.service';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
@@ -15,23 +15,39 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @RequirePermissions(UserServiceResource.USER, UserServiceAction.MANAGE)
-  @MessagePattern('user.create')
-  createUser(@Payload() createUserDto: CreateUserDto): Promise<UserContract> {
+  @RabbitRPC({
+    exchange: 'user-service',
+    routingKey: 'user.create',
+    queue: 'user-service-user-create',
+  })
+  createUser(createUserDto: CreateUserDto): Promise<UserContract> {
     return this.userService.create(createUserDto);
   }
 
-  @MessagePattern('user.validate')
-  validateUser(@Payload() data: ValidateUserDto): Promise<UserContract | null> {
+  @RabbitRPC({
+    exchange: 'user-service',
+    routingKey: 'user.validate',
+    queue: 'user-service-user-validate',
+  })
+  validateUser(data: ValidateUserDto): Promise<UserContract | null> {
     return this.userService.validateUser(data.username, data.password);
   }
 
-  @MessagePattern('user.findById')
-  findUserById(@Payload() data: { id: number }): Promise<UserContract | null> {
+  @RabbitRPC({
+    exchange: 'user-service',
+    routingKey: 'user.findById',
+    queue: 'user-service-user-findById',
+  })
+  findUserById(data: { id: number }): Promise<UserContract | null> {
     return this.userService.findById(data.id);
   }
 
-  @MessagePattern('user.findByTenant')
-  findByTenant(@Payload() data: { tenantId: number }): Promise<UserContract[]> {
+  @RabbitRPC({
+    exchange: 'user-service',
+    routingKey: 'user.findByTenant',
+    queue: 'user-service-user-findByTenant',
+  })
+  findByTenant(data: { tenantId: number }): Promise<UserContract[]> {
     return this.userService.findByTenant(data.tenantId);
   }
 }

@@ -1,4 +1,5 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
+import { ConfigurationModule } from '@app/infrastructure/modules/configuration/configuration.module';
 
 @Module({})
 @Global()
@@ -7,7 +8,8 @@ export class InfrastructureModule {
   static forRoot(): DynamicModule {
     return {
       module: InfrastructureModule,
-      providers: [],
+      imports: [ConfigurationModule],
+      exports: [ConfigurationModule],
     };
   }
 }

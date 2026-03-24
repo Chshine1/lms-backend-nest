@@ -1,19 +1,40 @@
-﻿import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Module } from '@nestjs/common';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { UserClientService } from './user-client.service';
+import { TypedClientModule } from '@app/typed-client/typed-client.module';
+import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import { IsDefined, IsString } from 'class-validator';
+
+class RabbitMQConfigSection {
+  @IsString()
+  @IsDefined()
+  host!: string;
+  @IsString()
+  @IsDefined()
+  port!: number;
+  @IsString()
+  @IsDefined()
+  username!: string;
+  @IsString()
+  @IsDefined()
+  password!: string;
+}
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'USER_SERVICE',
-        transport: Transport.TCP,
-        options: {
-          host: process.env['USER_SERVICE_HOST'] || 'localhost',
-          port: parseInt(process.env['USER_SERVICE_PORT'] || '3001'),
-        },
+    RabbitMQModule.forRootAsync({
+      useFactory: (configService: ConfigurationService) => {
+        const section = configService.get(RabbitMQConfigSection);
+        return {
+          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port}`,
+          connectionInitOptions: { wait: true },
+        };
       },
-    ]),
+      inject: [ConfigurationService],
+    }),
+    TypedClientModule.forFeature({
+      exchange: 'user-service',
+    }),
   ],
   providers: [UserClientService],
   exports: [UserClientService],
