@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { UserClientService } from './user-client.service';
 import { TypedClientModule } from '@app/typed-client/typed-client.module';
 import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 import { IsDefined, IsString } from 'class-validator';
+import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 
 class RabbitMQConfigSection {
   @IsString()
@@ -33,11 +33,13 @@ class RabbitMQConfigSection {
       inject: [ConfigurationService],
     }),
     TypedClientModule.forFeature({
-      exchange: 'user-service',
+      mqOptions: {
+        exchange: 'user-service',
+      },
+      clients: [UserTypedClient],
     }),
   ],
-  providers: [UserClientService],
-  exports: [UserClientService],
+  exports: [UserTypedClient],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserClientModule {}

@@ -1,19 +1,20 @@
 import { Inject } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import {
-  TYPED_CLIENT_MODULE_OPTIONS,
-  type TypedClientModuleOptions,
+  TYPED_CLIENT_MQ_OPTIONS,
+  type TypedClientMqOptions,
 } from './typed-client.module';
 
 export abstract class TypedClientBase<
-  TPatterns extends Record<string, { request: unknown; response: unknown }>,
+  TPatterns extends Record<string, { request: unknown; response: unknown }> =
+    Record<string, { request: unknown; response: unknown }>,
 > {
   protected readonly exchange: string;
   protected readonly timeout: number;
 
   protected constructor(
     protected readonly amqpConnection: AmqpConnection,
-    @Inject(TYPED_CLIENT_MODULE_OPTIONS) options: TypedClientModuleOptions,
+    @Inject(TYPED_CLIENT_MQ_OPTIONS) options: TypedClientMqOptions,
   ) {
     this.exchange = options.exchange;
     this.timeout = options.timeout ?? 30000;

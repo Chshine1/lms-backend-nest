@@ -8,16 +8,16 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserClientService } from './user-client/user-client.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
+import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 
 @Controller()
 export class AppController {
   constructor(
-    private readonly userClient: UserClientService,
+    private readonly userClient: UserTypedClient,
     private readonly jwtService: JwtService,
   ) {}
 

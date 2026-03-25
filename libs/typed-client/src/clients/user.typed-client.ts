@@ -4,15 +4,18 @@ import { TypedClientBase } from '@app/typed-client/typed-client.base';
 import { UserContract } from '@app/contracts/user/entities/user.contract';
 import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
 import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
-import { TYPED_CLIENT_MODULE_OPTIONS } from '@app/typed-client/typed-client.module';
+import {
+  TYPED_CLIENT_MQ_OPTIONS,
+  type TypedClientMqOptions,
+} from '@app/typed-client/typed-client.module';
 import { UserPatterns } from '@app/typed-client/patterns/user.patterns';
 
 @Injectable()
 export class UserTypedClient extends TypedClientBase<UserPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
-    @Inject(TYPED_CLIENT_MODULE_OPTIONS)
-    options: { exchange: string; timeout?: number },
+    @Inject(TYPED_CLIENT_MQ_OPTIONS)
+    options: TypedClientMqOptions,
   ) {
     super(amqpConnection, options);
   }
