@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CourseSchedulingController } from './course-scheduling.controller';
 import { CourseSchedulingService } from './course-scheduling.service';
+import { CourseSchedule } from './entities/course-schedule.entity';
+import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
 
 @Module({
-  imports: [],
+  imports: [
+    InfrastructureModule.forRoot(),
+    TypeOrmModule.forRoot(),
+    TypeOrmModule.forFeature([CourseSchedule]),
+  ],
   controllers: [CourseSchedulingController],
   providers: [CourseSchedulingService],
 })
