@@ -3,9 +3,9 @@ import { randomUUID } from 'crypto';
 import type {
   RabbitMQOutboxMessage,
   RabbitMQMessageProperties,
-} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
-import { RabbitMQOutboxError } from '@app/rabbitmq/errors/rabbitmq-outbox.error';
+} from '../contracts/rabbitmq-options.interface';
+import { RabbitMQChannelService } from './rabbitmq-channel.service';
+import { RabbitMQOutboxError } from '../errors';
 
 export interface OutboxRepository {
   findPending(limit: number): Promise<RabbitMQOutboxMessage[]>;
@@ -115,7 +115,7 @@ export class RabbitMQOutboxService {
     }
 
     const pollMs = interval ?? this.pollInterval;
-    this.timer = setInterval(async () => {
+    this.timer = setInterval(async (): Promise<void> => {
       try {
         await this.processOutbox();
       } catch {

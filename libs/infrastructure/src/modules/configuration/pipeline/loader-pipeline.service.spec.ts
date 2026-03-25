@@ -1,8 +1,8 @@
 ﻿import { LoaderPipelineService } from './loader-pipeline.service';
 import { LoaderMiddleware } from './loader.middleware';
-import { LoggerService } from '@app/infrastructure/modules/logger/logger.service';
-import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
-import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { LoggerService } from '../../logger/logger.service';
+import { BootstrapEventBus } from '../../event-bus/event-bus.module';
+import { LogLevel } from '../../logger/contracts/log.entry';
 
 const mockLogger: LoggerService = {
   log: jest.fn().mockResolvedValue(undefined),

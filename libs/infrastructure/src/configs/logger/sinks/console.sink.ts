@@ -1,5 +1,5 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+﻿import { LogEntry } from '../../../modules/logger/contracts/log.entry';
+import { Sink } from '../../../modules/logger/contracts/middlewares.interface';
 
 export class ConsoleSink implements Sink {
   constructor(public readonly id: string) {}

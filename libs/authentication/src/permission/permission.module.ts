@@ -2,10 +2,10 @@
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { Repository } from 'typeorm';
-import { PermissionService } from '@app/authentication/permission/permission.service';
-import { Permission } from '@app/authentication/permission/permission.interface';
+import { PermissionService } from './permission.service';
+import { Permission } from './permission.interface';
 import { APP_GUARD } from '@nestjs/core';
-import { PermissionGuard } from '@app/authentication/permission/permission.guard';
+import { PermissionGuard } from './permission.guard';
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

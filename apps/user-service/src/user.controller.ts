@@ -8,7 +8,7 @@ import {
   UserServiceAction,
   UserServiceResource,
 } from '@/user-service/src/entities/user-permission.entity';
-import { RequirePermissions } from '@app/authentication/permission/permission.decorator';
+import { RequirePermissions } from '@app/authentication';
 import { ExtractController } from '@app/typed-client/types/extract.controller';
 import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 

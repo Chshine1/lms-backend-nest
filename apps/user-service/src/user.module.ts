@@ -4,7 +4,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PermissionModule } from '@app/authentication/permission/permission.module';
+import { PermissionModule } from '@app/authentication';
 import { UserPermission } from '@/user-service/src/entities/user-permission.entity';
 import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';

@@ -7,7 +7,7 @@ import { validateSync } from 'class-validator';
 import {
   ConfigLoadPipelineMiddlewareError,
   ConfigLoadPipelineValidationError,
-} from '@app/infrastructure/infrastructure.errors';
+} from '../../../infrastructure.errors';
 
 type ConstructorArray<TTypeArray extends object[]> = TTypeArray extends [
   infer TFirst,

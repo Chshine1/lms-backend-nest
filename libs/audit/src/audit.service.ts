@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@app/infrastructure/modules/logger/logger.service';
-import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { LoggerService } from '@app/infrastructure';
+import { LogLevel } from '@app/infrastructure';
 
 export interface AuditLogPayload {
   actor: { header: string };

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Replies } from 'amqplib';
+import { ConsumeMessage, Replies } from 'amqplib';
 import type {
   RabbitMQConsumerOptions,
   RabbitMQMessage,
-} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
-import { RabbitMQConsumeError } from '@app/rabbitmq/errors/rabbitmq-consume.error';
+} from '../contracts/rabbitmq-options.interface';
+import { RabbitMQChannelService } from './rabbitmq-channel.service';
+import { RabbitMQConsumeError } from '../errors';
 
 @Injectable()
 export class RabbitMQConsumerService {
@@ -25,63 +25,66 @@ export class RabbitMQConsumerService {
 
       const result = await this.channelService.consume(
         options.queue,
-        async (msg): Promise<void> => {
-          if (!msg) {
-            return;
-          }
+        (msg: ConsumeMessage | null): void => {
+          const promise = async (): Promise<void> => {
+            if (!msg) {
+              return;
+            }
 
-          const props = msg.properties;
-          const message: RabbitMQMessage = {
-            content: msg.content,
-            fields: {
-              deliveryTag: msg.fields.deliveryTag,
-              redelivered: msg.fields.redelivered,
-              exchange: msg.fields.exchange,
-              routingKey: msg.fields.routingKey,
-            },
-            properties: {
-              ...(props.contentType !== undefined
-                ? { contentType: props.contentType }
-                : {}),
-              ...(props.contentEncoding !== undefined
-                ? { contentEncoding: props.contentEncoding }
-                : {}),
-              ...(props.headers !== undefined
-                ? { headers: props.headers as Record<string, unknown> }
-                : {}),
-              ...(props.deliveryMode !== undefined
-                ? { deliveryMode: props.deliveryMode as 1 | 2 }
-                : {}),
-              ...(props.priority !== undefined
-                ? { priority: props.priority }
-                : {}),
-              ...(props.correlationId !== undefined
-                ? { correlationId: props.correlationId }
-                : {}),
-              ...(props.replyTo !== undefined
-                ? { replyTo: props.replyTo }
-                : {}),
-              ...(props.expiration !== undefined
-                ? { expiration: props.expiration }
-                : {}),
-              ...(props.messageId !== undefined
-                ? { messageId: props.messageId }
-                : {}),
-              ...(props.timestamp !== undefined
-                ? { timestamp: props.timestamp }
-                : {}),
-              ...(props.type !== undefined ? { type: props.type } : {}),
-              ...(props.userId !== undefined ? { userId: props.userId } : {}),
-              ...(props.appId !== undefined ? { appId: props.appId } : {}),
-            },
+            const props = msg.properties;
+            const message: RabbitMQMessage = {
+              content: msg.content,
+              fields: {
+                deliveryTag: msg.fields.deliveryTag,
+                redelivered: msg.fields.redelivered,
+                exchange: msg.fields.exchange,
+                routingKey: msg.fields.routingKey,
+              },
+              properties: {
+                ...(props.contentType !== undefined
+                  ? { contentType: props.contentType }
+                  : {}),
+                ...(props.contentEncoding !== undefined
+                  ? { contentEncoding: props.contentEncoding }
+                  : {}),
+                ...(props.headers !== undefined
+                  ? { headers: props.headers as Record<string, unknown> }
+                  : {}),
+                ...(props.deliveryMode !== undefined
+                  ? { deliveryMode: props.deliveryMode as 1 | 2 }
+                  : {}),
+                ...(props.priority !== undefined
+                  ? { priority: props.priority }
+                  : {}),
+                ...(props.correlationId !== undefined
+                  ? { correlationId: props.correlationId }
+                  : {}),
+                ...(props.replyTo !== undefined
+                  ? { replyTo: props.replyTo }
+                  : {}),
+                ...(props.expiration !== undefined
+                  ? { expiration: props.expiration }
+                  : {}),
+                ...(props.messageId !== undefined
+                  ? { messageId: props.messageId }
+                  : {}),
+                ...(props.timestamp !== undefined
+                  ? { timestamp: props.timestamp }
+                  : {}),
+                ...(props.type !== undefined ? { type: props.type } : {}),
+                ...(props.userId !== undefined ? { userId: props.userId } : {}),
+                ...(props.appId !== undefined ? { appId: props.appId } : {}),
+              },
+            };
+
+            try {
+              await options.handler(message);
+              await this.channelService.ack(msg);
+            } catch {
+              await this.channelService.nack(msg, false);
+            }
           };
-
-          try {
-            await options.handler(message);
-            await this.channelService.ack(msg);
-          } catch {
-            await this.channelService.nack(msg, false);
-          }
+          void promise();
         },
         {
           noAck: options.noAck ?? false,
@@ -96,8 +99,9 @@ export class RabbitMQConsumerService {
     }
   }
 
-  async stopConsuming(queue: string): Promise<void> {
+  stopConsuming(queue: string): Promise<void> {
     this.consumers.delete(queue);
+    return Promise.resolve();
   }
 
   isConsuming(queue: string): boolean {

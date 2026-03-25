@@ -1,8 +1,8 @@
-﻿import { LoaderMiddlewareBase } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
+﻿import { LoaderMiddlewareBase } from '../../../modules/configuration/pipeline/loader.middleware';
 import { promises } from 'fs';
 import { load as loadYaml } from 'js-yaml';
 import { merge } from 'lodash';
-import { EnvSchema } from '@app/infrastructure/configs/configuration/schemas/env.schema';
+import { EnvSchema } from '../schemas/env.schema';
 
 export class YamlLoader extends LoaderMiddlewareBase<[EnvSchema]> {
   protected async load(

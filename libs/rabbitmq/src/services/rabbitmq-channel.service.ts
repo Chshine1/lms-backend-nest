@@ -4,9 +4,9 @@ import type {
   RabbitMQExchangeOptions,
   RabbitMQQueueOptions,
   RabbitMQBindingOptions,
-} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionService } from '@app/rabbitmq/services/rabbitmq-connection.service';
-import { RabbitMQChannelError } from '@app/rabbitmq/errors/rabbitmq-channel.error';
+} from '../contracts/rabbitmq-options.interface';
+import { RabbitMQConnectionService } from './rabbitmq-connection.service';
+import { RabbitMQChannelError } from '../errors';
 
 @Injectable()
 export class RabbitMQChannelService {
@@ -64,9 +64,7 @@ export class RabbitMQChannelService {
     }
   }
 
-  async bindQueue(
-    options: RabbitMQBindingOptions,
-  ): Promise<Replies.Empty> {
+  async bindQueue(options: RabbitMQBindingOptions): Promise<Replies.Empty> {
     try {
       const channel = await this.getChannel();
       return await channel.bindQueue(

@@ -1,6 +1,6 @@
-﻿import { ConfigurationServiceDependencies } from '@app/infrastructure/modules/configuration/configuration.service';
+﻿import { ConfigurationServiceDependencies } from './configuration.service';
 import { Injectable } from '@nestjs/common';
-import { LoaderPipelineService } from '@app/infrastructure/modules/configuration/pipeline/loader-pipeline.service';
+import { LoaderPipelineService } from './pipeline/loader-pipeline.service';
 
 @Injectable()
 export class ConfigurationLoader {

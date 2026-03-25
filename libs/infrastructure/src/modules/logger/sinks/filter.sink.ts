@@ -1,9 +1,6 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import {
-  Filter,
-  Sink,
-} from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
-import { createLoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
+﻿import { LogEntry } from '../contracts/log.entry';
+import { Filter, Sink } from '../contracts/middlewares.interface';
+import { createLoggerSinkError } from '../errors/logger-sink.error';
 
 export class FilterSink implements Sink {
   constructor(

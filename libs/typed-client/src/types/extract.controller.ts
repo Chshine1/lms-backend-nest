@@ -1,4 +1,4 @@
-﻿import { TypedClientBase } from '@app/typed-client/typed-client.base';
+﻿import { TypedClientBase } from '../typed-client.base';
 
 export type ExtractController<TTypedClient extends TypedClientBase> = Omit<
   TTypedClient,

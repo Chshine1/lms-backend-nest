@@ -2,15 +2,15 @@
 import {
   configurationLoadersMiddlewaresToken,
   LoaderPipelineService,
-} from '@app/infrastructure/modules/configuration/pipeline/loader-pipeline.service';
-import { loaderPipelineMiddleware } from '@app/infrastructure/configs/configuration/loader-pipeline.middlewares';
-import { EventBusModule } from '@app/infrastructure/modules/event-bus/event-bus.module';
-import { ConfigurationLoader } from '@app/infrastructure/modules/configuration/configuration.loader';
+} from './pipeline/loader-pipeline.service';
+import { loaderPipelineMiddleware } from '../../configs/configuration/loader-pipeline.middlewares';
+import { EventBusModule } from '../event-bus/event-bus.module';
+import { ConfigurationLoader } from './configuration.loader';
 import {
   ConfigurationService,
   ConfigurationServiceDependencies,
-} from '@app/infrastructure/modules/configuration/configuration.service';
-import { LoggerModule } from '@app/infrastructure/modules/logger/logger.module';
+} from './configuration.service';
+import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [EventBusModule, forwardRef(() => LoggerModule)],

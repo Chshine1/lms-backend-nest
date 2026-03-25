@@ -1,11 +1,7 @@
-﻿import { BaseError } from '@app/contracts/errors/base-error';
+﻿import { ValidationError } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
-import { ValidationError } from '@nestjs/common';
 import { ErrorCode } from '@app/contracts/errors/error.codes';
-
-export class ConfigurationError<
-  TContext extends Record<string, unknown>,
-> extends BaseError<TContext> {}
+import { ConfigurationError } from './configuration.error';
 
 export class GetConfigValidationError extends ConfigurationError<{
   configurationSection: string;

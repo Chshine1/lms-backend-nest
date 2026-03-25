@@ -1,5 +1,5 @@
 ﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
-import { LoggerError } from '@app/infrastructure/modules/logger/errors/logger.error';
+import { LoggerError } from './logger.error';
 
 interface SinkErrorFrame {
   type: string;

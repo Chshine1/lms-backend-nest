@@ -8,11 +8,11 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 import { type Request } from 'express';
-import { AuditService } from '@app/audit/audit.service';
+import { AuditService } from '../audit.service';
 import {
   auditDecoratorKey,
   AuditMetadata,
-} from '@app/audit/decorators/audit.decorator';
+} from '../decorators/audit.decorator';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {

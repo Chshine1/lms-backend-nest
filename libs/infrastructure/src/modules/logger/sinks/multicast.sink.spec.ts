@@ -1,10 +1,7 @@
 import { MulticastSink } from './multicast.sink';
-import {
-  LogEntry,
-  LogLevel,
-} from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
-import { LoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
+import { LogEntry, LogLevel } from '../contracts/log.entry';
+import { Sink } from '../contracts/middlewares.interface';
+import { LoggerSinkError } from '../errors';
 
 describe('MulticastSink', () => {
   let sink1: jest.Mocked<Sink>;

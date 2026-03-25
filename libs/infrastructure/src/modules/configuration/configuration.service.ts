@@ -1,7 +1,8 @@
 ﻿import { plainToInstance } from 'class-transformer';
 import { validateSync, ValidationError } from 'class-validator';
-import { GetConfigValidationError } from '@app/infrastructure/modules/configuration/configuration.errors';
+
 import { Injectable } from '@nestjs/common';
+import { GetConfigValidationError } from '@app/infrastructure/modules/configuration/errors/get-config-validation.error';
 
 @Injectable()
 export class ConfigurationServiceDependencies {

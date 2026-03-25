@@ -1,6 +1,6 @@
 ﻿import { ConfigurationLoader } from './configuration.loader';
 import { ConfigurationServiceDependencies } from './configuration.service';
-import { LoaderPipelineService } from '@app/infrastructure/modules/configuration/pipeline/loader-pipeline.service';
+import { LoaderPipelineService } from './pipeline/loader-pipeline.service';
 
 const mockPipelineProcess = jest.fn();
 

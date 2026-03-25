@@ -1,7 +1,7 @@
 import { ConfigurationService } from './configuration.service';
-import { GetConfigValidationError } from './configuration.errors';
 import { Expose } from 'class-transformer';
 import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { GetConfigValidationError } from '@app/infrastructure/modules/configuration/errors';
 
 class TestConfig {
   @Expose()

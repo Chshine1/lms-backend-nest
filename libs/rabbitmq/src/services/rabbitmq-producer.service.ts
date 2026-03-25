@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import type {
   RabbitMQPublishOptions,
   RabbitMQMessageProperties,
-} from '@app/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQChannelService } from '@app/rabbitmq/services/rabbitmq-channel.service';
-import { RabbitMQPublishError } from '@app/rabbitmq/errors/rabbitmq-publish.error';
+} from '../contracts/rabbitmq-options.interface';
+import { RabbitMQChannelService } from './rabbitmq-channel.service';
+import { RabbitMQPublishError } from '../errors';
 
 @Injectable()
 export class RabbitMQProducerService {

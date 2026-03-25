@@ -1,4 +1,4 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
+﻿import { LogEntry } from './log.entry';
 
 export interface Sink {
   id: string;

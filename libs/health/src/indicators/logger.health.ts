@@ -3,7 +3,7 @@ import {
   HealthIndicatorResult,
   HealthIndicatorService,
 } from '@nestjs/terminus';
-import { LoggerLoader } from '@app/infrastructure/modules/logger/logger.loader';
+import { LoggerLoader } from '@app/infrastructure';
 
 @Injectable()
 export class LoggerHealthIndicator {

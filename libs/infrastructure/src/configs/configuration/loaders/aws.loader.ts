@@ -1,6 +1,6 @@
-﻿import { LoaderMiddlewareBase } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
-import { EnvSchema } from '@app/infrastructure/configs/configuration/schemas/env.schema';
-import { YamlSchema } from '@app/infrastructure/configs/configuration/schemas/yaml.schema';
+﻿import { LoaderMiddlewareBase } from '../../../modules/configuration/pipeline/loader.middleware';
+import { EnvSchema } from '../schemas/env.schema';
+import { YamlSchema } from '../schemas/yaml.schema';
 import { GetParametersByPathCommand, SSMClient } from '@aws-sdk/client-ssm';
 
 export class AwsLoader extends LoaderMiddlewareBase<[EnvSchema, YamlSchema]> {

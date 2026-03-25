@@ -2,7 +2,7 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PermissionModule } from './permission.module';
 import { PermissionService } from './permission.service';
-import { Permission } from '@app/authentication/permission/permission.interface';
+import { Permission } from './permission.interface';
 import { Entity } from 'typeorm';
 
 @Entity('mock_permissions')

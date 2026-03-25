@@ -1,6 +1,6 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
-import { LogBuffer } from '@app/infrastructure/modules/logger/contracts/buffer.interface';
+﻿import { LogEntry } from '../../../modules/logger/contracts/log.entry';
+import { Sink } from '../../../modules/logger/contracts/middlewares.interface';
+import { LogBuffer } from '../../../modules/logger/contracts/buffer.interface';
 
 export class MemoryBuffer implements LogBuffer {
   private entries: LogEntry[] = [];

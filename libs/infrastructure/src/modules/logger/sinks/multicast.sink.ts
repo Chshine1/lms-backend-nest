@@ -1,6 +1,6 @@
-﻿import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
-import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { createLoggerSinkError } from '@app/infrastructure/modules/logger/errors/logger-sink.error';
+﻿import { Sink } from '../contracts/middlewares.interface';
+import { LogEntry } from '../contracts/log.entry';
+import { createLoggerSinkError } from '../errors/logger-sink.error';
 
 export class MulticastSink implements Sink {
   constructor(

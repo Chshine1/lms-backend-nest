@@ -1,9 +1,9 @@
-﻿import { LoaderMiddleware } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
+﻿import { LoaderMiddleware } from './loader.middleware';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { merge } from 'lodash';
-import { LoggerService } from '@app/infrastructure/modules/logger/logger.service';
-import { LogLevel } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
+import { LoggerService } from '../../logger/logger.service';
+import { LogLevel } from '../../logger/contracts/log.entry';
+import { BootstrapEventBus } from '../../event-bus/event-bus.module';
 
 export const configurationLoadersMiddlewaresToken = Symbol(
   'configurationLoadersMiddlewares',

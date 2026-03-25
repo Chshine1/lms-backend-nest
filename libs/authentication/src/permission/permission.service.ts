@@ -1,6 +1,6 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { Permission } from '@app/authentication/permission/permission.interface';
+import { Permission } from './permission.interface';
 
 @Injectable()
 export class PermissionService {

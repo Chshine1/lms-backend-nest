@@ -1,5 +1,5 @@
 ﻿import { Injectable, Module } from '@nestjs/common';
-import { EventBusService } from '@app/infrastructure/modules/event-bus/event-bus.service';
+import { EventBusService } from './event-bus.service';
 
 export type BootstrapEvents = {
   'config.loaded': unknown;

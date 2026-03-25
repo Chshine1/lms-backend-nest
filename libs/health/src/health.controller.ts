@@ -5,7 +5,7 @@ import {
   HealthIndicatorResult,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
-import { LoggerHealthIndicator } from '@app/health/indicators/logger.health';
+import { LoggerHealthIndicator } from './indicators/logger.health';
 
 @Controller('health')
 export class HealthController {

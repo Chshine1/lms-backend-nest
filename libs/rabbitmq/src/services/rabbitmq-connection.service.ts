@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ChannelModel, connect } from 'amqplib';
-import type { RabbitMQConnectionOptions } from '@app/rabbitmq/contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionError } from '@app/rabbitmq/errors/rabbitmq-connection.error';
+import type { RabbitMQConnectionOptions } from '../contracts/rabbitmq-options.interface';
+import { RabbitMQConnectionError } from '../errors';
 
 @Injectable()
 export class RabbitMQConnectionService implements OnModuleDestroy {
@@ -60,7 +60,7 @@ export class RabbitMQConnectionService implements OnModuleDestroy {
     const { host, port, username, password, vhost } = this.options;
     const encodedPassword = encodeURIComponent(password);
     const vhostPath = vhost ? `/${encodeURIComponent(vhost)}` : '';
-    return `amqp://${username}:${encodedPassword}@${host}:${port}${vhostPath}`;
+    return `amqp://${username}:${encodedPassword}@${host}:${port.toString()}${vhostPath}`;
   }
 
   async onModuleDestroy(): Promise<void> {

@@ -23,10 +23,10 @@ export interface CourseEnrollmentPatterns extends Record<
   };
   'course-enrollment.unenroll': {
     request: { id: number };
-    response: void;
+    response: never;
   };
   'course-enrollment.unenrollByStudentAndCourse': {
     request: { studentId: number; courseId: number };
-    response: void;
+    response: never;
   };
 }

@@ -1,12 +1,9 @@
 import { LoggerService, LogParams } from './logger.service';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
-import {
-  LogEntry,
-  LogLevel,
-} from '@app/infrastructure/modules/logger/contracts/log.entry';
+import { Sink } from './contracts/middlewares.interface';
+import { LogEntry, LogLevel } from './contracts/log.entry';
 import { BaseError } from '@app/contracts/errors/base-error';
 import { ErrorCode } from '@app/contracts/errors/error.codes';
-import { LogBuffer } from '@app/infrastructure/modules/logger/contracts/buffer.interface';
+import { LogBuffer } from './contracts/buffer.interface';
 
 describe('LoggerService', () => {
   let loggerService: LoggerService;

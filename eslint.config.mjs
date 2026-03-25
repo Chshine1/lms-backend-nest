@@ -50,6 +50,16 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@app/*/*'],
+            },
+          ],
+        },
+      ],
     },
   },
   {

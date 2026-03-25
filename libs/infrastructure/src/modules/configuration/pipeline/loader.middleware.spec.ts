@@ -3,7 +3,7 @@ import { IsDefined, IsString, IsNumber } from 'class-validator';
 import {
   ConfigLoadPipelineValidationError,
   ConfigLoadPipelineMiddlewareError,
-} from '@app/infrastructure/infrastructure.errors';
+} from '../../../infrastructure.errors';
 import { LoaderMiddlewareBase } from './loader.middleware';
 
 class DependencyA {

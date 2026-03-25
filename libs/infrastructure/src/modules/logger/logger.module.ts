@@ -1,12 +1,9 @@
 ﻿import { forwardRef, Module } from '@nestjs/common';
-import { EventBusModule } from '@app/infrastructure/modules/event-bus/event-bus.module';
-import { ConfigurationModule } from '@app/infrastructure/modules/configuration/configuration.module';
-import { LoggerLoader } from '@app/infrastructure/modules/logger/logger.loader';
-import {
-  LoggerService,
-  LoggerServiceDependencies,
-} from '@app/infrastructure/modules/logger/logger.service';
-import { LogEnrichmentService } from '@app/infrastructure/modules/logger/services/log-enrichment.service';
+import { EventBusModule } from '../event-bus/event-bus.module';
+import { ConfigurationModule } from '../configuration/configuration.module';
+import { LoggerLoader } from './logger.loader';
+import { LoggerService, LoggerServiceDependencies } from './logger.service';
+import { LogEnrichmentService } from './services/log-enrichment.service';
 
 @Module({
   imports: [EventBusModule, forwardRef(() => ConfigurationModule)],

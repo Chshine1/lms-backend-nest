@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
+import { TypedClientBase } from './typed-client.base';
 
 export interface TypedClientMqOptions {
   exchange: string;

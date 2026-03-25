@@ -1,5 +1,5 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+﻿import { LogEntry } from './log.entry';
+import { Sink } from './middlewares.interface';
 
 export interface LogBuffer {
   write(entry: LogEntry): boolean;

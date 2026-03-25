@@ -1,9 +1,6 @@
-import {
-  LogEntry,
-  LogLevel,
-} from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { NullSink } from '@app/infrastructure/modules/logger/sinks/null.sink';
-import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+import { LogEntry, LogLevel } from '../contracts/log.entry';
+import { NullSink } from './null.sink';
+import { Sink } from '../contracts/middlewares.interface';
 
 describe('NullSink', () => {
   let nullSink: Sink;

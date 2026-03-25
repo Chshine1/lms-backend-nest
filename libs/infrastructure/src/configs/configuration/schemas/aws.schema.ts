@@ -15,12 +15,12 @@ export class AwsSchema {
   @ValidateNested()
   @Type(() => LoggerLibConfig)
   logger!: LoggerLibConfig;
-  
+
   @IsDefined()
   @ValidateNested()
   @Type(() => StorageConfig)
   storage!: StorageConfig;
-  
+
   @IsDefined()
   @ValidateNested()
   @Type(() => FileConfig)

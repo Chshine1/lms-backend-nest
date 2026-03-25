@@ -1,4 +1,4 @@
-﻿import { Sink } from '@app/infrastructure/modules/logger/contracts/middlewares.interface';
+﻿import { Sink } from '../contracts/middlewares.interface';
 
 export class NullSink implements Sink {
   constructor(public readonly id: string) {}

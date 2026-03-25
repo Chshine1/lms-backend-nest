@@ -1,10 +1,10 @@
-﻿import { LoggerServiceDependencies } from '@app/infrastructure/modules/logger/logger.service';
-import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
-import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+﻿import { LoggerServiceDependencies } from './logger.service';
+import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
+import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
+import { ConfigurationService } from '../configuration/configuration.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
-import { BootstrapEventBus } from '@app/infrastructure/modules/event-bus/event-bus.module';
+import { BootstrapEventBus } from '../event-bus/event-bus.module';
 
 @Injectable()
 export class LoggerLoader {

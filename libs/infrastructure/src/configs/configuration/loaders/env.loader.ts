@@ -1,5 +1,5 @@
 ﻿import { camelCase } from 'change-case';
-import { LoaderMiddlewareBase } from '@app/infrastructure/modules/configuration/pipeline/loader.middleware';
+import { LoaderMiddlewareBase } from '../../../modules/configuration/pipeline/loader.middleware';
 
 export class EnvLoader extends LoaderMiddlewareBase<[]> {
   protected load(): Promise<Record<string, unknown>> {
