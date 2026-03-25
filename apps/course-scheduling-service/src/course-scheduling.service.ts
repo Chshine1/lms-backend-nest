@@ -3,9 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
 import { CourseSchedule } from './entities/course-schedule.entity';
-import {
-  CourseScheduleContract,
-} from '@app/contracts/course-scheduling/entities/course-schedule.contract';
+import { CourseScheduleContract } from '@app/contracts/course-scheduling/entities/course-schedule.contract';
 import { CreateScheduleDto } from '@app/contracts/course-scheduling/dto/create-schedule.dto';
 import { UpdateScheduleDto } from '@app/contracts/course-scheduling/dto/update-schedule.dto';
 
@@ -24,7 +22,9 @@ export class CourseSchedulingService {
     return this.toContract(savedSchedule);
   }
 
-  async getSchedulesByCourse(courseId: number): Promise<CourseScheduleContract[]> {
+  async getSchedulesByCourse(
+    courseId: number,
+  ): Promise<CourseScheduleContract[]> {
     const schedules = await this.scheduleRepository.find({
       where: { courseId },
     });

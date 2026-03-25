@@ -49,9 +49,7 @@ export class CourseSchedulingController {
   }
 
   @Delete(':id')
-  deleteSchedule(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
+  deleteSchedule(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.courseSchedulingService.deleteSchedule(id);
   }
 }
