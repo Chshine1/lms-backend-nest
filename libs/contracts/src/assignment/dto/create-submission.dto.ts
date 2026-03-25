@@ -1,11 +1,11 @@
 import {
+  IsArray,
   IsDefined,
   IsNumber,
-  IsString,
-  IsArray,
   IsOptional,
+  IsString,
 } from 'class-validator';
-import { FileReference } from '../entities/file-reference.value';
+import { FileReference } from '../entities';
 
 export class CreateSubmissionDto {
   @IsDefined()

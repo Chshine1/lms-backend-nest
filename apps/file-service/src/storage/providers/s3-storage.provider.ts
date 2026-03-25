@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
-  S3Client,
-  PutObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { Readable } from 'stream';
@@ -11,8 +11,8 @@ import {
   IStorageProvider,
   UploadOptions,
 } from '@/file-service/src/storage/storage-provider.interface';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { StorageConfig, S3Config } from '@app/contracts/config/storage.config';
+import { ConfigurationService } from '@app/infrastructure';
+import { S3Config, StorageConfig } from '@app/contracts';
 
 @Injectable()
 export class S3StorageProvider implements IStorageProvider {

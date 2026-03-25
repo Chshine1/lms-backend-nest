@@ -2,7 +2,7 @@
 import { validateSync, ValidationError } from 'class-validator';
 
 import { Injectable } from '@nestjs/common';
-import { GetConfigValidationError } from '@app/infrastructure/modules/configuration/errors/get-config-validation.error';
+import { GetConfigValidationError } from './errors';
 
 @Injectable()
 export class ConfigurationServiceDependencies {

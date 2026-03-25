@@ -1,5 +1,5 @@
-﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
-import { RabbitMQError } from '@app/rabbitmq/errors/rabbitmq.error';
+﻿import { ErrorCode } from '@app/contracts';
+import { RabbitMQError } from './rabbitmq.error';
 
 export class RabbitMQConnectionError extends RabbitMQError<{
   host: string;
@@ -11,7 +11,7 @@ export class RabbitMQConnectionError extends RabbitMQError<{
     cause: unknown,
   ) {
     super(
-      `Failed to connect to RabbitMQ at ${host}:${port}`,
+      `Failed to connect to RabbitMQ at ${host}:${port.toString()}`,
       ErrorCode.RABBITMQ_CONNECTION_ERROR,
       { host, port },
       cause,

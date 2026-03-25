@@ -1,6 +1,5 @@
-﻿import { BaseError } from '@app/contracts/errors/base-error';
+﻿import { BaseError, ErrorCode } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
-import { ErrorCode } from '@app/contracts/errors/error.codes';
 import { ValidationError } from '@nestjs/common';
 
 export class InfrastructureError<

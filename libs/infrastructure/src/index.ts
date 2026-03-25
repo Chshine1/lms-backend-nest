@@ -10,4 +10,4 @@ export { ConfigurationLoader } from './modules/configuration/configuration.loade
 export { LoggerService } from './modules/logger/logger.service';
 export { LoggerLoader } from './modules/logger/logger.loader';
 
-export { LogLevel, type LogEntry } from './modules/logger/contracts/log.entry';
+export { type LogEntry } from './modules/logger/contracts/log.entry';

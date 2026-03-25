@@ -1,8 +1,8 @@
 import { Expose } from 'class-transformer';
-import { IsDefined, IsString, IsNumber } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 import {
-  ConfigLoadPipelineValidationError,
   ConfigLoadPipelineMiddlewareError,
+  ConfigLoadPipelineValidationError,
 } from '../../../infrastructure.errors';
 import { LoaderMiddlewareBase } from './loader.middleware';
 

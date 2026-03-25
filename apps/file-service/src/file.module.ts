@@ -5,17 +5,16 @@ import { File } from './entities/file.entity';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
 import {
-  STORAGE_PROVIDER_TOKEN,
   IStorageProvider,
+  STORAGE_PROVIDER_TOKEN,
 } from '@/file-service/src/storage/storage-provider.interface';
 import { LocalStorageProvider } from '@/file-service/src/storage/providers/local-storage.provider';
 import { S3StorageProvider } from '@/file-service/src/storage/providers/s3-storage.provider';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
 import {
-  StorageConfig,
-  StorageProviderType,
-} from '@app/contracts/config/storage.config';
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
+import { StorageConfig, StorageProviderType } from '@app/contracts';
 import { IsDefined, IsString } from 'class-validator';
 
 class RabbitMQConfigSection {

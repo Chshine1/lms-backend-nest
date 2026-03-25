@@ -6,7 +6,7 @@
   Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Permission } from '@app/authentication/permission/permission.interface';
+import { type Permission } from '@app/authentication';
 
 export enum UserServiceResource {
   USER = 1,

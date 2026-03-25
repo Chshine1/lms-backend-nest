@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { ParentContract } from '@app/contracts/user/entities/parent.contract';
+import { ParentContract } from '@app/contracts';
 
 @Entity('parents')
 export class Parent implements ParentContract {

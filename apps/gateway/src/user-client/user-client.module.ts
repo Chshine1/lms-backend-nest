@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { TypedClientModule } from '@app/typed-client/typed-client.module';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import { TypedClientModule, UserTypedClient } from '@app/typed-client';
+import { ConfigurationService } from '@app/infrastructure';
 import { IsDefined, IsString } from 'class-validator';
-import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
 
 class RabbitMQConfigSection {
   @IsString()

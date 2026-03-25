@@ -7,8 +7,8 @@ import {
   IStorageProvider,
   UploadOptions,
 } from '@/file-service/src/storage/storage-provider.interface';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { StorageConfig } from '@app/contracts/config/storage.config';
+import { ConfigurationService } from '@app/infrastructure';
+import { StorageConfig } from '@app/contracts';
 
 @Injectable()
 export class LocalStorageProvider implements IStorageProvider {

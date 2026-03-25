@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { BaseEntityContract } from '@app/contracts/base-entity.contract';
+import { BaseEntityContract } from '../../base-entity.contract';
 import { SubmissionStatus } from './submission-status.enum';
 import { FileReference } from './file-reference.value';
 

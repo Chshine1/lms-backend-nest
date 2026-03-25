@@ -1,16 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { UserService } from './user.service';
-import { UserContract } from '@app/contracts/user/entities/user.contract';
-import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
-import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
+import { CreateUserDto, UserContract, ValidateUserDto } from '@app/contracts';
 import {
   UserServiceAction,
   UserServiceResource,
 } from '@/user-service/src/entities/user-permission.entity';
 import { RequirePermissions } from '@app/authentication';
-import { ExtractController } from '@app/typed-client/types/extract.controller';
-import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
+import { ExtractController, UserTypedClient } from '@app/typed-client';
 
 @Controller()
 export class UserController implements ExtractController<UserTypedClient> {

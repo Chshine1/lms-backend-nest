@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { CourseVideoContract } from '@app/contracts/course/entities/course-video.contract';
+import { CourseVideoContract } from '@app/contracts';
 
 @Entity('course_videos')
 export class CourseVideo implements CourseVideoContract {

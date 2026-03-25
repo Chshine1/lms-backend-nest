@@ -110,6 +110,7 @@
       "<rootDir>/libs/",
       "<rootDir>/apps/"
     ],
+    "setupFiles": ["reflect-metadata"],
     "moduleNameMapper": {
       "^@app/audit(|/.*)$": "<rootDir>/libs/audit/src/$1",
       "^@app/authentication(|/.*)$": "<rootDir>/libs/authentication/src/$1",

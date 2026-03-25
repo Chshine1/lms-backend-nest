@@ -4,8 +4,10 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { CourseEnrollmentController } from './course-enrollment.controller';
 import { CourseEnrollmentService } from './course-enrollment.service';
 import { Enrollment } from './entities/enrollment.entity';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { IsDefined, IsString } from 'class-validator';
 
 class TypeOrmConfigSection {

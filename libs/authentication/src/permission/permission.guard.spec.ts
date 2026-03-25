@@ -1,8 +1,7 @@
 import { PermissionGuard } from './permission.guard';
 import { PermissionService } from './permission.service';
 import { Reflector } from '@nestjs/core';
-import { ForbiddenException } from '@nestjs/common';
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { type Request } from 'express';
 
 describe('PermissionGuard', () => {

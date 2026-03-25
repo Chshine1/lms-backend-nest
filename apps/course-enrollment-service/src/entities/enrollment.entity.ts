@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { EnrollmentContract } from '@app/contracts/course-enrollment/entities/enrollment.contract';
+import { EnrollmentContract } from '@app/contracts';
 
 @Entity('enrollments')
 @Index(['studentId', 'courseId'], { unique: true })

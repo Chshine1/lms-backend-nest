@@ -4,8 +4,10 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { CourseSchedulingController } from './course-scheduling.controller';
 import { CourseSchedulingService } from './course-scheduling.service';
 import { CourseSchedule } from './entities/course-schedule.entity';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { IsDefined, IsString } from 'class-validator';
 
 class RabbitMQConfigSection {

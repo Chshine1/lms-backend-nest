@@ -1,4 +1,4 @@
-﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
+﻿import { ErrorCode } from '@app/contracts';
 import { LoggerError } from './logger.error';
 
 interface SinkErrorFrame {

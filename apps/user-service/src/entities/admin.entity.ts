@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { AdminContract } from '@app/contracts/user/entities/admin.contract';
+import { AdminContract } from '@app/contracts';
 
 @Entity('admins')
 export class Admin implements AdminContract {

@@ -1,6 +1,6 @@
 ﻿import { ValidationError } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
-import { ErrorCode } from '@app/contracts/errors/error.codes';
+import { ErrorCode } from '@app/contracts';
 import { ConfigurationError } from './configuration.error';
 
 export class GetConfigValidationError extends ConfigurationError<{

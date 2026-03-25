@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Channel, Replies, Options, ConsumeMessage, Message } from 'amqplib';
+import { Channel, ConsumeMessage, Message, Options, Replies } from 'amqplib';
 import type {
+  RabbitMQBindingOptions,
   RabbitMQExchangeOptions,
   RabbitMQQueueOptions,
-  RabbitMQBindingOptions,
 } from '../contracts/rabbitmq-options.interface';
 import { RabbitMQConnectionService } from './rabbitmq-connection.service';
 import { RabbitMQChannelError } from '../errors';

@@ -1,6 +1,8 @@
-import { CourseScheduleContract } from '@app/contracts/course-scheduling/entities/course-schedule.contract';
-import { CreateScheduleDto } from '@app/contracts/course-scheduling/dto/create-schedule.dto';
-import { UpdateScheduleDto } from '@app/contracts/course-scheduling/dto/update-schedule.dto';
+import {
+  CourseScheduleContract,
+  CreateScheduleDto,
+  UpdateScheduleDto,
+} from '@app/contracts';
 
 export interface CourseSchedulingPatterns extends Record<
   string,
@@ -24,6 +26,6 @@ export interface CourseSchedulingPatterns extends Record<
   };
   'course-scheduling.delete': {
     request: { id: number };
-    response: void;
+    response: never;
   };
 }

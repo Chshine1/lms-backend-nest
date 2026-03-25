@@ -1,12 +1,4 @@
-﻿import { BaseError } from '@app/contracts/errors/base-error';
-
-export enum LogLevel {
-  DEBUG = 'debug',
-  INFO = 'info',
-  WARN = 'warn',
-  ERROR = 'error',
-  FATAL = 'fatal',
-}
+﻿import { BaseError, LogLevel } from '@app/contracts';
 
 export interface LogEntry {
   timestamp: Date;

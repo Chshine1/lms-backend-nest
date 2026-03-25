@@ -10,9 +10,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
-import { UserContract } from '@app/contracts/user/entities/user.contract';
-import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
-import { UserTypedClient } from '@app/typed-client/clients/user.typed-client';
+import { CreateUserDto, UserContract } from '@app/contracts';
+import { UserTypedClient } from '@app/typed-client';
 
 @Controller()
 export class AppController {

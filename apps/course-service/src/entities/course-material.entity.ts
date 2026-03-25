@@ -7,10 +7,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import {
-  CourseMaterialContract,
-  MaterialVisibility,
-} from '@app/contracts/course/entities/course-material.contract';
+import { CourseMaterialContract, MaterialVisibility } from '@app/contracts';
 
 @Entity('course_materials')
 export class CourseMaterial implements CourseMaterialContract {

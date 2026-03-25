@@ -1,11 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { FileService } from './file.service';
-import { FileContract } from '@app/contracts/file/entities/file.contract';
-import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
-import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
-import { ExtractController } from '@app/typed-client/types/extract.controller';
-import { FileTypedClient } from '@app/typed-client/clients/file.typed-client';
+import { CreateFileDto, FileContract, SignedUrlResult } from '@app/contracts';
+import { ExtractController, FileTypedClient } from '@app/typed-client';
 
 @Controller()
 export class FileController implements ExtractController<FileTypedClient> {

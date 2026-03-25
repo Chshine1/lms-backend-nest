@@ -2,10 +2,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { hash, compare } from 'bcrypt';
-import { UserContract } from '@app/contracts/user/entities/user.contract';
+import { compare, hash } from 'bcrypt';
+import { CreateUserDto, UserContract } from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
 
 @Injectable()
 export class UserService {

@@ -1,7 +1,8 @@
 import { FailoverSink } from './failover.sink';
-import { LogEntry, LogLevel } from '../contracts/log.entry';
+import { LogEntry } from '../contracts/log.entry';
 import { Sink } from '../contracts/middlewares.interface';
 import { LoggerSinkError } from '../errors';
+import { LogLevel } from '@app/contracts';
 
 describe('FailoverSink', () => {
   let primarySink: jest.Mocked<Sink>;

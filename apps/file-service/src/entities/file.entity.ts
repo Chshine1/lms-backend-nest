@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { FileContract } from '@app/contracts/file/entities/file.contract';
+import { FileContract } from '@app/contracts';
 
 @Entity('files')
 @Unique('UQ_files_storage_key', ['storageKey'])

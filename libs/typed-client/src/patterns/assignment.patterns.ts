@@ -1,9 +1,11 @@
-import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
-import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
-import { CreateSubmissionDto } from '@app/contracts/assignment/dto/create-submission.dto';
-import { UpdateSubmissionDto } from '@app/contracts/assignment/dto/update-submission.dto';
-import { CreateReviewDto } from '@app/contracts/assignment/dto/create-review.dto';
-import { UpdateReviewDto } from '@app/contracts/assignment/dto/update-review.dto';
+import {
+  CreateReviewDto,
+  CreateSubmissionDto,
+  ReviewContract,
+  SubmissionContract,
+  UpdateReviewDto,
+  UpdateSubmissionDto,
+} from '@app/contracts';
 
 export interface AssignmentPatterns extends Record<
   string,

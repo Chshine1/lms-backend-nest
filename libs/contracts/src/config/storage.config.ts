@@ -1,11 +1,11 @@
 ﻿import { Expose, Type } from 'class-transformer';
 import {
   IsDefined,
-  IsString,
   IsEnum,
-  ValidateNested,
   IsNumber,
   IsOptional,
+  IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export enum StorageProviderType {

@@ -1,5 +1,5 @@
-import { IsEnum, IsString, IsOptional } from 'class-validator';
-import { DayOfWeek } from '../entities/course-schedule.contract';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { DayOfWeek } from '../entities';
 
 export class UpdateScheduleDto {
   @IsEnum(DayOfWeek)

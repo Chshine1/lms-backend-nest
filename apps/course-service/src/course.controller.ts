@@ -1,9 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseService } from './course.service';
-import { CourseContract } from '@app/contracts/course/entities/course.contract';
-import { ExtractController } from '@app/typed-client/types/extract.controller';
-import { CourseTypedClient } from '@app/typed-client/clients/course.typed-client';
+import { CourseContract } from '@app/contracts';
+import { CourseTypedClient, ExtractController } from '@app/typed-client';
 
 @Controller()
 export class CourseController implements ExtractController<CourseTypedClient> {

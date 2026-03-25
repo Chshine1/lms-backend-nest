@@ -9,11 +9,11 @@ import {
 } from 'typeorm';
 import {
   CourseContract,
+  CourseLevel,
   CourseStatus,
   CourseSubject,
-  CourseLevel,
   WaitlistStrategy,
-} from '@app/contracts/course/entities/course.contract';
+} from '@app/contracts';
 
 @Entity('courses')
 export class Course implements CourseContract {

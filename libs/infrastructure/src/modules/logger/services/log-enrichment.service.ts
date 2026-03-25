@@ -1,5 +1,5 @@
-﻿import { LogEntry } from '@app/infrastructure/modules/logger/contracts/log.entry';
-import { LogParams } from '@app/infrastructure/modules/logger/logger.service';
+﻿import { LogEntry } from '../contracts/log.entry';
+import { LogParams } from '../logger.service';
 
 export class LogEnrichmentService {
   enrich(target: LogParams): Promise<LogEntry> {

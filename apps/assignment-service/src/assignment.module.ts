@@ -5,8 +5,10 @@ import { AssignmentController } from './assignment.controller';
 import { AssignmentService } from './assignment.service';
 import { Submission } from './entities/submission.entity';
 import { Review } from './entities/review.entity';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { IsDefined, IsString } from 'class-validator';
 
 class TypeOrmConfigSection {

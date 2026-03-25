@@ -9,11 +9,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import {
-  IdentityType,
-  UserContract,
-  UserStatus,
-} from '@app/contracts/user/entities/user.contract';
+import { IdentityType, UserContract, UserStatus } from '@app/contracts';
 
 @Entity('users')
 @Unique('UQ_user_tenant_username', ['tenantId', 'username'])

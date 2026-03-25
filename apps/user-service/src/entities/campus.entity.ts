@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { CampusContract } from '@app/contracts/user/entities/campus.contract';
+import { CampusContract } from '@app/contracts';
 
 @Entity('campuses')
 export class Campus implements CampusContract {

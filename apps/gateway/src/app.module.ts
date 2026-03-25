@@ -5,9 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { UserClientModule } from './user-client/user-client.module';
-import { JwtConfig } from '@app/contracts/config/jwt.config';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
+import { JwtConfig } from '@app/contracts';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 
 @Module({
   imports: [

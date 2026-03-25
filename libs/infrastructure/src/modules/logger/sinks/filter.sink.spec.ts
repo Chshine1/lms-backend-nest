@@ -1,7 +1,8 @@
 import { FilterSink } from './filter.sink';
-import { LogEntry, LogLevel } from '../contracts/log.entry';
+import { LogEntry } from '../contracts/log.entry';
 import { Filter, Sink } from '../contracts/middlewares.interface';
 import { LoggerSinkError } from '../errors';
+import { LogLevel } from '@app/contracts';
 
 describe('FilterSink', () => {
   let filter: jest.Mocked<Filter>;

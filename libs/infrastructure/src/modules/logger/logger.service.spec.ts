@@ -1,8 +1,7 @@
 import { LoggerService, LogParams } from './logger.service';
 import { Sink } from './contracts/middlewares.interface';
-import { LogEntry, LogLevel } from './contracts/log.entry';
-import { BaseError } from '@app/contracts/errors/base-error';
-import { ErrorCode } from '@app/contracts/errors/error.codes';
+import { LogEntry } from './contracts/log.entry';
+import { BaseError, ErrorCode, LogLevel } from '@app/contracts';
 import { LogBuffer } from './contracts/buffer.interface';
 
 describe('LoggerService', () => {

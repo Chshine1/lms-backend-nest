@@ -1,4 +1,4 @@
-import { CourseContract } from '@app/contracts/course/entities/course.contract';
+import { CourseContract } from '@app/contracts';
 
 export interface CoursePatterns extends Record<
   string,

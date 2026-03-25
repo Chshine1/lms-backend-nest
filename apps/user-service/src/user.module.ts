@@ -6,8 +6,10 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { PermissionModule } from '@app/authentication';
 import { UserPermission } from '@/user-service/src/entities/user-permission.entity';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { InfrastructureModule } from '@app/infrastructure/infrastructure.module';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { IsDefined, IsString } from 'class-validator';
 import { Tenant } from '@/user-service/src/entities/tenant.entity';
 import { Student } from '@/user-service/src/entities/student.entity';

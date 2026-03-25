@@ -1,6 +1,4 @@
-﻿import { UserContract } from '@app/contracts/user/entities/user.contract';
-import { CreateUserDto } from '@app/contracts/user/dto/create-user.dto';
-import { ValidateUserDto } from '@app/contracts/user/dto/validate-user.dto';
+﻿import { CreateUserDto, UserContract, ValidateUserDto } from '@app/contracts';
 
 export interface UserPatterns extends Record<
   string,

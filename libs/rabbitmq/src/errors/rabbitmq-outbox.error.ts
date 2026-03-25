@@ -1,5 +1,5 @@
-﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
-import { RabbitMQError } from '@app/rabbitmq/errors/rabbitmq.error';
+﻿import { ErrorCode } from '@app/contracts';
+import { RabbitMQError } from './rabbitmq.error';
 
 export class RabbitMQOutboxError extends RabbitMQError<{
   operation: string;

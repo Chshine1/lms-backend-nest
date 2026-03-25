@@ -9,9 +9,11 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { SubmissionStatus } from '@app/contracts/assignment/entities/submission-status.enum';
-import { FileReference } from '@app/contracts/assignment/entities/file-reference.value';
-import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
+import {
+  FileReference,
+  SubmissionContract,
+  SubmissionStatus,
+} from '@app/contracts';
 
 @Entity('submissions')
 @Index('IDX_submission_enrollment_assignment', ['enrollmentId', 'assignmentId'])

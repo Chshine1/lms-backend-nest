@@ -1,4 +1,4 @@
-﻿import { BaseError } from '@app/contracts/errors/base-error';
+﻿import { BaseError } from '@app/contracts';
 
 export class ConfigurationError<
   TContext extends Record<string, unknown>,

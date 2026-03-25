@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import type {
-  RabbitMQOutboxMessage,
   RabbitMQMessageProperties,
+  RabbitMQOutboxMessage,
 } from '../contracts/rabbitmq-options.interface';
 import { RabbitMQChannelService } from './rabbitmq-channel.service';
 import { RabbitMQOutboxError } from '../errors';

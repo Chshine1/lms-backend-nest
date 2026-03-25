@@ -2,16 +2,18 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from './entities/file.entity';
-import { FileContract } from '@app/contracts/file/entities/file.contract';
+import {
+  CreateFileDto,
+  FileConfig,
+  FileContract,
+  SignedUrlResult,
+} from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
 import {
   type IStorageProvider,
   STORAGE_PROVIDER_TOKEN,
 } from '@/file-service/src/storage/storage-provider.interface';
-import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
-import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
-import { ConfigurationService } from '@app/infrastructure/modules/configuration/configuration.service';
-import { FileConfig } from '@app/contracts/config/file.config';
+import { ConfigurationService } from '@app/infrastructure';
 
 @Injectable()
 export class FileService {

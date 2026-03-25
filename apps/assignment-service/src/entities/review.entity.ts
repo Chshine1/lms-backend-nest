@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
+import { ReviewContract } from '@app/contracts';
 
 @Entity('reviews')
 @Index('IDX_review_submission', ['submissionId'], { unique: true })

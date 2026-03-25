@@ -2,7 +2,7 @@
 import { LoaderMiddleware } from './loader.middleware';
 import { LoggerService } from '../../logger/logger.service';
 import { BootstrapEventBus } from '../../event-bus/event-bus.module';
-import { LogLevel } from '../../logger/contracts/log.entry';
+import { LogLevel } from '@app/contracts';
 
 const mockLogger: LoggerService = {
   log: jest.fn().mockResolvedValue(undefined),

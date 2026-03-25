@@ -5,7 +5,7 @@
   IsNotEmpty,
   IsString,
 } from 'class-validator';
-import { IdentityType } from '@app/contracts/user/entities/user.contract';
+import { IdentityType } from '../entities';
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {

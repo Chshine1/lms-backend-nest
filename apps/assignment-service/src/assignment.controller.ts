@@ -1,13 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { AssignmentService } from './assignment.service';
-import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
-import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
-import { UpdateSubmissionDto } from '@app/contracts/assignment/dto/update-submission.dto';
-import { CreateReviewDto } from '@app/contracts/assignment/dto/create-review.dto';
-import { UpdateReviewDto } from '@app/contracts/assignment/dto/update-review.dto';
-import { ExtractController } from '@app/typed-client/types/extract.controller';
-import { AssignmentTypedClient } from '@app/typed-client/clients/assignment.typed-client';
+import {
+  CreateReviewDto,
+  ReviewContract,
+  SubmissionContract,
+  UpdateReviewDto,
+  UpdateSubmissionDto,
+} from '@app/contracts';
+import { AssignmentTypedClient, ExtractController } from '@app/typed-client';
 
 @Controller()
 export class AssignmentController implements ExtractController<AssignmentTypedClient> {

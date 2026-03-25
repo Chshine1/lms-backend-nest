@@ -1,11 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseSchedulingService } from './course-scheduling.service';
-import { CourseScheduleContract } from '@app/contracts/course-scheduling/entities/course-schedule.contract';
-import { CreateScheduleDto } from '@app/contracts/course-scheduling/dto/create-schedule.dto';
-import { UpdateScheduleDto } from '@app/contracts/course-scheduling/dto/update-schedule.dto';
-import { ExtractController } from '@app/typed-client/types/extract.controller';
-import { CourseSchedulingTypedClient } from '@app/typed-client/clients/course-scheduling.typed-client';
+import {
+  CourseScheduleContract,
+  CreateScheduleDto,
+  UpdateScheduleDto,
+} from '@app/contracts';
+import {
+  CourseSchedulingTypedClient,
+  ExtractController,
+} from '@app/typed-client';
 
 @Controller()
 export class CourseSchedulingController implements ExtractController<CourseSchedulingTypedClient> {

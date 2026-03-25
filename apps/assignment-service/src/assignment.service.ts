@@ -1,18 +1,20 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Submission } from './entities/submission.entity';
 import { Review } from './entities/review.entity';
-import { SubmissionStatus } from '@app/contracts/assignment/entities/submission-status.enum';
-import { CreateSubmissionDto } from '@app/contracts/assignment/dto/create-submission.dto';
-import { UpdateSubmissionDto } from '@app/contracts/assignment/dto/update-submission.dto';
-import { CreateReviewDto } from '@app/contracts/assignment/dto/create-review.dto';
-import { UpdateReviewDto } from '@app/contracts/assignment/dto/update-review.dto';
-import { ErrorCode } from '@app/contracts/errors/error.codes';
+import {
+  CreateReviewDto,
+  CreateSubmissionDto,
+  ErrorCode,
+  SubmissionStatus,
+  UpdateReviewDto,
+  UpdateSubmissionDto,
+} from '@app/contracts';
 
 @Injectable()
 export class AssignmentService {

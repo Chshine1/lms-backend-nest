@@ -1,5 +1,4 @@
-import { BaseError } from '@app/contracts/errors/base-error';
-import { ErrorCode } from '@app/contracts/errors/error.codes';
+import { BaseError, ErrorCode } from '../../errors';
 
 export class EnrollmentNotFoundError extends BaseError<{
   enrollmentId: number;

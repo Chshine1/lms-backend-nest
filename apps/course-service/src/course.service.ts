@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
-import { CourseContract } from '@app/contracts/course/entities/course.contract';
+import { CourseContract } from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

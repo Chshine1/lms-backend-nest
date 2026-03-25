@@ -3,9 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
 import { CourseSchedule } from './entities/course-schedule.entity';
-import { CourseScheduleContract } from '@app/contracts/course-scheduling/entities/course-schedule.contract';
-import { CreateScheduleDto } from '@app/contracts/course-scheduling/dto/create-schedule.dto';
-import { UpdateScheduleDto } from '@app/contracts/course-scheduling/dto/update-schedule.dto';
+import {
+  CourseScheduleContract,
+  CreateScheduleDto,
+  UpdateScheduleDto,
+} from '@app/contracts';
 
 @Injectable()
 export class CourseSchedulingService {
@@ -34,7 +36,9 @@ export class CourseSchedulingService {
   async getScheduleById(id: number): Promise<CourseScheduleContract> {
     const schedule = await this.scheduleRepository.findOne({ where: { id } });
     if (schedule === null) {
-      throw new NotFoundException(`Schedule with id ${id} not found`);
+      throw new NotFoundException(
+        `Schedule with id ${id.toString()} not found`,
+      );
     }
     return this.toContract(schedule);
   }
@@ -45,7 +49,9 @@ export class CourseSchedulingService {
   ): Promise<CourseScheduleContract> {
     const schedule = await this.scheduleRepository.findOne({ where: { id } });
     if (schedule === null) {
-      throw new NotFoundException(`Schedule with id ${id} not found`);
+      throw new NotFoundException(
+        `Schedule with id ${id.toString()} not found`,
+      );
     }
     const updatedSchedule = this.scheduleRepository.merge(
       schedule,
@@ -58,7 +64,9 @@ export class CourseSchedulingService {
   async deleteSchedule(id: number): Promise<void> {
     const schedule = await this.scheduleRepository.findOne({ where: { id } });
     if (schedule === null) {
-      throw new NotFoundException(`Schedule with id ${id} not found`);
+      throw new NotFoundException(
+        `Schedule with id ${id.toString()} not found`,
+      );
     }
     await this.scheduleRepository.remove(schedule);
   }

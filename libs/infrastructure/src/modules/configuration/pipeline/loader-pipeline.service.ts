@@ -2,8 +2,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { merge } from 'lodash';
 import { LoggerService } from '../../logger/logger.service';
-import { LogLevel } from '../../logger/contracts/log.entry';
 import { BootstrapEventBus } from '../../event-bus/event-bus.module';
+import { LogLevel } from '@app/contracts';
 
 export const configurationLoadersMiddlewaresToken = Symbol(
   'configurationLoadersMiddlewares',

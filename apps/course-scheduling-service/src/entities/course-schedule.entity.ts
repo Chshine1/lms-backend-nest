@@ -7,10 +7,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import {
-  CourseScheduleContract,
-  DayOfWeek,
-} from '@app/contracts/course-scheduling/entities/course-schedule.contract';
+import { CourseScheduleContract, DayOfWeek } from '@app/contracts';
 
 @Entity('course_schedules')
 export class CourseSchedule implements CourseScheduleContract {

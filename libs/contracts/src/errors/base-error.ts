@@ -1,4 +1,4 @@
-﻿import { ErrorCode } from '@app/contracts/errors/error.codes';
+﻿import { ErrorCode } from './error.codes';
 
 export abstract class BaseError<
   TContext extends Record<string, unknown> = Record<string, unknown>,

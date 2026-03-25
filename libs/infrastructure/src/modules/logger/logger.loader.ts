@@ -3,7 +3,7 @@ import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
 import { ConfigurationService } from '../configuration/configuration.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { LoggerLibConfig } from '@app/contracts/config/logger-lib.config';
+import { LoggerLibConfig } from '@app/contracts';
 import { BootstrapEventBus } from '../event-bus/event-bus.module';
 
 @Injectable()
