@@ -1,84 +1,104 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Body,
-  Param,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { AssignmentService } from './assignment.service';
-import { CreateSubmissionDto } from '@app/contracts/assignment/dto/create-submission.dto';
+import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
+import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
 import { UpdateSubmissionDto } from '@app/contracts/assignment/dto/update-submission.dto';
 import { CreateReviewDto } from '@app/contracts/assignment/dto/create-review.dto';
 import { UpdateReviewDto } from '@app/contracts/assignment/dto/update-review.dto';
-import { Submission } from './entities/submission.entity';
-import { Review } from './entities/review.entity';
+import { ExtractController } from '@app/typed-client/types/extract.controller';
+import { AssignmentTypedClient } from '@app/typed-client/clients/assignment.typed-client';
 
 @Controller()
-export class AssignmentController {
+export class AssignmentController implements ExtractController<AssignmentTypedClient> {
   constructor(private readonly assignmentService: AssignmentService) {}
 
-  @Post('submissions')
-  async createSubmission(
-    @Body() dto: CreateSubmissionDto,
-  ): Promise<Submission> {
-    return this.assignmentService.createSubmission(dto);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.createSubmission',
+    queue: 'assignment-service-assignment-createSubmission',
+  })
+  createSubmission(dto: unknown): Promise<SubmissionContract> {
+    return this.assignmentService.createSubmission(dto as never);
   }
 
-  @Put('submissions/:id')
-  async updateSubmission(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateSubmissionDto,
-  ): Promise<Submission> {
-    return this.assignmentService.updateSubmission(id, dto);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.updateSubmission',
+    queue: 'assignment-service-assignment-updateSubmission',
+  })
+  updateSubmission(
+    data: { id: number } & UpdateSubmissionDto,
+  ): Promise<SubmissionContract> {
+    return this.assignmentService.updateSubmission(data.id, data);
   }
 
-  @Post('submissions/:id/submit')
-  async submitAssignment(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Submission> {
-    return this.assignmentService.submitAssignment(id);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.submitAssignment',
+    queue: 'assignment-service-assignment-submitAssignment',
+  })
+  submitAssignment(data: { id: number }): Promise<SubmissionContract> {
+    return this.assignmentService.submitAssignment(data.id);
   }
 
-  @Get('enrollments/:enrollmentId/assignments/:assignmentId/submission')
-  async getSubmissionByEnrollmentAndAssignment(
-    @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
-    @Param('assignmentId', ParseIntPipe) assignmentId: number,
-  ): Promise<Submission | null> {
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.getSubmissionByEnrollmentAndAssignment',
+    queue:
+      'assignment-service-assignment-getSubmissionByEnrollmentAndAssignment',
+  })
+  getSubmissionByEnrollmentAndAssignment(data: {
+    enrollmentId: number;
+    assignmentId: number;
+  }): Promise<SubmissionContract | null> {
     return this.assignmentService.getSubmissionByEnrollmentAndAssignment(
-      enrollmentId,
-      assignmentId,
+      data.enrollmentId,
+      data.assignmentId,
     );
   }
 
-  @Get('assignments/:assignmentId/submissions')
-  async getSubmissionsByAssignment(
-    @Param('assignmentId', ParseIntPipe) assignmentId: number,
-  ): Promise<Submission[]> {
-    return this.assignmentService.getSubmissionsByAssignment(assignmentId);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.getSubmissionsByAssignment',
+    queue: 'assignment-service-assignment-getSubmissionsByAssignment',
+  })
+  getSubmissionsByAssignment(data: {
+    assignmentId: number;
+  }): Promise<SubmissionContract[]> {
+    return this.assignmentService.getSubmissionsByAssignment(data.assignmentId);
   }
 
-  @Post('submissions/:submissionId/review')
-  async createReview(
-    @Param('submissionId', ParseIntPipe) submissionId: number,
-    @Body() dto: CreateReviewDto,
-  ): Promise<Review> {
-    return this.assignmentService.createReview(submissionId, dto);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.createReview',
+    queue: 'assignment-service-assignment-createReview',
+  })
+  createReview(
+    data: { submissionId: number } & CreateReviewDto,
+  ): Promise<ReviewContract> {
+    return this.assignmentService.createReview(data.submissionId, data);
   }
 
-  @Put('submissions/:submissionId/review')
-  async updateReview(
-    @Param('submissionId', ParseIntPipe) submissionId: number,
-    @Body() dto: UpdateReviewDto,
-  ): Promise<Review> {
-    return this.assignmentService.updateReview(submissionId, dto);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.updateReview',
+    queue: 'assignment-service-assignment-updateReview',
+  })
+  updateReview(
+    data: { submissionId: number } & UpdateReviewDto,
+  ): Promise<ReviewContract> {
+    return this.assignmentService.updateReview(data.submissionId, data);
   }
 
-  @Get('submissions/:submissionId/review')
-  async getReviewBySubmission(
-    @Param('submissionId', ParseIntPipe) submissionId: number,
-  ): Promise<Review | null> {
-    return this.assignmentService.getReviewBySubmission(submissionId);
+  @RabbitRPC({
+    exchange: 'assignment-service',
+    routingKey: 'assignment.getReviewBySubmission',
+    queue: 'assignment-service-assignment-getReviewBySubmission',
+  })
+  getReviewBySubmission(data: {
+    submissionId: number;
+  }): Promise<ReviewContract | null> {
+    return this.assignmentService.getReviewBySubmission(data.submissionId);
   }
 }

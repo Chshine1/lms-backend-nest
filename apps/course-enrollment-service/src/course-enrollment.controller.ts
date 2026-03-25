@@ -1,63 +1,79 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseEnrollmentService } from './course-enrollment.service';
+import { EnrollmentContract } from '@app/contracts/course-enrollment/entities/enrollment.contract';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
-import { Enrollment } from './entities/enrollment.entity';
+import { ExtractController } from '@app/typed-client/types/extract.controller';
+import { CourseEnrollmentTypedClient } from '@app/typed-client/clients/course-enrollment.typed-client';
 
-@Controller('enrollments')
-export class CourseEnrollmentController {
+@Controller()
+export class CourseEnrollmentController implements ExtractController<CourseEnrollmentTypedClient> {
   constructor(
     private readonly courseEnrollmentService: CourseEnrollmentService,
   ) {}
 
-  @Post()
-  enrollStudent(
-    @Body() createEnrollmentDto: CreateEnrollmentDto,
-  ): Promise<Enrollment> {
-    return this.courseEnrollmentService.enrollStudent(createEnrollmentDto);
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.enroll',
+    queue: 'course-enrollment-service-course-enrollment-enroll',
+  })
+  enrollStudent(dto: CreateEnrollmentDto): Promise<EnrollmentContract> {
+    return this.courseEnrollmentService.enrollStudent(dto);
   }
 
-  @Get('course/:courseId')
-  getEnrollmentsByCourse(
-    @Param('courseId', ParseIntPipe) courseId: number,
-  ): Promise<Enrollment[]> {
-    return this.courseEnrollmentService.getEnrollmentsByCourse(courseId);
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.getByCourse',
+    queue: 'course-enrollment-service-course-enrollment-getByCourse',
+  })
+  getEnrollmentsByCourse(data: {
+    courseId: number;
+  }): Promise<EnrollmentContract[]> {
+    return this.courseEnrollmentService.getEnrollmentsByCourse(data.courseId);
   }
 
-  @Get('student/:studentId')
-  getEnrollmentsByStudent(
-    @Param('studentId', ParseIntPipe) studentId: number,
-  ): Promise<Enrollment[]> {
-    return this.courseEnrollmentService.getEnrollmentsByStudent(studentId);
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.getByStudent',
+    queue: 'course-enrollment-service-course-enrollment-getByStudent',
+  })
+  getEnrollmentsByStudent(data: {
+    studentId: number;
+  }): Promise<EnrollmentContract[]> {
+    return this.courseEnrollmentService.getEnrollmentsByStudent(data.studentId);
   }
 
-  @Get(':id')
-  getEnrollmentById(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Enrollment> {
-    return this.courseEnrollmentService.getEnrollmentById(id);
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.getById',
+    queue: 'course-enrollment-service-course-enrollment-getById',
+  })
+  getEnrollmentById(data: { id: number }): Promise<EnrollmentContract> {
+    return this.courseEnrollmentService.getEnrollmentById(data.id);
   }
 
-  @Delete(':id')
-  unenrollStudent(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.courseEnrollmentService.unenrollStudent(id);
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.unenroll',
+    queue: 'course-enrollment-service-course-enrollment-unenroll',
+  })
+  unenrollStudent(data: { id: number }): Promise<void> {
+    return this.courseEnrollmentService.unenrollStudent(data.id);
   }
 
-  @Delete('student/:studentId/course/:courseId')
-  unenrollByStudentAndCourse(
-    @Param('studentId', ParseIntPipe) studentId: number,
-    @Param('courseId', ParseIntPipe) courseId: number,
-  ): Promise<void> {
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.unenrollByStudentAndCourse',
+    queue:
+      'course-enrollment-service-course-enrollment-unenrollByStudentAndCourse',
+  })
+  unenrollByStudentAndCourse(data: {
+    studentId: number;
+    courseId: number;
+  }): Promise<void> {
     return this.courseEnrollmentService.unenrollByStudentAndCourse(
-      studentId,
-      courseId,
+      data.studentId,
+      data.courseId,
     );
   }
 }

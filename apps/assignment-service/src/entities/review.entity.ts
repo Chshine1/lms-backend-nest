@@ -9,10 +9,11 @@ import {
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
+import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
 
 @Entity('reviews')
 @Index('IDX_review_submission', ['submissionId'], { unique: true })
-export class Review {
+export class Review implements ReviewContract {
   @PrimaryGeneratedColumn()
   id!: number;
 

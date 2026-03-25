@@ -11,11 +11,12 @@ import {
 } from 'typeorm';
 import { SubmissionStatus } from '@app/contracts/assignment/entities/submission-status.enum';
 import { FileReference } from '@app/contracts/assignment/entities/file-reference.value';
+import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
 
 @Entity('submissions')
 @Index('IDX_submission_enrollment_assignment', ['enrollmentId', 'assignmentId'])
 @Index('IDX_submission_status', ['status'])
-export class Submission {
+export class Submission implements SubmissionContract {
   @PrimaryGeneratedColumn()
   id!: number;
 

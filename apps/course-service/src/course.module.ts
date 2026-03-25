@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Course } from './entities/course.entity';
 import { CourseService } from './course.service';
+import { CourseController } from './course.controller';
 
 @Module({
-  imports: [],
-  controllers: [],
+  imports: [TypeOrmModule.forFeature([Course])],
+  controllers: [CourseController],
   providers: [CourseService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
