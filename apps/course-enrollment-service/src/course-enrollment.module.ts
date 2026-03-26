@@ -45,7 +45,7 @@ class RabbitMQConfigSection {
 
 @Module({
   imports: [
-    InfrastructureModule.forRoot(),
+    InfrastructureModule.forRootAsync(),
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigurationService) => {
         const section = configService.get(TypeOrmConfigSection);

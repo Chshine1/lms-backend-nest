@@ -27,7 +27,7 @@ class RabbitMQConfigSection {
 
 @Module({
   imports: [
-    InfrastructureModule.forRoot(),
+    InfrastructureModule.forRootAsync(),
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([CourseSchedule]),
     RabbitMQModule.forRootAsync({

@@ -7,7 +7,7 @@ import { LogEnrichmentService } from './services/log-enrichment.service';
 import { TraceModule } from '@app/trace';
 
 @Module({
-  imports: [TraceModule, EventBusModule, forwardRef(() => ConfigurationModule)],
+  imports: [EventBusModule, TraceModule, forwardRef(() => ConfigurationModule)],
   providers: [
     LogEnrichmentService,
     LoggerServiceDependencies,

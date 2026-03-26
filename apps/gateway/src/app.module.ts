@@ -13,7 +13,7 @@ import {
 
 @Module({
   imports: [
-    InfrastructureModule.forRoot(),
+    InfrastructureModule.forRootAsync(),
     PassportModule,
     JwtModule.registerAsync({
       imports: [],

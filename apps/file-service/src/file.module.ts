@@ -48,7 +48,7 @@ const storageProviderFactory = (
 
 @Module({
   imports: [
-    InfrastructureModule.forRoot(),
+    InfrastructureModule.forRootAsync(),
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([File]),
     RabbitMQModule.forRootAsync({
