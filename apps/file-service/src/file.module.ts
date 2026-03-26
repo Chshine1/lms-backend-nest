@@ -2,39 +2,17 @@ import { Module } from '@nestjs/common';
 import { File } from './entities/file.entity';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
-import {
-  IStorageProvider,
-  STORAGE_PROVIDER_TOKEN,
-} from '@/file-service/src/storage/storage-provider.interface';
+import { IStorageProvider, STORAGE_PROVIDER_TOKEN, } from '@/file-service/src/storage/storage-provider.interface';
 import { LocalStorageProvider } from '@/file-service/src/storage/providers/local-storage.provider';
 import { S3StorageProvider } from '@/file-service/src/storage/providers/s3-storage.provider';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
+import { ConfigurationService, InfrastructureModule, } from '@app/infrastructure';
 import { StorageConfig, StorageProviderType } from '@app/contracts';
-import { UserPermission } from '@/user-service/src/entities/user-permission.entity';
-
-const storageProviderFactory = (
-  configurationService: ConfigurationService,
-): IStorageProvider => {
-  const storageConfig = configurationService.getByKey('storage', StorageConfig);
-
-  switch (storageConfig.provider) {
-    case StorageProviderType.S3:
-      return new S3StorageProvider(configurationService);
-    case StorageProviderType.LOCAL:
-    default:
-      return new LocalStorageProvider(configurationService);
-  }
-};
 
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
     InfrastructureModule.forMicroserviceAsync({
       entities: [File],
-      permissionEntity: UserPermission,
       exchanges: [{ name: 'file-service', type: 'topic' }],
     }),
   ],
@@ -43,7 +21,19 @@ const storageProviderFactory = (
     FileService,
     {
       provide: STORAGE_PROVIDER_TOKEN,
-      useFactory: storageProviderFactory,
+      useFactory: (
+        configurationService: ConfigurationService,
+      ): IStorageProvider => {
+        const storageConfig = configurationService.getByKey('storage', StorageConfig);
+        
+        switch (storageConfig.provider) {
+          case StorageProviderType.S3:
+            return new S3StorageProvider(configurationService);
+          case StorageProviderType.LOCAL:
+          default:
+            return new LocalStorageProvider(configurationService);
+        }
+      },
       inject: [ConfigurationService],
     },
   ],

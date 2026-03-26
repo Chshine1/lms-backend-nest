@@ -68,7 +68,7 @@ export class RabbitMQConfig {
 
 export interface MicroserviceInfrastructureOptions {
   entities: ClassConstructor<object>[];
-  permissionEntity: ClassConstructor<object>;
+  permissionEntity?: ClassConstructor<object>;
   exchanges?: { name: string; type: string }[];
   typedClientMqOptions?: TypedClientMqOptions;
   typedClients?: ClassConstructor<TypedClientBase>[];
@@ -87,15 +87,13 @@ export class InfrastructureModule {
     };
   }
 
-  static forMicroserviceAsync(
-    {
-      entities,
-      permissionEntity,
-      exchanges = [],
-      typedClientMqOptions,
-      typedClients = [],
-    }: MicroserviceInfrastructureOptions,
-  ): DynamicModule {
+  static forMicroserviceAsync({
+    entities,
+    permissionEntity,
+    exchanges = [],
+    typedClientMqOptions,
+    typedClients = [],
+  }: MicroserviceInfrastructureOptions): DynamicModule {
     const rabbitMQImports: DynamicModule[] = [];
     const typedClientImports: DynamicModule[] = [];
 
@@ -103,10 +101,7 @@ export class InfrastructureModule {
       rabbitMQImports.push(
         RabbitMQModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey(
-              'rabbitmq',
-              RabbitMQConfig,
-            );
+            const section = configService.getByKey('rabbitmq', RabbitMQConfig);
             return {
               exchanges: exchanges.map((exchange) => ({
                 name: exchange.name,
@@ -130,16 +125,17 @@ export class InfrastructureModule {
       );
     }
 
+    const permissionImports: DynamicModule[] = permissionEntity
+      ? [PermissionModule.forFeature(permissionEntity)]
+      : [];
+
     return {
       module: InfrastructureModule,
       imports: [
         ...rabbitMQImports,
         TypeOrmModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey(
-              'database',
-              DatabaseConfig,
-            );
+            const section = configService.getByKey('database', DatabaseConfig);
             return {
               type: 'postgres',
               host: section.host,
@@ -155,14 +151,9 @@ export class InfrastructureModule {
         }),
         TraceModule,
         ...typedClientImports,
-        PermissionModule.forFeature(permissionEntity),
+        ...permissionImports,
       ],
-      exports: [
-        TypeOrmModule,
-        RabbitMQModule,
-        TraceModule,
-        ...typedClients,
-      ],
+      exports: [TypeOrmModule, RabbitMQModule, TraceModule, ...typedClients],
     };
   }
 }
