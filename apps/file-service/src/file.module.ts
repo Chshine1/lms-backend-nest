@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { File } from './entities/file.entity';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
@@ -15,22 +13,7 @@ import {
   InfrastructureModule,
 } from '@app/infrastructure';
 import { StorageConfig, StorageProviderType } from '@app/contracts';
-import { IsDefined, IsString } from 'class-validator';
-
-class RabbitMQConfigSection {
-  @IsString()
-  @IsDefined()
-  host!: string;
-  @IsString()
-  @IsDefined()
-  port!: number;
-  @IsString()
-  @IsDefined()
-  username!: string;
-  @IsString()
-  @IsDefined()
-  password!: string;
-}
+import { UserPermission } from '@/user-service/src/entities/user-permission.entity';
 
 const storageProviderFactory = (
   configurationService: ConfigurationService,
@@ -49,23 +32,10 @@ const storageProviderFactory = (
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    TypeOrmModule.forRoot(),
-    TypeOrmModule.forFeature([File]),
-    RabbitMQModule.forRootAsync({
-      useFactory: (configService: ConfigurationService) => {
-        const section = configService.get(RabbitMQConfigSection);
-        return {
-          exchanges: [
-            {
-              name: 'file-service',
-              type: 'topic',
-            },
-          ],
-          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
-          connectionInitOptions: { wait: true },
-        };
-      },
-      inject: [ConfigurationService],
+    InfrastructureModule.forMicroserviceAsync({
+      entities: [File],
+      permissionEntity: UserPermission,
+      exchanges: [{ name: 'file-service', type: 'topic' }],
     }),
   ],
   controllers: [FileController],
