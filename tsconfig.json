@@ -46,6 +46,12 @@
       "@app/rabbitmq/*": [
         "libs/rabbitmq/src/*"
       ],
+      "@app/trace": [
+        "libs/trace/src"
+      ],
+      "@app/trace/*": [
+        "libs/trace/src/*"
+      ],
       "@app/typed-client": [
         "libs/typed-client/src"
       ],

@@ -1,22 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
-import { EnrollmentContract } from '@app/contracts/course-enrollment/entities/enrollment.contract';
+import { TypedClientBase } from '../typed-client.base';
+import { EnrollmentContract } from '@app/contracts';
 import { CreateEnrollmentDto } from '@/course-enrollment-service/src/dto/create-enrollment.dto';
 import {
   TYPED_CLIENT_MQ_OPTIONS,
   type TypedClientMqOptions,
-} from '@app/typed-client/typed-client.module';
-import { CourseEnrollmentPatterns } from '@app/typed-client/patterns/course-enrollment.patterns';
+} from '../typed-client.module';
+import { CourseEnrollmentPatterns } from '../patterns/course-enrollment.patterns';
+import { TraceService } from '@app/trace';
 
 @Injectable()
 export class CourseEnrollmentTypedClient extends TypedClientBase<CourseEnrollmentPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
+    traceService: TraceService,
     @Inject(TYPED_CLIENT_MQ_OPTIONS)
     options: TypedClientMqOptions,
   ) {
-    super(amqpConnection, options);
+    super(amqpConnection, traceService, options);
   }
 
   enrollStudent(data: CreateEnrollmentDto): Promise<EnrollmentContract> {

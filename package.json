@@ -38,6 +38,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.71.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
     "@opentelemetry/sdk-node": "^0.213.0",
+    "@relab/nestjs-trace-context": "^3.7.0",
     "amqplib": "^0.10.9",
     "bcrypt": "^6.0.0",
     "change-case": "^5.4.4",
@@ -110,7 +111,9 @@
       "<rootDir>/libs/",
       "<rootDir>/apps/"
     ],
-    "setupFiles": ["reflect-metadata"],
+    "setupFiles": [
+      "reflect-metadata"
+    ],
     "moduleNameMapper": {
       "^@app/audit(|/.*)$": "<rootDir>/libs/audit/src/$1",
       "^@app/authentication(|/.*)$": "<rootDir>/libs/authentication/src/$1",
@@ -118,6 +121,7 @@
       "^@app/health(|/.*)$": "<rootDir>/libs/health/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
+      "^@app/trace(|/.*)$": "<rootDir>/libs/trace/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }
   }

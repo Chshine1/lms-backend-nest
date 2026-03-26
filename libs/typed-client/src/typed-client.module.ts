@@ -1,6 +1,7 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
+import { TraceModule } from '@app/trace';
 
 export interface TypedClientMqOptions {
   exchange: string;
@@ -19,6 +20,7 @@ export class TypedClientModule {
   }): DynamicModule {
     return {
       module: TypedClientModule,
+      imports: [TraceModule],
       providers: [
         {
           provide: TYPED_CLIENT_MQ_OPTIONS,

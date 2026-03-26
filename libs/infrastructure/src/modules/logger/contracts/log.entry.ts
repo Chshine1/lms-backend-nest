@@ -9,7 +9,7 @@ export interface LogEntry {
   hostname?: string;
   environment?: string;
 
-  traceId?: string;
+  traceId?: string | undefined;
   spanId?: string;
   parentSpanId?: string;
 

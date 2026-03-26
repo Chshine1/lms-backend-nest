@@ -4,9 +4,10 @@ import { ConfigurationModule } from '../configuration/configuration.module';
 import { LoggerLoader } from './logger.loader';
 import { LoggerService, LoggerServiceDependencies } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
+import { TraceModule } from '@app/trace';
 
 @Module({
-  imports: [EventBusModule, forwardRef(() => ConfigurationModule)],
+  imports: [TraceModule, EventBusModule, forwardRef(() => ConfigurationModule)],
   providers: [
     LogEnrichmentService,
     LoggerServiceDependencies,

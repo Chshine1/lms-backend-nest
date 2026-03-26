@@ -1,23 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
-import { FileContract } from '@app/contracts/file/entities/file.contract';
-import { CreateFileDto } from '@app/contracts/file/dto/create-file.dto';
-import { SignedUrlResult } from '@app/contracts/file/dto/signed-url.result';
+import { TypedClientBase } from '../typed-client.base';
+import { CreateFileDto, FileContract, SignedUrlResult } from '@app/contracts';
 import {
   TYPED_CLIENT_MQ_OPTIONS,
   type TypedClientMqOptions,
-} from '@app/typed-client/typed-client.module';
-import { FilePatterns } from '@app/typed-client/patterns/file.patterns';
+} from '../typed-client.module';
+import { FilePatterns } from '../patterns/file.patterns';
+import { TraceService } from '@app/trace';
 
 @Injectable()
 export class FileTypedClient extends TypedClientBase<FilePatterns> {
   constructor(
     amqpConnection: AmqpConnection,
+    traceService: TraceService,
     @Inject(TYPED_CLIENT_MQ_OPTIONS)
     options: TypedClientMqOptions,
   ) {
-    super(amqpConnection, options);
+    super(amqpConnection, traceService, options);
   }
 
   createFile(data: CreateFileDto): Promise<FileContract> {

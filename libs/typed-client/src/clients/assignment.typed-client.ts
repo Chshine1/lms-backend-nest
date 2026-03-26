@@ -1,26 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
-import { SubmissionContract } from '@app/contracts/assignment/entities/submission.contract';
-import { ReviewContract } from '@app/contracts/assignment/entities/review.contract';
-import { CreateSubmissionDto } from '@app/contracts/assignment/dto/create-submission.dto';
-import { UpdateSubmissionDto } from '@app/contracts/assignment/dto/update-submission.dto';
-import { CreateReviewDto } from '@app/contracts/assignment/dto/create-review.dto';
-import { UpdateReviewDto } from '@app/contracts/assignment/dto/update-review.dto';
+import { TypedClientBase } from '../typed-client.base';
+import {
+  CreateReviewDto,
+  CreateSubmissionDto,
+  ReviewContract,
+  SubmissionContract,
+  UpdateReviewDto,
+  UpdateSubmissionDto,
+} from '@app/contracts';
 import {
   TYPED_CLIENT_MQ_OPTIONS,
   type TypedClientMqOptions,
-} from '@app/typed-client/typed-client.module';
-import { AssignmentPatterns } from '@app/typed-client/patterns/assignment.patterns';
+} from '../typed-client.module';
+import { AssignmentPatterns } from '../patterns/assignment.patterns';
+import { TraceService } from '@app/trace';
 
 @Injectable()
 export class AssignmentTypedClient extends TypedClientBase<AssignmentPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
+    traceService: TraceService,
     @Inject(TYPED_CLIENT_MQ_OPTIONS)
     options: TypedClientMqOptions,
   ) {
-    super(amqpConnection, options);
+    super(amqpConnection, traceService, options);
   }
 
   createSubmission(data: CreateSubmissionDto): Promise<SubmissionContract> {

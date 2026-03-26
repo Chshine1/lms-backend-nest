@@ -1,23 +1,27 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
-import { CourseScheduleContract } from '@app/contracts/course-scheduling/entities/course-schedule.contract';
-import { CreateScheduleDto } from '@app/contracts/course-scheduling/dto/create-schedule.dto';
-import { UpdateScheduleDto } from '@app/contracts/course-scheduling/dto/update-schedule.dto';
+import { TypedClientBase } from '../typed-client.base';
+import {
+  CourseScheduleContract,
+  CreateScheduleDto,
+  UpdateScheduleDto,
+} from '@app/contracts';
 import {
   TYPED_CLIENT_MQ_OPTIONS,
   type TypedClientMqOptions,
-} from '@app/typed-client/typed-client.module';
-import { CourseSchedulingPatterns } from '@app/typed-client/patterns/course-scheduling.patterns';
+} from '../typed-client.module';
+import { CourseSchedulingPatterns } from '../patterns/course-scheduling.patterns';
+import { TraceService } from '@app/trace';
 
 @Injectable()
 export class CourseSchedulingTypedClient extends TypedClientBase<CourseSchedulingPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
+    traceService: TraceService,
     @Inject(TYPED_CLIENT_MQ_OPTIONS)
     options: TypedClientMqOptions,
   ) {
-    super(amqpConnection, options);
+    super(amqpConnection, traceService, options);
   }
 
   createSchedule(data: CreateScheduleDto): Promise<CourseScheduleContract> {
