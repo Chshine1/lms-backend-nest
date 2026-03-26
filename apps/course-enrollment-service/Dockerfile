@@ -11,7 +11,7 @@ COPY .yarn ./.yarn
 RUN yarn install
 
 COPY . .
-RUN yarn build gateway
+RUN yarn build course-enrollment-service
 
-EXPOSE 3000
-CMD ["node", "dist/apps/gateway/main"]
+EXPOSE 3004
+CMD ["node", "dist/apps/course-enrollment-service/main"]

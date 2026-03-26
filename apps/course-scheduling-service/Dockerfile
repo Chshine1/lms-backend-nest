@@ -11,7 +11,7 @@ COPY .yarn ./.yarn
 RUN yarn install
 
 COPY . .
-RUN yarn build gateway
+RUN yarn build course-scheduling-service
 
-EXPOSE 3000
-CMD ["node", "dist/apps/gateway/main"]
+EXPOSE 3005
+CMD ["node", "dist/apps/course-scheduling-service/main"]
