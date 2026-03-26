@@ -80,10 +80,13 @@ export class InfrastructureModule {
     return {
       module: InfrastructureModule,
       imports: [ConfigurationModule, LoggerModule],
-      providers: [InfrastructureService, {
-        provide: APP_PIPE,
-        useValue: new ValidationPipe({ transform: true }),
-      }],
+      providers: [
+        InfrastructureService,
+        {
+          provide: APP_PIPE,
+          useValue: new ValidationPipe({ transform: true }),
+        },
+      ],
       exports: [ConfigurationService, LoggerService],
     };
   }
@@ -127,7 +130,12 @@ export class InfrastructureModule {
     }
 
     const permissionImports: DynamicModule[] = permissionEntity
-      ? [PermissionModule.forFeature(permissionEntity)]
+      ? [
+          PermissionModule.forFeature({
+            entity: permissionEntity,
+            guardType: 'rabbitmq',
+          }),
+        ]
       : [];
 
     return {
@@ -154,12 +162,7 @@ export class InfrastructureModule {
         ...typedClientImports,
         ...permissionImports,
       ],
-      exports: [
-        TypeOrmModule,
-        RabbitMQModule,
-        TraceModule,
-        ...typedClients,
-      ],
+      exports: [TypeOrmModule, RabbitMQModule, TraceModule, ...typedClients],
     };
   }
 }
