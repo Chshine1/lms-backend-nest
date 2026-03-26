@@ -1,6 +1,3 @@
-# ==========================
-# Stage 1: Dependencies
-# ==========================
 FROM node:24.12.0-alpine AS deps
 WORKDIR /app
 
@@ -14,9 +11,6 @@ COPY tsconfig.json nest-cli.json ./
 
 RUN yarn install
 
-# ==========================
-# Stage 2: Build
-# ==========================
 FROM deps AS builder
 
 COPY . .
@@ -25,9 +19,6 @@ RUN yarn build assignment-service
 
 RUN yarn workspaces focus @lms/assignment-service --production && yarn cache clean
 
-# ==========================
-# Stage 3: Runtime
-# ==========================
 FROM node:24.12.0-alpine AS runner
 WORKDIR /app
 

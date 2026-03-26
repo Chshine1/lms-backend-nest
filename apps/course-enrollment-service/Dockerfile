@@ -1,6 +1,3 @@
-# ==========================
-# Stage 1: Dependencies
-# ==========================
 FROM node:24.12.0-alpine AS deps
 WORKDIR /app
 
@@ -14,25 +11,21 @@ COPY tsconfig.json nest-cli.json ./
 
 RUN yarn install
 
-# ==========================
-# Stage 2: Build
-# ==========================
 FROM deps AS builder
 
 COPY . .
 
 RUN yarn build course-enrollment-service
 
-# ==========================
-# Stage 3: Runtime
-# ==========================
+RUN yarn workspaces focus @lms/course-enrollment-service --production && yarn cache clean
+
 FROM node:24.12.0-alpine AS runner
 WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
-COPY --from=deps --chown=nestjs:nodejs /app/.yarn ./.yarn
-COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/.yarn ./.yarn
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 USER nestjs
