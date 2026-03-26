@@ -32,6 +32,52 @@ export class RabbitMQConsumerService {
             }
 
             const props = msg.properties;
+            const messageProperties: RabbitMQMessage['properties'] = {};
+
+            if (props.contentType !== undefined) {
+              messageProperties.contentType = props.contentType as string;
+            }
+            if (props.contentEncoding !== undefined) {
+              messageProperties.contentEncoding =
+                props.contentEncoding as string;
+            }
+            if (props.headers !== undefined) {
+              messageProperties.headers = props.headers as Record<
+                string,
+                unknown
+              >;
+            }
+            if (props.deliveryMode !== undefined) {
+              messageProperties.deliveryMode = props.deliveryMode as 1 | 2;
+            }
+            if (props.priority !== undefined) {
+              messageProperties.priority = props.priority as number;
+            }
+            if (props.correlationId !== undefined) {
+              messageProperties.correlationId = props.correlationId as string;
+            }
+            if (props.replyTo !== undefined) {
+              messageProperties.replyTo = props.replyTo as string;
+            }
+            if (props.expiration !== undefined) {
+              messageProperties.expiration = props.expiration as string;
+            }
+            if (props.messageId !== undefined) {
+              messageProperties.messageId = props.messageId as string;
+            }
+            if (props.timestamp !== undefined) {
+              messageProperties.timestamp = props.timestamp as number;
+            }
+            if (props.type !== undefined) {
+              messageProperties.type = props.type as string;
+            }
+            if (props.userId !== undefined) {
+              messageProperties.userId = props.userId as string;
+            }
+            if (props.appId !== undefined) {
+              messageProperties.appId = props.appId as string;
+            }
+
             const message: RabbitMQMessage = {
               content: msg.content,
               fields: {
@@ -40,41 +86,7 @@ export class RabbitMQConsumerService {
                 exchange: msg.fields.exchange,
                 routingKey: msg.fields.routingKey,
               },
-              properties: {
-                ...(props.contentType !== undefined
-                  ? { contentType: props.contentType }
-                  : {}),
-                ...(props.contentEncoding !== undefined
-                  ? { contentEncoding: props.contentEncoding }
-                  : {}),
-                ...(props.headers !== undefined
-                  ? { headers: props.headers as Record<string, unknown> }
-                  : {}),
-                ...(props.deliveryMode !== undefined
-                  ? { deliveryMode: props.deliveryMode as 1 | 2 }
-                  : {}),
-                ...(props.priority !== undefined
-                  ? { priority: props.priority }
-                  : {}),
-                ...(props.correlationId !== undefined
-                  ? { correlationId: props.correlationId }
-                  : {}),
-                ...(props.replyTo !== undefined
-                  ? { replyTo: props.replyTo }
-                  : {}),
-                ...(props.expiration !== undefined
-                  ? { expiration: props.expiration }
-                  : {}),
-                ...(props.messageId !== undefined
-                  ? { messageId: props.messageId }
-                  : {}),
-                ...(props.timestamp !== undefined
-                  ? { timestamp: props.timestamp }
-                  : {}),
-                ...(props.type !== undefined ? { type: props.type } : {}),
-                ...(props.userId !== undefined ? { userId: props.userId } : {}),
-                ...(props.appId !== undefined ? { appId: props.appId } : {}),
-              },
+              properties: messageProperties,
             };
 
             try {
@@ -108,11 +120,11 @@ export class RabbitMQConsumerService {
     return this.consumers.has(queue);
   }
 
-  parseMessage<T>(msg: RabbitMQMessage): T | null {
+  parseMessage(msg: RabbitMQMessage): unknown {
     try {
-      return JSON.parse(msg.content.toString()) as T;
+      return JSON.parse(msg.content.toString());
     } catch {
-      return null;
+      return null as unknown;
     }
   }
 }

@@ -89,15 +89,11 @@ describe('ConfigurationService', () => {
         const expectedThrows = (): TestConfig => invalidService.get(TestConfig);
 
         expect(expectedThrows).toThrow(GetConfigValidationError);
-        expect(expectedThrows).toThrow(
-          expect.objectContaining({
-            validationErrors: expect.arrayContaining([
-              expect.objectContaining({
-                property: expect.any(String),
-              }),
-            ]),
-          }),
-        );
+        expect(expectedThrows).toThrow({
+          validationErrors: expect.arrayContaining([
+            { property: expect.any(String) as unknown as string },
+          ]) as unknown as Array<{ property: string }>,
+        } as unknown as Error);
       });
     });
   });

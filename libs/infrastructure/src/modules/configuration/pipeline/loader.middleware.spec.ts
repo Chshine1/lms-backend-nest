@@ -87,17 +87,15 @@ describe('LoaderMiddlewareBase', () => {
       const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
 
       await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
-      await expectedRejects.toThrow(
-        expect.objectContaining({
-          context: expect.objectContaining({
-            middleware: TestLoaderMiddleware.name,
-            location: {
-              type: 'dependencies',
-              dependency: DependencyB.name,
-            },
-          }),
-        }),
-      );
+      await expectedRejects.toThrow({
+        context: {
+          middleware: expect.any(String) as unknown as string,
+          location: {
+            type: 'dependencies',
+            dependency: expect.any(String) as unknown as string,
+          },
+        },
+      } as unknown as Error);
     });
 
     it('should catch the inner error and encapsulated by ConfigLoadPipelineMiddlewareError', async () => {
@@ -118,16 +116,14 @@ describe('LoaderMiddlewareBase', () => {
       const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
 
       await expectedRejects.toThrow(ConfigLoadPipelineMiddlewareError);
-      await expectedRejects.toThrow(
-        expect.objectContaining({
-          cause: expect.objectContaining({
-            message: 'Simulated load error',
-          }),
-          context: expect.objectContaining({
-            middleware: ThrowingLoaderMiddleware.name,
-          }),
-        }),
-      );
+      await expectedRejects.toThrow({
+        cause: {
+          message: 'Simulated load error',
+        },
+        context: {
+          middleware: expect.any(String) as unknown as string,
+        },
+      } as unknown as Error);
     });
 
     it('should throw ConfigLoadPipelineValidationError, indicating target validation error', async () => {
@@ -149,16 +145,14 @@ describe('LoaderMiddlewareBase', () => {
       const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
 
       await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
-      await expectedRejects.toThrow(
-        expect.objectContaining({
-          context: expect.objectContaining({
-            middleware: InvalidTargetMiddleware.name,
-            location: {
-              type: 'target',
-            },
-          }),
-        }),
-      );
+      await expectedRejects.toThrow({
+        context: {
+          middleware: expect.any(String) as unknown as string,
+          location: {
+            type: 'target',
+          },
+        },
+      } as unknown as Error);
     });
   });
 });

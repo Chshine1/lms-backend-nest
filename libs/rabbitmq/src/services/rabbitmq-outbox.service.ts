@@ -115,12 +115,10 @@ export class RabbitMQOutboxService {
     }
 
     const pollMs = interval ?? this.pollInterval;
-    this.timer = setInterval(async (): Promise<void> => {
-      try {
-        await this.processOutbox();
-      } catch {
+    this.timer = setInterval(() => {
+      void this.processOutbox().catch(() => {
         // Log but don't crash the relay
-      }
+      });
     }, pollMs);
   }
 
