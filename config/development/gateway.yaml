@@ -1,0 +1,6 @@
+jwt:
+  secret: dev-secret-key-change-in-production
+  expiry: 3600
+
+gateway:
+  port: 3000

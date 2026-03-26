@@ -75,6 +75,8 @@ services:
       dockerfile: apps/gateway/Dockerfile
     ports:
       - '3000:3000'
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,138 +85,102 @@ services:
       promtail:
         condition: service_started
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: gateway
+      CONFIG_BASE_PATH: /app/config
 
   user-service:
     build:
       context: .
       dockerfile: apps/user-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: user-service
+      CONFIG_BASE_PATH: /app/config
 
   course-service:
     build:
       context: .
       dockerfile: apps/course-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: course-service
+      CONFIG_BASE_PATH: /app/config
+
   assignment-service:
     build:
       context: .
       dockerfile: apps/assignment-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: assignment-service
+      CONFIG_BASE_PATH: /app/config
 
   course-enrollment-service:
     build:
       context: .
       dockerfile: apps/course-enrollment-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: course-enrollment-service
+      CONFIG_BASE_PATH: /app/config
 
   course-scheduling-service:
     build:
       context: .
       dockerfile: apps/course-scheduling-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: course-scheduling-service
+      CONFIG_BASE_PATH: /app/config
 
   file-service:
     build:
       context: .
       dockerfile: apps/file-service/Dockerfile
+    volumes:
+      - ./config:/app/config:ro
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: lms
-      DB_PASSWORD: lms
-      DB_DATABASE: lms
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: lms
-      RABBITMQ_PASSWORD: lms
+      ENVIRONMENT: development
+      SERVICE_NAME: file-service
+      CONFIG_BASE_PATH: /app/config

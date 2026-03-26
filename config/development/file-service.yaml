@@ -1,0 +1,6 @@
+storage:
+  storagePath: /tmp/uploads
+  provider: local
+
+file:
+  signedUrlExpiry: 3600
