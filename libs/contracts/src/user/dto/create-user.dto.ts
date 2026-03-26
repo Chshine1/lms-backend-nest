@@ -5,8 +5,8 @@
   IsNotEmpty,
   IsString,
 } from 'class-validator';
-import { IdentityType } from '../entities';
 import { Transform } from 'class-transformer';
+import { IdentityType } from '../entities';
 
 export class CreateUserDto {
   @IsDefined()
@@ -21,7 +21,7 @@ export class CreateUserDto {
 
   @IsDefined()
   @IsString()
-  @IsEmail()
+  @IsNotEmpty()
   phone!: string;
 
   @IsDefined()

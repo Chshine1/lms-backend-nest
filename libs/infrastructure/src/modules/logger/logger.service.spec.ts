@@ -1,4 +1,5 @@
 import { LoggerService, LogParams } from './logger.service';
+import { LogEnrichmentService } from './services/log-enrichment.service';
 import { Sink } from './contracts/middlewares.interface';
 import { LogEntry } from './contracts/log.entry';
 import { BaseError, ErrorCode, LogLevel } from '@app/contracts';
@@ -8,7 +9,7 @@ describe('LoggerService', () => {
   let loggerService: LoggerService;
   let mockSink: jest.Mocked<Sink>;
   let mockBuffer: jest.Mocked<LogBuffer>;
-  let mockEnrichmentService: { enrich: jest.Mock };
+  let mockEnrichmentService: LogEnrichmentService;
   let bufferEntries: LogEntry[];
 
   beforeEach(() => {
@@ -40,7 +41,7 @@ describe('LoggerService', () => {
           timestamp: new Date(),
         } as LogEntry),
       ),
-    };
+    } as unknown as LogEnrichmentService;
 
     loggerService = new LoggerService({
       sink: mockSink,

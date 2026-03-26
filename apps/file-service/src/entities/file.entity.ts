@@ -25,7 +25,13 @@ export class File implements FileContract {
   @Column({ name: 'content_type', type: 'varchar', length: 100 })
   contentType!: string;
 
-  @Column({ type: 'bigint' })
+  @Column({
+    type: 'bigint',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: bigint) => Number(value),
+    },
+  })
   size!: number;
 
   @Column({ type: 'varchar', length: 64 })

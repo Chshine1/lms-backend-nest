@@ -2,20 +2,28 @@ import { Module } from '@nestjs/common';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { TypedClientModule, UserTypedClient } from '@app/typed-client';
 import { ConfigurationService } from '@app/infrastructure';
-import { IsDefined, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { Expose } from 'class-transformer';
 
 class RabbitMQConfigSection {
   @IsString()
   @IsDefined()
+  @Expose()
   host!: string;
-  @IsString()
+
+  @IsNumber()
   @IsDefined()
+  @Expose()
   port!: number;
+
   @IsString()
   @IsDefined()
+  @Expose()
   username!: string;
+
   @IsString()
   @IsDefined()
+  @Expose()
   password!: string;
 }
 
