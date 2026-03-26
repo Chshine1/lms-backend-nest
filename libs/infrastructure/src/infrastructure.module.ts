@@ -4,17 +4,14 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ClassConstructor, Expose } from 'class-transformer';
 import { IsDefined, IsString, IsNumber } from 'class-validator';
 
+import { type TypedClientBase } from '@app/typed-client';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { LoggerService } from './modules/logger/logger.service';
-import { InfrastructureService } from '@app/infrastructure/infrastructure.service';
-import {
-  TypedClientModule,
-  TypedClientMqOptions,
-} from '@app/typed-client/typed-client.module';
-import { TypedClientBase } from '@app/typed-client/typed-client.base';
-import { TraceModule } from '@app/trace/trace.module';
+import { InfrastructureService } from './infrastructure.service';
+import { TypedClientModule, TypedClientMqOptions } from '@app/typed-client';
+import { TraceModule } from '@app/trace';
 import { PermissionModule } from '@app/authentication';
 
 export class DatabaseConfig {

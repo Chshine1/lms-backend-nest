@@ -7,7 +7,7 @@ export interface AuditMetadata {
 
 export const auditDecoratorKey = 'audit';
 export const Audit = (resourceType: string, action: string): CustomDecorator =>
-  SetMetadata<string, AuditMetadata>(auditDecoratorKey, {
+  SetMetadata(auditDecoratorKey, {
     resourceType,
     action,
   });

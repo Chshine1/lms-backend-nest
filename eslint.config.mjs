@@ -1,10 +1,16 @@
 // @ts-check
+import { sync } from 'glob';
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 // noinspection SpellCheckingInspection
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // noinspection JSCheckFunctionSignatures
 export default tseslint.config(
@@ -35,7 +41,10 @@ export default tseslint.config(
       'import/no-extraneous-dependencies': [
         'error',
         {
-          packageDir: import.meta.dirname,
+          packageDir: [
+            ...sync('apps/*/', { cwd: __dirname, absolute: true }),
+            ...sync('libs/*/', { cwd: __dirname, absolute: true }),
+          ],
         },
       ],
       '@typescript-eslint/explicit-function-return-type': 'error',
@@ -67,6 +76,17 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/unbound-method': 'off',
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          packageDir: [
+            __dirname,
+            ...sync('apps/*/', { cwd: __dirname, absolute: true }),
+            ...sync('libs/*/', { cwd: __dirname, absolute: true }),
+          ],
+          devDependencies: true,
+        },
+      ],
     },
   },
 );

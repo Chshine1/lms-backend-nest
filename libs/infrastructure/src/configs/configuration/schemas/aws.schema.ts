@@ -6,10 +6,7 @@ import {
   StorageConfig,
 } from '@app/contracts';
 import { Expose, Type } from 'class-transformer';
-import {
-  DatabaseConfig,
-  RabbitMQConfig,
-} from '../../../infrastructure.module';
+import { DatabaseConfig, RabbitMQConfig } from '../../../infrastructure.module';
 
 export class AwsSchema {
   @IsDefined()
@@ -35,7 +32,7 @@ export class AwsSchema {
   @ValidateNested()
   @Expose()
   rabbitmq!: RabbitMQConfig;
-  
+
   @IsDefined()
   @Type(() => StorageConfig)
   @ValidateNested()

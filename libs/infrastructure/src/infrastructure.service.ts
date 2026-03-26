@@ -8,11 +8,8 @@ export class InfrastructureService implements OnApplicationBootstrap {
     private configLoader: ConfigurationLoader,
     private loggerLoader: LoggerLoader,
   ) {}
-  
-  async onApplicationBootstrap() {
-    await Promise.all([
-      this.configLoader.load(),
-      this.loggerLoader.load(),
-    ]);
+
+  async onApplicationBootstrap(): Promise<void> {
+    await Promise.all([this.configLoader.load(), this.loggerLoader.load()]);
   }
 }
