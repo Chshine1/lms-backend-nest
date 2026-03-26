@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.nvmrc
+.prettierrc
+AGENTS.md
+README.zh-cn.md
+DOCUMENTATION_STANDARDS.md
+docker-compose.development.yml
+eslint.config.mjs
+@types
+dist
+docs
+node_modules
+.yarn/install-state.gz
