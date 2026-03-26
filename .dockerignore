@@ -4,7 +4,7 @@
 .nvmrc
 .prettierrc
 AGENTS.md
-README.zh-cn.md
+README.md
 DOCUMENTATION_STANDARDS.md
 docker-compose.development.yml
 eslint.config.mjs
