@@ -8,7 +8,7 @@ services:
     ports:
       - '5432:5432'
     tmpfs:
-      - /var/lib/postgresql/data
+      - /var/lib/postgresql/data:size=256m
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U lms']
       interval: 5s
@@ -24,7 +24,7 @@ services:
       - '5672:5672'
       - '15672:15672'
     tmpfs:
-      - /var/lib/rabbitmq
+      - /var/lib/rabbitmq:size=128m
     healthcheck:
       test: ['CMD', 'rabbitmq-diagnostics', 'check_running']
       interval: 10s
@@ -36,7 +36,7 @@ services:
     ports:
       - '3100:3100'
     volumes:
-      - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml
+      - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     command: -config.file=/etc/loki/local-config.yaml
     healthcheck:
       test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3100/ready']
@@ -47,7 +47,7 @@ services:
   promtail:
     image: grafana/promtail:3.2.1
     volumes:
-      - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
     depends_on:
@@ -63,8 +63,8 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
     volumes:
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning
-      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       loki:
         condition: service_healthy
