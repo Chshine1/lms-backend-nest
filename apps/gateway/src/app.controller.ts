@@ -46,38 +46,38 @@ export class AppController {
     access_token: string;
     user: UserContract;
   }> {
+    let user: UserContract | null;
     try {
-      const user = await this.userClient.validateUser(body);
-      if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const payload = { sub: user.id, username: user.username };
-      return {
-        access_token: this.jwtService.sign(payload),
-        user,
-      };
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
+      user = await this.userClient.validateUser(body);
+    } catch {
       throw new InternalServerErrorException('Failed to validate user');
     }
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const payload = { sub: user.id, username: user.username };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user,
+    };
   }
 
   @Get('users/:id')
   @UseGuards(AuthGuard('jwt'))
   async getUser(@Param('id') id: string): Promise<UserContract> {
+    let user: UserContract | null;
     try {
-      const user = await this.userClient.findUserById(parseInt(id));
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      return user;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      user = await this.userClient.findUserById(parseInt(id));
+    } catch {
       throw new InternalServerErrorException('Failed to retrieve user');
     }
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 }

@@ -1,34 +1,40 @@
-﻿import { Test } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { PermissionModule } from './permission.module';
 import { PermissionService } from './permission.service';
 import { Permission } from './permission.interface';
-import { Entity } from 'typeorm';
+import { Repository } from 'typeorm';
 
-@Entity('mock_permissions')
-class MockPermission implements Permission {
-  action!: number;
-  createdAt!: Date;
-  resource!: number;
-  userId!: number;
-}
+describe('PermissionService', () => {
+  let permissionService: PermissionService;
+  let mockRepo: jest.Mocked<Repository<Permission>>;
 
-describe('PermissionModule', () => {
-  it('should compile the module and resolve providers correctly', async () => {
-    const mockRepo = {
+  beforeEach(() => {
+    mockRepo = {
       find: jest.fn(),
       save: jest.fn(),
-    };
+    } as unknown as jest.Mocked<Repository<Permission>>;
 
-    const moduleRef = await Test.createTestingModule({
-      imports: [PermissionModule.forFeature(MockPermission)],
-    })
-      .overrideProvider(getRepositoryToken(MockPermission))
-      .useValue(mockRepo)
-      .compile();
+    permissionService = new PermissionService(mockRepo);
+  });
 
-    const permissionService =
-      moduleRef.get<PermissionService>(PermissionService);
-    expect(permissionService).toBeDefined();
+  describe('getUserPermissions', () => {
+    it('should return user permissions', async () => {
+      const userId = 1;
+      const expectedPermissions: Permission[] = [
+        { userId: 1, resource: 1, action: 1, createdAt: new Date() },
+      ];
+      mockRepo.find.mockResolvedValue(expectedPermissions);
+
+      const result = await permissionService.getUserPermissions(userId);
+
+      expect(result).toEqual(expectedPermissions);
+      expect(mockRepo.find).toHaveBeenCalledWith({ where: { userId } });
+    });
+
+    it('should return empty array on error', async () => {
+      mockRepo.find.mockRejectedValue(new Error('DB error'));
+
+      const result = await permissionService.getUserPermissions(1);
+
+      expect(result).toEqual([]);
+    });
   });
 });
