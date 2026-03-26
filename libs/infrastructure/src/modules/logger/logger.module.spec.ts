@@ -3,15 +3,27 @@ import { LoggerModule } from './logger.module';
 import { LoggerLoader } from './logger.loader';
 import { LoggerService } from './logger.service';
 import { ConfigurationModule } from '../configuration/configuration.module';
+import { ConfigurationService } from '../configuration/configuration.service';
 import { EventBusModule } from '../event-bus/event-bus.module';
+import { Environment } from '../../configs/configuration/schemas/env.schema';
 
 describe('LoggerModule', () => {
   let module: TestingModule;
 
   beforeEach(async () => {
+    const mockConfigService = {
+      get: jest.fn().mockReturnValue({
+        environment: Environment.test,
+        serviceName: 'test-service',
+      }),
+    };
+
     module = await Test.createTestingModule({
       imports: [EventBusModule, ConfigurationModule, LoggerModule],
-    }).compile();
+    })
+      .overrideProvider(ConfigurationService)
+      .useValue(mockConfigService)
+      .compile();
   });
 
   it('should be defined', () => {

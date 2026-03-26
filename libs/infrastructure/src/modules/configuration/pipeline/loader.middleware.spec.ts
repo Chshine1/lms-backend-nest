@@ -84,18 +84,21 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello' };
 
-      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
-
-      await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
-      await expectedRejects.toThrow({
-        context: {
-          middleware: expect.any(String) as unknown as string,
-          location: {
-            type: 'dependencies',
-            dependency: expect.any(String) as unknown as string,
-          },
-        },
-      } as unknown as Error);
+      try {
+        await middleware.loadValidated(loaded);
+        fail('Expected error to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConfigLoadPipelineValidationError);
+        const pipelineError = error as ConfigLoadPipelineValidationError;
+        expect(typeof pipelineError.context.middleware).toBe('string');
+        expect(pipelineError.context.location).toMatchObject({
+          type: 'dependencies',
+        });
+        const location = pipelineError.context.location;
+        if (location.type === 'dependencies') {
+          expect(typeof location.dependency).toBe('string');
+        }
+      }
     });
 
     it('should catch the inner error and encapsulated by ConfigLoadPipelineMiddlewareError', async () => {
@@ -113,17 +116,17 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello', b: 42 };
 
-      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
-
-      await expectedRejects.toThrow(ConfigLoadPipelineMiddlewareError);
-      await expectedRejects.toThrow({
-        cause: {
+      try {
+        await middleware.loadValidated(loaded);
+        fail('Expected error to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConfigLoadPipelineMiddlewareError);
+        const middlewareError = error as ConfigLoadPipelineMiddlewareError;
+        expect(middlewareError.cause).toMatchObject({
           message: 'Simulated load error',
-        },
-        context: {
-          middleware: expect.any(String) as unknown as string,
-        },
-      } as unknown as Error);
+        });
+        expect(middlewareError.context.middleware).toEqual(expect.any(String));
+      }
     });
 
     it('should throw ConfigLoadPipelineValidationError, indicating target validation error', async () => {
@@ -142,17 +145,17 @@ describe('LoaderMiddlewareBase', () => {
 
       const loaded = { a: 'hello', b: 42 };
 
-      const expectedRejects = expect(middleware.loadValidated(loaded)).rejects;
-
-      await expectedRejects.toThrow(ConfigLoadPipelineValidationError);
-      await expectedRejects.toThrow({
-        context: {
-          middleware: expect.any(String) as unknown as string,
-          location: {
-            type: 'target',
-          },
-        },
-      } as unknown as Error);
+      try {
+        await middleware.loadValidated(loaded);
+        fail('Expected error to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConfigLoadPipelineValidationError);
+        const pipelineError = error as ConfigLoadPipelineValidationError;
+        expect(pipelineError.context.middleware).toEqual(expect.any(String));
+        expect(pipelineError.context.location).toMatchObject({
+          type: 'target',
+        });
+      }
     });
   });
 });

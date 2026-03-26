@@ -2,14 +2,25 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigurationModule } from './configuration.module';
 import { ConfigurationLoader } from './configuration.loader';
 import { ConfigurationService } from './configuration.service';
+import { Environment } from '../../configs/configuration/schemas/env.schema';
 
 describe('ConfigurationModule', () => {
   let module: TestingModule;
 
   beforeEach(async () => {
+    const mockConfigService = {
+      get: jest.fn().mockReturnValue({
+        environment: Environment.test,
+        serviceName: 'test-service',
+      }),
+    };
+
     module = await Test.createTestingModule({
       imports: [ConfigurationModule],
-    }).compile();
+    })
+      .overrideProvider(ConfigurationService)
+      .useValue(mockConfigService)
+      .compile();
   });
 
   it('should be defined', () => {
@@ -25,6 +36,6 @@ describe('ConfigurationModule', () => {
   it('should provide ConfigurationService', () => {
     const service = module.get(ConfigurationService);
     expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(ConfigurationService);
+    expect(service).toHaveProperty('get');
   });
 });

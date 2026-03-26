@@ -1,6 +1,6 @@
 ﻿import { BaseError, ErrorCode } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
-import { ValidationError } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
 
 export class InfrastructureError<
   TContext extends Record<string, unknown>,

@@ -88,12 +88,19 @@ describe('ConfigurationService', () => {
 
         const expectedThrows = (): TestConfig => invalidService.get(TestConfig);
 
-        expect(expectedThrows).toThrow(GetConfigValidationError);
-        expect(expectedThrows).toThrow({
-          validationErrors: expect.arrayContaining([
-            { property: expect.any(String) as unknown as string },
-          ]) as unknown as Array<{ property: string }>,
-        } as unknown as Error);
+        try {
+          expectedThrows();
+          fail('Expected error to be thrown');
+        } catch (error) {
+          expect(error).toBeInstanceOf(GetConfigValidationError);
+          const configError = error as GetConfigValidationError;
+          expect(configError.context.validationErrors.length).toBeGreaterThan(
+            0,
+          );
+          const firstError = configError.context.validationErrors[0]!;
+          expect(typeof firstError.property).toBe('string');
+          expect(typeof firstError.constraints).toBe('object');
+        }
       });
     });
   });

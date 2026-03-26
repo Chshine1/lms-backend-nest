@@ -1,4 +1,4 @@
-﻿import { ValidationError } from '@nestjs/common';
+﻿import { ValidationError } from 'class-validator';
 import { ClassConstructor } from 'class-transformer';
 import { ErrorCode } from '@app/contracts';
 import { ConfigurationError } from './configuration.error';
