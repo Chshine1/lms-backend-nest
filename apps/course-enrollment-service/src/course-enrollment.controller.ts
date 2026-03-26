@@ -1,8 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseEnrollmentService } from './course-enrollment.service';
-import { EnrollmentContract } from '@app/contracts';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
+import { EnrollmentContract, CreateEnrollmentDto } from '@app/contracts';
 import {
   CourseEnrollmentTypedClient,
   ExtractController,

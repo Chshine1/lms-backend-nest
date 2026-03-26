@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Enrollment } from './entities/enrollment.entity';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
-import { AlreadyEnrolledError, EnrollmentNotFoundError } from '@app/contracts';
+import { AlreadyEnrolledError, EnrollmentNotFoundError, CreateEnrollmentDto } from '@app/contracts';
 
 @Injectable()
 export class CourseEnrollmentService {

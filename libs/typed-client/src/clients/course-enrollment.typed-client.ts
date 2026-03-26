@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { TypedClientBase } from '../typed-client.base';
-import { EnrollmentContract } from '@app/contracts';
-import { CreateEnrollmentDto } from '@/course-enrollment-service/src/dto/create-enrollment.dto';
+import { EnrollmentContract, CreateEnrollmentDto } from '@app/contracts';
 import {
   TYPED_CLIENT_MQ_OPTIONS,
   type TypedClientMqOptions,

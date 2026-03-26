@@ -1,5 +1,4 @@
-import { EnrollmentContract } from '@app/contracts';
-import { CreateEnrollmentDto } from '@/course-enrollment-service/src/dto/create-enrollment.dto';
+import { EnrollmentContract, CreateEnrollmentDto } from '@app/contracts';
 
 export interface CourseEnrollmentPatterns extends Record<
   string,
