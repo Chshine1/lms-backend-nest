@@ -1,10 +1,9 @@
 ﻿import {
-  Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { type Permission } from '@app/authentication';
 
@@ -21,12 +20,11 @@ export enum UserServiceAction {
 
 @Entity('user_permissions')
 export class UserPermission implements Permission {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   @Index()
   userId!: number;
 
-  @PrimaryGeneratedColumn()
-  @Column({
+  @PrimaryColumn({
     type: 'smallint',
     transformer: {
       to: (value: UserServiceResource) => value,
@@ -35,8 +33,7 @@ export class UserPermission implements Permission {
   })
   resource!: UserServiceResource;
 
-  @PrimaryGeneratedColumn()
-  @Column({
+  @PrimaryColumn({
     type: 'smallint',
     transformer: {
       to: (value: UserServiceAction) => value,

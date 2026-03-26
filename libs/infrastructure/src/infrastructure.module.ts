@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ClassConstructor, Expose } from 'class-transformer';
@@ -13,6 +13,7 @@ import { InfrastructureService } from './infrastructure.service';
 import { TypedClientModule, TypedClientMqOptions } from '@app/typed-client';
 import { TraceModule } from '@app/trace';
 import { PermissionModule } from '@app/authentication';
+import { APP_PIPE } from '@nestjs/core';
 
 export class DatabaseConfig {
   @IsString()
@@ -79,7 +80,10 @@ export class InfrastructureModule {
     return {
       module: InfrastructureModule,
       imports: [ConfigurationModule, LoggerModule],
-      providers: [InfrastructureService],
+      providers: [InfrastructureService, {
+        provide: APP_PIPE,
+        useValue: new ValidationPipe({ transform: true }),
+      }],
       exports: [ConfigurationService, LoggerService],
     };
   }
@@ -150,7 +154,12 @@ export class InfrastructureModule {
         ...typedClientImports,
         ...permissionImports,
       ],
-      exports: [TypeOrmModule, RabbitMQModule, TraceModule, ...typedClients],
+      exports: [
+        TypeOrmModule,
+        RabbitMQModule,
+        TraceModule,
+        ...typedClients,
+      ],
     };
   }
 }

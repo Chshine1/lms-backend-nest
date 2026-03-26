@@ -40,13 +40,4 @@ export class UserController implements ExtractController<UserTypedClient> {
   findUserById(id: number): Promise<UserContract | null> {
     return this.userService.findById(id);
   }
-
-  @RabbitRPC({
-    exchange: 'user-service',
-    routingKey: 'user.findByTenant',
-    queue: 'user-service-user-findByTenant',
-  })
-  findByTenant(data: { tenantId: number }): Promise<UserContract[]> {
-    return this.userService.findByTenant(data.tenantId);
-  }
 }
