@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build course-scheduling-service
 
-EXPOSE 3005
 CMD ["node", "dist/apps/course-scheduling-service/main"]

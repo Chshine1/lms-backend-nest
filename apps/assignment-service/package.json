@@ -1,0 +1,26 @@
+{
+  "name": "@lms/assignment-service",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "nest build assignment-service"
+  },
+  "dependencies": {
+    "@app/contracts": "workspace:*",
+    "@app/infrastructure": "workspace:*",
+    "@app/typed-client": "workspace:*",
+    "@golevelup/nestjs-rabbitmq": "^9.0.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "^11.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0"
+  }
+}

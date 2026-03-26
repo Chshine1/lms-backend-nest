@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build course-enrollment-service
 
-EXPOSE 3004
 CMD ["node", "dist/apps/course-enrollment-service/main"]

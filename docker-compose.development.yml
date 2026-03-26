@@ -145,10 +145,17 @@ services:
       context: .
       dockerfile: apps/course-scheduling-service/Dockerfile
     depends_on:
+      postgres:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
       NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: lms
+      DB_PASSWORD: lms
+      DB_DATABASE: lms
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: lms
@@ -159,10 +166,17 @@ services:
       context: .
       dockerfile: apps/file-service/Dockerfile
     depends_on:
+      postgres:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
       NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: lms
+      DB_PASSWORD: lms
+      DB_DATABASE: lms
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: lms

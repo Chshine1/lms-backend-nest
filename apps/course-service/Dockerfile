@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build course-service
 
-EXPOSE 3002
 CMD ["node", "dist/apps/course-service/main"]

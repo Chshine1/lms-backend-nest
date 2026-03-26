@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build file-service
 
-EXPOSE 3006
 CMD ["node", "dist/apps/file-service/main"]

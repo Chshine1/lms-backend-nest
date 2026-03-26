@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build user-service
 
-EXPOSE 3001
 CMD ["node", "dist/apps/user-service/main"]

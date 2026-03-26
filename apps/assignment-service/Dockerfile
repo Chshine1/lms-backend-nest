@@ -13,5 +13,4 @@ RUN yarn install
 COPY . .
 RUN yarn build assignment-service
 
-EXPOSE 3003
 CMD ["node", "dist/apps/assignment-service/main"]
