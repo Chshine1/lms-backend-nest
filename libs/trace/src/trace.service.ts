@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 export class TraceService {
   private readonly als = new AsyncLocalStorage<{ traceId: string }>();
 
-  runWithTrace(traceId: string, callback: () => any) {
+  runWithTrace<T>(traceId: string, callback: () => T): T {
     return this.als.run({ traceId }, callback);
   }
 

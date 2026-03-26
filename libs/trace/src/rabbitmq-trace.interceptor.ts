@@ -12,10 +12,12 @@ import { TraceService } from './trace.service';
 export class RabbitMqTraceInterceptor implements NestInterceptor {
   constructor(private readonly trace: TraceService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (isRabbitContext(context)) {
-      const rpcContext = context.switchToRpc();
-      const headers = rpcContext.getContext().getHeaders?.() || {};
+      const rpcContext = context.switchToRpc() as {
+        getContext(): { getHeaders?: () => Record<string, string> };
+      };
+      const headers = rpcContext.getContext().getHeaders?.() ?? {};
       let traceId = headers['x-trace-id'];
       if (!traceId) {
         traceId = this.trace.generateTraceId();
