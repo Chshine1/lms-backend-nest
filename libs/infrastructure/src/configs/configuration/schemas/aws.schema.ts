@@ -5,26 +5,46 @@ import {
   LoggerLibConfig,
   StorageConfig,
 } from '@app/contracts';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import {
+  DatabaseConfig,
+  RabbitMQConfig,
+} from '../../../infrastructure.module';
 
 export class AwsSchema {
   @IsDefined()
-  @ValidateNested()
   @Type(() => JwtConfig)
+  @ValidateNested()
+  @Expose()
   jwt!: JwtConfig;
 
   @IsDefined()
-  @ValidateNested()
   @Type(() => LoggerLibConfig)
+  @ValidateNested()
+  @Expose()
   logger!: LoggerLibConfig;
 
   @IsDefined()
+  @Type(() => DatabaseConfig)
   @ValidateNested()
+  @Expose()
+  database!: DatabaseConfig;
+
+  @IsDefined()
+  @Type(() => RabbitMQConfig)
+  @ValidateNested()
+  @Expose()
+  rabbitmq!: RabbitMQConfig;
+  
+  @IsDefined()
   @Type(() => StorageConfig)
+  @ValidateNested()
+  @Expose()
   storage!: StorageConfig;
 
   @IsDefined()
-  @ValidateNested()
   @Type(() => FileConfig)
+  @ValidateNested()
+  @Expose()
   file!: FileConfig;
 }

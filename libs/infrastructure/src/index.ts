@@ -2,7 +2,10 @@
 export * from './modules/logger/errors';
 export * from './modules/configuration/errors';
 
-export { InfrastructureModule } from './infrastructure.module';
+export {
+  InfrastructureModule,
+  type MicroserviceInfrastructureOptions,
+} from './infrastructure.module';
 
 export { ConfigurationService } from './modules/configuration/configuration.service';
 export { ConfigurationLoader } from './modules/configuration/configuration.loader';

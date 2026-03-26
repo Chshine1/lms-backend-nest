@@ -1,101 +1,33 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PermissionModule } from '@app/authentication';
-import { UserPermission } from '@/user-service/src/entities/user-permission.entity';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
-import { IsDefined, IsString } from 'class-validator';
-import { Tenant } from '@/user-service/src/entities/tenant.entity';
-import { Student } from '@/user-service/src/entities/student.entity';
-import { Teacher } from '@/user-service/src/entities/teacher.entity';
-import { Parent } from '@/user-service/src/entities/parent.entity';
-import { Admin } from '@/user-service/src/entities/admin.entity';
-import { Campus } from '@/user-service/src/entities/campus.entity';
-
-class TypeOrmConfigSection {
-  @IsString()
-  @IsDefined()
-  host!: string;
-  @IsString()
-  @IsDefined()
-  port!: number;
-  @IsString()
-  @IsDefined()
-  username!: string;
-  @IsString()
-  @IsDefined()
-  password!: string;
-  @IsString()
-  @IsDefined()
-  database!: string;
-}
-
-class RabbitMQConfigSection {
-  @IsString()
-  @IsDefined()
-  host!: string;
-  @IsString()
-  @IsDefined()
-  port!: number;
-  @IsString()
-  @IsDefined()
-  username!: string;
-  @IsString()
-  @IsDefined()
-  password!: string;
-}
+import { InfrastructureModule } from '@app/infrastructure';
+import { Tenant } from './entities/tenant.entity';
+import { Student } from './entities/student.entity';
+import { Teacher } from './entities/teacher.entity';
+import { Parent } from './entities/parent.entity';
+import { Admin } from './entities/admin.entity';
+import { Campus } from './entities/campus.entity';
+import { UserPermission } from './entities/user-permission.entity';
 
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigurationService) => {
-        const section = configService.get(TypeOrmConfigSection);
-        return {
-          type: 'postgres',
-          host: section.host,
-          port: section.port,
-          username: section.username,
-          password: section.password,
-          database: section.database,
-          entities: [
-            User,
-            Tenant,
-            Student,
-            Teacher,
-            Parent,
-            Admin,
-            Campus,
-            UserPermission,
-          ],
-          synchronize: false,
-        };
-      },
-      inject: [ConfigurationService],
+    InfrastructureModule.forMicroserviceAsync({
+      entities: [
+        User,
+        Tenant,
+        Student,
+        Teacher,
+        Parent,
+        Admin,
+        Campus,
+        UserPermission,
+      ],
+      permissionEntity: UserPermission,
+      exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
-    RabbitMQModule.forRootAsync({
-      useFactory: (configService: ConfigurationService) => {
-        const section = configService.get(RabbitMQConfigSection);
-        return {
-          exchanges: [
-            {
-              name: 'user-service',
-              type: 'topic',
-            },
-          ],
-          uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
-          connectionInitOptions: { wait: true },
-        };
-      },
-      inject: [ConfigurationService],
-    }),
-    PermissionModule.forFeature(UserPermission),
   ],
   controllers: [UserController],
   providers: [UserService],

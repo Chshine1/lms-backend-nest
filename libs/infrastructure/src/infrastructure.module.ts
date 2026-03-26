@@ -1,9 +1,78 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { ClassConstructor, Expose } from 'class-transformer';
+import { IsDefined, IsString, IsNumber } from 'class-validator';
+
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { LoggerService } from './modules/logger/logger.service';
 import { InfrastructureService } from '@app/infrastructure/infrastructure.service';
+import {
+  TypedClientModule,
+  TypedClientMqOptions,
+} from '@app/typed-client/typed-client.module';
+import { TypedClientBase } from '@app/typed-client/typed-client.base';
+import { TraceModule } from '@app/trace/trace.module';
+import { PermissionModule } from '@app/authentication';
+
+export class DatabaseConfig {
+  @IsString()
+  @IsDefined()
+  @Expose()
+  host!: string;
+
+  @IsNumber()
+  @IsDefined()
+  @Expose()
+  port!: number;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  username!: string;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  password!: string;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  database!: string;
+}
+
+export class RabbitMQConfig {
+  @IsString()
+  @IsDefined()
+  @Expose()
+  host!: string;
+
+  @IsNumber()
+  @IsDefined()
+  @Expose()
+  port!: number;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  username!: string;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  password!: string;
+}
+
+export interface MicroserviceInfrastructureOptions {
+  entities: ClassConstructor<object>[];
+  permissionEntity: ClassConstructor<object>;
+  exchanges?: { name: string; type: string }[];
+  typedClientMqOptions?: TypedClientMqOptions;
+  typedClients?: ClassConstructor<TypedClientBase>[];
+}
 
 @Module({})
 @Global()
@@ -15,6 +84,85 @@ export class InfrastructureModule {
       imports: [ConfigurationModule, LoggerModule],
       providers: [InfrastructureService],
       exports: [ConfigurationService, LoggerService],
+    };
+  }
+
+  static forMicroserviceAsync(
+    {
+      entities,
+      permissionEntity,
+      exchanges = [],
+      typedClientMqOptions,
+      typedClients = [],
+    }: MicroserviceInfrastructureOptions,
+  ): DynamicModule {
+    const rabbitMQImports: DynamicModule[] = [];
+    const typedClientImports: DynamicModule[] = [];
+
+    if (exchanges.length > 0) {
+      rabbitMQImports.push(
+        RabbitMQModule.forRootAsync({
+          useFactory: (configService: ConfigurationService) => {
+            const section = configService.getByKey(
+              'rabbitmq',
+              RabbitMQConfig,
+            );
+            return {
+              exchanges: exchanges.map((exchange) => ({
+                name: exchange.name,
+                type: exchange.type,
+              })),
+              uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
+              connectionInitOptions: { wait: true },
+            };
+          },
+          inject: [ConfigurationService],
+        }),
+      );
+    }
+
+    if (typedClients.length > 0 && typedClientMqOptions) {
+      typedClientImports.push(
+        TypedClientModule.forFeature({
+          mqOptions: typedClientMqOptions,
+          clients: typedClients,
+        }),
+      );
+    }
+
+    return {
+      module: InfrastructureModule,
+      imports: [
+        ...rabbitMQImports,
+        TypeOrmModule.forRootAsync({
+          useFactory: (configService: ConfigurationService) => {
+            const section = configService.getByKey(
+              'database',
+              DatabaseConfig,
+            );
+            return {
+              type: 'postgres',
+              host: section.host,
+              port: section.port,
+              username: section.username,
+              password: section.password,
+              database: section.database,
+              entities,
+              synchronize: false,
+            };
+          },
+          inject: [ConfigurationService],
+        }),
+        TraceModule,
+        ...typedClientImports,
+        PermissionModule.forFeature(permissionEntity),
+      ],
+      exports: [
+        TypeOrmModule,
+        RabbitMQModule,
+        TraceModule,
+        ...typedClients,
+      ],
     };
   }
 }
