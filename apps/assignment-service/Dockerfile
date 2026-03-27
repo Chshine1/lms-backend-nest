@@ -43,4 +43,4 @@ COPY --from=workspace --chown=nestjs:nodejs /app/libs ./libs
 
 USER nestjs
 
-CMD ["node", "apps/assignment-service/main.js"]
+CMD ["node", "apps/assignment-service/src/main.js"]
