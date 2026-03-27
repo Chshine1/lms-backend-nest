@@ -7,6 +7,8 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 
+import { customPlugin } from './eslint-rules/index.mjs';
+
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -36,8 +38,11 @@ export default tseslint.config(
   {
     plugins: {
       import: importPlugin,
+      custom: customPlugin,
     },
     rules: {
+      'custom/no-directory-import': 'error',
+      
       'import/no-extraneous-dependencies': [
         'error',
         {

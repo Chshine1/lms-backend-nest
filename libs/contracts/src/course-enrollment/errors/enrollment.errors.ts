@@ -1,4 +1,4 @@
-import { BaseError, ErrorCode } from '../../errors';
+import { BaseError, ErrorCode } from '../../errors/index';
 
 export class EnrollmentNotFoundError extends BaseError<{
   enrollmentId: number;

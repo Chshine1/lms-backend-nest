@@ -1,6 +1,6 @@
 ﻿export * from './infrastructure.errors';
-export * from './modules/logger/errors';
-export * from './modules/configuration/errors';
+export * from './modules/logger/errors/index';
+export * from './modules/configuration/errors/index';
 
 export {
   InfrastructureModule,

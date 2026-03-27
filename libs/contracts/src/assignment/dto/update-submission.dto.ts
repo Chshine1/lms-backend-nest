@@ -1,5 +1,5 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
-import { FileReference } from '../entities';
+import { FileReference } from '../entities/index';
 
 export class UpdateSubmissionDto {
   @IsString()

@@ -5,7 +5,7 @@ import type {
   RabbitMQOutboxMessage,
 } from '../contracts/rabbitmq-options.interface';
 import { RabbitMQChannelService } from './rabbitmq-channel.service';
-import { RabbitMQOutboxError } from '../errors';
+import { RabbitMQOutboxError } from '../errors/index';
 
 export interface OutboxRepository {
   findPending(limit: number): Promise<RabbitMQOutboxMessage[]>;

@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ChannelModel, connect } from 'amqplib';
 import type { RabbitMQConnectionOptions } from '../contracts/rabbitmq-options.interface';
-import { RabbitMQConnectionError } from '../errors';
+import { RabbitMQConnectionError } from '../errors/index';
 
 @Injectable()
 export class RabbitMQConnectionService implements OnModuleDestroy {

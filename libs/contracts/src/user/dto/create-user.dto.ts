@@ -6,7 +6,7 @@
   IsString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { IdentityType } from '../entities';
+import { IdentityType } from '../entities/index';
 
 export class CreateUserDto {
   @IsDefined()

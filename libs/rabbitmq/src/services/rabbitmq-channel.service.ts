@@ -6,7 +6,7 @@ import type {
   RabbitMQQueueOptions,
 } from '../contracts/rabbitmq-options.interface';
 import { RabbitMQConnectionService } from './rabbitmq-connection.service';
-import { RabbitMQChannelError } from '../errors';
+import { RabbitMQChannelError } from '../errors/index';
 
 @Injectable()
 export class RabbitMQChannelService {

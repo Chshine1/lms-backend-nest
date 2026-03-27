@@ -1,7 +1,7 @@
 import { FilterSink } from './filter.sink';
 import { LogEntry } from '../contracts/log.entry';
 import { Filter, Sink } from '../contracts/middlewares.interface';
-import { LoggerSinkError } from '../errors';
+import { LoggerSinkError } from '../errors/index';
 import { LogLevel } from '@app/contracts';
 
 describe('FilterSink', () => {

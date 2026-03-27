@@ -1,5 +1,5 @@
 import { IsDefined, IsEnum, IsNumber, IsString } from 'class-validator';
-import { DayOfWeek } from '../entities';
+import { DayOfWeek } from '../entities/index';
 
 export class CreateScheduleDto {
   @IsDefined()

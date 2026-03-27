@@ -5,7 +5,7 @@ import type {
   RabbitMQMessage,
 } from '../contracts/rabbitmq-options.interface';
 import { RabbitMQChannelService } from './rabbitmq-channel.service';
-import { RabbitMQConsumeError } from '../errors';
+import { RabbitMQConsumeError } from '../errors/index';
 
 @Injectable()
 export class RabbitMQConsumerService {
