@@ -7,7 +7,7 @@ import { JwtConfig } from '@app/contracts';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigurationService) {
-    const jwtConfig = configService.get(JwtConfig);
+    const jwtConfig = configService.getByKey('jwt', JwtConfig);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

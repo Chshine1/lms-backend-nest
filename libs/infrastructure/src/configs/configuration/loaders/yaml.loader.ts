@@ -24,9 +24,9 @@ export class YamlLoader extends LoaderMiddlewareBase<[EnvSchema]> {
       const content = await promises.readFile(path, 'utf8');
       const loadedYaml = loadYaml(content);
 
+      if (loadedYaml === null || loadedYaml === undefined) continue;
       if (
         typeof loadedYaml !== 'object' ||
-        loadedYaml === null ||
         Array.isArray(loadedYaml)
       ) {
         throw new Error(

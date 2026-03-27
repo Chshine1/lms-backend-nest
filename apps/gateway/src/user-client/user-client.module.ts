@@ -31,7 +31,7 @@ class RabbitMQConfigSection {
   imports: [
     RabbitMQModule.forRootAsync({
       useFactory: (configService: ConfigurationService) => {
-        const section = configService.get(RabbitMQConfigSection);
+        const section = configService.getByKey('rabbitmq', RabbitMQConfigSection);
         return {
           uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
           connectionInitOptions: { wait: true },
