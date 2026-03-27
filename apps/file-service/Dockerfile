@@ -27,6 +27,7 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 COPY --from=builder --chown=nestjs:nodejs /app/.yarn ./.yarn
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/libs ./libs
 
 USER nestjs
 
