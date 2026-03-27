@@ -19,7 +19,7 @@ import { Submission } from '../../apps/assignment-service/src/entities/submissio
 
 const options: DataSourceOptions = {
   type: 'postgres',
-  host: 'postgres-migration',
+  host: process.env['DB_HOST'] || 'localhost',
   port: 5432,
   username: 'lms',
   password: 'lms',

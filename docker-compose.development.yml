@@ -18,6 +18,8 @@ services:
   migrations:
     image: node:24.14.0-alpine
     working_dir: /app
+    environment:
+      - DB_HOST=postgres
     volumes:
       - .:/app:ro
     command: sh -c "yarn run migration:run"
