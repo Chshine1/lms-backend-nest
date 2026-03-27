@@ -8,7 +8,6 @@ import { type TypedClientBase } from '@app/typed-client';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
-import { LoggerService } from './modules/logger/logger.service';
 import { InfrastructureService } from './infrastructure.service';
 import { TypedClientModule, TypedClientMqOptions } from '@app/typed-client';
 import { TraceModule } from '@app/trace';
@@ -81,22 +80,14 @@ export class InfrastructureModule {
       module: InfrastructureModule,
       imports: [ConfigurationModule, LoggerModule],
       providers: [
-        // TODO: Maybe there is a batter pattern than `useExisting`
-        {
-          provide: ConfigurationService,
-          useExisting: ConfigurationService,
-        },
-        {
-          provide: LoggerService,
-          useExisting: LoggerService,
-        },
+        // TODO: prevent the inner loaders from being exported
         InfrastructureService,
         {
           provide: APP_PIPE,
           useValue: new ValidationPipe({ transform: true }),
         },
       ],
-      exports: [ConfigurationService, LoggerService],
+      exports: [ConfigurationModule, LoggerModule],
     };
   }
 
