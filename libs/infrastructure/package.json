@@ -7,21 +7,21 @@
     "@app/contracts": "workspace:*",
     "@app/trace": "workspace:*",
     "@aws-sdk/client-ssm": "^3.995.0",
+    "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.0.1",
-    "amqplib": "^0.10.9",
+    "@nestjs/typeorm": "^11.0.0",
     "change-case": "^5.4.4",
-    "fastify": "^5.2.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "js-yaml": "^4.1.1",
     "lodash": "^4.17.23",
     "mitt": "^3.0.1",
-    "nice-grpc": "^2.1.8",
     "pg": "^8.20.0",
-    "pino": "^10.3.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/pg": "^8"
