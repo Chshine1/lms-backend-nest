@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: lms
       POSTGRES_DB: lms
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lms -d lms"]
+      test: ['CMD-SHELL', 'pg_isready -U lms -d lms']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -17,12 +17,9 @@ services:
     working_dir: /app
     volumes:
       - ../../:/app
-    command:
-      - sh
-      - -c
-      - |
-        yarn ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./migrations/scripts/data-source.ts
-        yarn ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./migrations/scripts/data-source.ts ./migrations/${MIGRATION_NAME}
+    command: >
+      sh -c "yarn ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./migrations/scripts/data-source.ts &&
+             yarn ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./migrations/scripts/data-source.ts ./migrations/$${MIGRATION_NAME}"
     depends_on:
       postgres-migration:
         condition: service_healthy
