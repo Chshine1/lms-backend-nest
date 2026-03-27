@@ -1,4 +1,4 @@
-FROM node:24.12.0-alpine AS deps
+FROM node:24.14.0-alpine AS deps
 WORKDIR /app
 
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate
@@ -19,7 +19,7 @@ RUN yarn build course-scheduling-service
 
 RUN yarn workspaces focus @lms/course-scheduling-service --production && yarn cache clean
 
-FROM node:24.12.0-alpine AS runner
+FROM node:24.14.0-alpine AS runner
 WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001

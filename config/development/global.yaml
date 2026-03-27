@@ -15,7 +15,8 @@ logger:
   level: debug
   prettyPrint: true
 
+skipAws: true
+
 aws:
   basePath: /lms
   region: us-east-1
-  skipAws: true

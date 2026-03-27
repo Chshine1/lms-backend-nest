@@ -25,10 +25,7 @@ export class YamlLoader extends LoaderMiddlewareBase<[EnvSchema]> {
       const loadedYaml = loadYaml(content);
 
       if (loadedYaml === null || loadedYaml === undefined) continue;
-      if (
-        typeof loadedYaml !== 'object' ||
-        Array.isArray(loadedYaml)
-      ) {
+      if (typeof loadedYaml !== 'object' || Array.isArray(loadedYaml)) {
         throw new Error(
           `YAML file "${path}" must contain a configuration object (not array or scalar)`,
         );
