@@ -81,6 +81,15 @@ export class InfrastructureModule {
       module: InfrastructureModule,
       imports: [ConfigurationModule, LoggerModule],
       providers: [
+        // TODO: Maybe there is a batter pattern than `useExisting`
+        {
+          provide: ConfigurationService,
+          useExisting: ConfigurationService,
+        },
+        {
+          provide: LoggerService,
+          useExisting: LoggerService,
+        },
         InfrastructureService,
         {
           provide: APP_PIPE,

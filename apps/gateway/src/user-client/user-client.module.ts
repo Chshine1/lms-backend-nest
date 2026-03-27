@@ -49,7 +49,7 @@ class RabbitMQConfigSection {
       clients: [UserTypedClient],
     }),
   ],
-  exports: [UserTypedClient],
+  exports: [TypedClientModule],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserClientModule {}
