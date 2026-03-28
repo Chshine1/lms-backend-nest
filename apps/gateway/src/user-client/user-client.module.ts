@@ -7,10 +7,9 @@ import { TypedClientModule, UserTypedClient } from '@app/typed-client';
       mqOptions: {
         exchange: 'user-service',
       },
-      clients: [UserTypedClient],
+      client: UserTypedClient,
     }),
   ],
-  exports: [TypedClientModule],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserClientModule {}

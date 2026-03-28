@@ -8,7 +8,7 @@ import { InfrastructureModule } from '@app/infrastructure';
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    InfrastructureModule.forMicroserviceAsync({
+    InfrastructureModule.forServiceAsync({
       entities: [Submission, Review],
       exchanges: [{ name: 'assignment-service', type: 'topic' }],
     }),

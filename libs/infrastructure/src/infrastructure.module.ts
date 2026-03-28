@@ -65,8 +65,10 @@ export interface MicroserviceInfrastructureOptions {
   entities: ClassConstructor<object>[];
   permissionEntity?: ClassConstructor<object>;
   exchanges?: { name: string; type: string }[];
-  typedClientMqOptions?: TypedClientMqOptions;
-  typedClients?: ClassConstructor<TypedClientBase>[];
+  typedClients?: {
+    client: ClassConstructor<TypedClientBase>;
+    options: TypedClientMqOptions;
+  }[];
 }
 
 @Module({})
@@ -89,24 +91,11 @@ export class InfrastructureModule {
     };
   }
 
-  static forMicroserviceAsync({
+  static forServiceAsync({
     entities,
     permissionEntity,
     exchanges = [],
-    typedClientMqOptions,
-    typedClients = [],
   }: MicroserviceInfrastructureOptions): DynamicModule {
-    const typedClientImports: DynamicModule[] = [];
-
-    if (typedClients.length > 0 && typedClientMqOptions) {
-      typedClientImports.push(
-        TypedClientModule.forFeature({
-          mqOptions: typedClientMqOptions,
-          clients: typedClients,
-        }),
-      );
-    }
-
     const permissionImports: DynamicModule[] = permissionEntity
       ? [
           PermissionModule.forFeature({
@@ -136,7 +125,6 @@ export class InfrastructureModule {
           inject: [ConfigurationService],
         }),
         TypedClientModule.forRoot(exchanges),
-        ...typedClientImports,
         ...permissionImports,
       ],
       exports: [TypeOrmModule, TypedClientModule],

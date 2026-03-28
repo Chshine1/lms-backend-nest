@@ -10,7 +10,7 @@ import { InfrastructureModule } from '@app/infrastructure';
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    InfrastructureModule.forMicroserviceAsync({
+    InfrastructureModule.forServiceAsync({
       entities: [Course, Classroom, CourseMaterial, CourseVideo],
       exchanges: [{ name: 'course-service', type: 'topic' }],
     }),

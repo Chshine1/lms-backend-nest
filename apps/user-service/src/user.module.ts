@@ -14,7 +14,7 @@ import { UserPermission } from './entities/user-permission.entity';
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    InfrastructureModule.forMicroserviceAsync({
+    InfrastructureModule.forServiceAsync({
       entities: [
         User,
         Tenant,

@@ -14,6 +14,15 @@ import {
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
+    InfrastructureModule.forServiceAsync({
+      entities: [],
+      exchanges: [
+        {
+          name: 'user-service',
+          type: 'topic',
+        },
+      ],
+    }),
     PassportModule,
     JwtModule.registerAsync({
       imports: [],

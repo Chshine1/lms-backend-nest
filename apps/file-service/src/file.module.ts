@@ -17,7 +17,7 @@ import { StorageConfig, StorageProviderType } from '@app/contracts';
 @Module({
   imports: [
     InfrastructureModule.forRootAsync(),
-    InfrastructureModule.forMicroserviceAsync({
+    InfrastructureModule.forServiceAsync({
       entities: [File],
       exchanges: [{ name: 'file-service', type: 'topic' }],
     }),
