@@ -1,4 +1,4 @@
-﻿import { forwardRef, Module } from '@nestjs/common';
+import { DynamicModule, forwardRef, Module } from '@nestjs/common';
 import {
   configurationLoadersMiddlewaresToken,
   LoaderPipelineService,
@@ -35,4 +35,24 @@ import { LoggerModule } from '../logger/logger.module';
   exports: [ConfigurationLoader, ConfigurationService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class ConfigurationModule {}
+export class ConfigurationModule {
+  static forRoot(preloadedService: ConfigurationService): DynamicModule {
+    return {
+      module: ConfigurationModule,
+      providers: [
+        {
+          provide: configurationLoadersMiddlewaresToken,
+          useValue: loaderPipelineMiddleware,
+        },
+        LoaderPipelineService,
+        ConfigurationServiceDependencies,
+        {
+          provide: ConfigurationService,
+          useValue: preloadedService,
+        },
+        ConfigurationLoader,
+      ],
+      exports: [ConfigurationLoader, ConfigurationService],
+    };
+  }
+}

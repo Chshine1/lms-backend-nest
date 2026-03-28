@@ -6,6 +6,7 @@ export {
   InfrastructureModule,
   RabbitMQConfig,
   type MicroserviceInfrastructureOptions,
+  initializeInfrastructure,
 } from './infrastructure.module';
 
 export { ConfigurationService } from './modules/configuration/configuration.service';

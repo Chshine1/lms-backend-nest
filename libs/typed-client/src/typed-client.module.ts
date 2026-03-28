@@ -44,6 +44,7 @@ export class TypedClientModule {
     mqOptions: TypedClientMqOptions;
     client: ClassConstructor<TypedClientBase>;
   }): DynamicModule {
+    // TODO: CRITICAL, this configuration provider will be covered with multiple forFeature() calls
     return {
       module: TypedClientModule,
       providers: [

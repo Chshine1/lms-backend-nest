@@ -7,6 +7,8 @@
 } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 
+import { DatabaseConfig, RabbitMQConfig } from '../../../infrastructure.module';
+
 export class AwsConfig {
   @IsDefined()
   @IsString()
@@ -29,6 +31,18 @@ export class YamlSchema {
   @IsBoolean()
   @Expose()
   skipAws?: boolean;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => DatabaseConfig)
+  @Expose()
+  database!: DatabaseConfig;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => RabbitMQConfig)
+  @Expose()
+  rabbitmq!: RabbitMQConfig;
 
   @IsDefined()
   @ValidateNested()

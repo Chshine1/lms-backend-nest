@@ -4,6 +4,7 @@ import { AssignmentService } from './assignment.service';
 import { Submission } from './entities/submission.entity';
 import { Review } from './entities/review.entity';
 import { InfrastructureModule } from '@app/infrastructure';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { InfrastructureModule } from '@app/infrastructure';
       entities: [Submission, Review],
       exchanges: [{ name: 'assignment-service', type: 'topic' }],
     }),
+    TypeOrmModule.forFeature([Submission, Review]),
   ],
   controllers: [AssignmentController],
   providers: [AssignmentService],

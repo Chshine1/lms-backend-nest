@@ -1,7 +1,10 @@
-﻿import { NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigurationService } from '@app/infrastructure';
+import {
+  ConfigurationService,
+  initializeInfrastructure,
+} from '@app/infrastructure';
 import { Expose } from 'class-transformer';
 import { IsDefined, IsNumber } from 'class-validator';
 
@@ -13,6 +16,8 @@ class GatewayConfig {
 }
 
 async function bootstrap(): Promise<void> {
+  await initializeInfrastructure();
+
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
