@@ -11,7 +11,6 @@ export abstract class TypedClientBase<
     Record<string, { request: unknown; response: unknown }>,
 > {
   protected readonly exchange: string;
-  protected readonly timeout: number;
 
   protected constructor(
     private readonly amqpConnection: AmqpConnection,
@@ -19,7 +18,6 @@ export abstract class TypedClientBase<
     @Inject(TYPED_CLIENT_MQ_OPTIONS) options: TypedClientMqOptions,
   ) {
     this.exchange = options.exchange;
-    this.timeout = options.timeout ?? 30000;
   }
 
   protected async rpc<T extends keyof TPatterns & string>(
@@ -35,7 +33,6 @@ export abstract class TypedClientBase<
         'x-trace-id': traceId,
       },
       payload: data,
-      timeout: this.timeout,
     });
   }
 
