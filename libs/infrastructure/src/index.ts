@@ -4,6 +4,7 @@ export * from './modules/configuration/errors/index';
 
 export {
   InfrastructureModule,
+  RabbitMQConfig,
   type MicroserviceInfrastructureOptions,
 } from './infrastructure.module';
 

@@ -1,6 +1,5 @@
 import { DynamicModule, Global, Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ClassConstructor, Expose } from 'class-transformer';
 import { IsDefined, IsString, IsNumber } from 'class-validator';
 
@@ -98,27 +97,7 @@ export class InfrastructureModule {
     typedClientMqOptions,
     typedClients = [],
   }: MicroserviceInfrastructureOptions): DynamicModule {
-    const rabbitMQImports: DynamicModule[] = [];
     const typedClientImports: DynamicModule[] = [];
-
-    if (exchanges.length > 0) {
-      rabbitMQImports.push(
-        RabbitMQModule.forRootAsync({
-          useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey('rabbitmq', RabbitMQConfig);
-            return {
-              exchanges: exchanges.map((exchange) => ({
-                name: exchange.name,
-                type: exchange.type,
-              })),
-              uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
-              connectionInitOptions: { wait: true },
-            };
-          },
-          inject: [ConfigurationService],
-        }),
-      );
-    }
 
     if (typedClients.length > 0 && typedClientMqOptions) {
       typedClientImports.push(
@@ -141,7 +120,6 @@ export class InfrastructureModule {
     return {
       module: InfrastructureModule,
       imports: [
-        ...rabbitMQImports,
         TypeOrmModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('database', DatabaseConfig);
@@ -159,10 +137,14 @@ export class InfrastructureModule {
           inject: [ConfigurationService],
         }),
         TraceModule,
+        TypedClientModule.forRoot(exchanges),
         ...typedClientImports,
         ...permissionImports,
       ],
-      exports: [TypeOrmModule, RabbitMQModule, TraceModule, ...typedClients],
+      exports: [
+        TypeOrmModule,
+        ...(typedClientImports.length === 0 ? [] : [TypedClientModule]),
+      ],
     };
   }
 }
