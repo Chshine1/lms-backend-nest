@@ -1,10 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggerModule } from './logger.module';
-import { LoggerLoader } from './logger.loader';
 import { LoggerService } from './logger.service';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { ConfigurationService } from '../configuration/configuration.service';
-import { EventBusModule } from '../event-bus/event-bus.module';
 import { Environment } from '../../configs/configuration/schemas/env.schema';
 
 describe('LoggerModule', () => {
@@ -19,7 +17,7 @@ describe('LoggerModule', () => {
     };
 
     module = await Test.createTestingModule({
-      imports: [EventBusModule, ConfigurationModule, LoggerModule],
+      imports: [ConfigurationModule, LoggerModule],
     })
       .overrideProvider(ConfigurationService)
       .useValue(mockConfigService)
@@ -28,12 +26,6 @@ describe('LoggerModule', () => {
 
   it('should be defined', () => {
     expect(module).toBeDefined();
-  });
-
-  it('should provide LoggerLoader', () => {
-    const loader = module.get(LoggerLoader);
-    expect(loader).toBeDefined();
-    expect(loader).toBeInstanceOf(LoggerLoader);
   });
 
   it('should provide LoggerService', () => {

@@ -4,7 +4,7 @@ import {
   INestApplicationContext,
   Module,
 } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { APP_INTERCEPTOR, NestFactory } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClassConstructor, Expose } from 'class-transformer';
 import { IsDefined, IsNumber, IsString } from 'class-validator';
@@ -18,10 +18,8 @@ import { ConfigurationModule } from './modules/configuration/configuration.modul
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { PermissionModule } from '@app/authentication';
-import { ConfigurationLoader } from './modules/configuration/configuration.loader';
-import { LoggerLoader } from './modules/logger/logger.loader';
 import { LoggerService } from './modules/logger/logger.service';
-import { BootstrapModule } from './modules/bootstrap/bootstrap.module';
+import { RabbitMqTraceInterceptor } from '@app/trace';
 
 export class DatabaseConfig {
   @IsString()
@@ -91,14 +89,9 @@ const GLOBAL_INFRASTRUCTURE_KEY = 'infrastructure';
 
 export async function initializeInfrastructure(): Promise<void> {
   const context: INestApplicationContext =
-    await NestFactory.createApplicationContext(BootstrapModule);
+    await NestFactory.createApplicationContext(LoggerModule);
 
   try {
-    const configLoader = context.get(ConfigurationLoader);
-    const loggerLoader = context.get(LoggerLoader);
-
-    await Promise.all([configLoader.load(), loggerLoader.load()]);
-
     const configurationService = context.get(ConfigurationService);
     const loggerService = context.get(LoggerService);
 
@@ -120,13 +113,17 @@ function getGlobalInfrastructure(): InfrastructureServices {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class InfrastructureModule {
   static forRootAsync(): DynamicModule {
-    const preloaded = getGlobalInfrastructure();
+    // @ts-ignore
+    const _preloaded = getGlobalInfrastructure();
 
     return {
       module: InfrastructureModule,
-      imports: [
-        ConfigurationModule.forRoot(preloaded.configurationService),
-        LoggerModule.forRoot(preloaded.loggerService),
+      imports: [],
+      providers: [
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: RabbitMqTraceInterceptor,
+        },
       ],
       exports: [ConfigurationModule, LoggerModule],
     };

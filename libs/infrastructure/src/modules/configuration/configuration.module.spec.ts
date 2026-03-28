@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigurationModule } from './configuration.module';
-import { ConfigurationLoader } from './configuration.loader';
 import { ConfigurationService } from './configuration.service';
 import { Environment } from '../../configs/configuration/schemas/env.schema';
 
@@ -25,12 +24,6 @@ describe('ConfigurationModule', () => {
 
   it('should be defined', () => {
     expect(module).toBeDefined();
-  });
-
-  it('should provide ConfigurationLoader', () => {
-    const loader = module.get(ConfigurationLoader);
-    expect(loader).toBeDefined();
-    expect(loader).toBeInstanceOf(ConfigurationLoader);
   });
 
   it('should provide ConfigurationService', () => {

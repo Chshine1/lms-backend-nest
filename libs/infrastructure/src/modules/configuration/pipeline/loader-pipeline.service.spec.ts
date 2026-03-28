@@ -1,17 +1,5 @@
 ﻿import { LoaderPipelineService } from './loader-pipeline.service';
 import { LoaderMiddleware } from './loader.middleware';
-import { LoggerService } from '../../logger/logger.service';
-import { BootstrapEventBus } from '../../event-bus/event-bus.module';
-import { LogLevel } from '@app/contracts';
-
-const mockLogger: LoggerService = {
-  log: jest.fn().mockResolvedValue(undefined),
-  flush: jest.fn().mockReturnValue(undefined),
-} as unknown as LoggerService;
-
-const mockEventBus: BootstrapEventBus = {
-  emit: jest.fn().mockReturnValue(undefined),
-} as unknown as BootstrapEventBus;
 
 describe('LoaderPipelineService', () => {
   let service: LoaderPipelineService;
@@ -31,11 +19,7 @@ describe('LoaderPipelineService', () => {
       };
       mockMiddlewares = [middleware1, middleware2];
 
-      service = new LoaderPipelineService(
-        mockLogger,
-        mockEventBus,
-        mockMiddlewares,
-      );
+      service = new LoaderPipelineService(mockMiddlewares);
 
       const initialConfig = { base: 0 };
       const result = await service.process(initialConfig);
@@ -44,34 +28,16 @@ describe('LoaderPipelineService', () => {
       expect(middleware2.loadValidated).toHaveBeenCalledWith(initialConfig);
 
       expect(result).toEqual({ base: 0, a: 1, b: 2 });
-
-      expect(mockLogger.log).toHaveBeenCalledTimes(2);
-      expect(mockLogger.log).toHaveBeenCalledWith({
-        level: LogLevel.INFO,
-        message: 'config loaded',
-      });
-
-      expect(mockEventBus.emit).toHaveBeenCalledTimes(1);
-      expect(mockEventBus.emit).toHaveBeenCalledWith('config.loaded', result);
     });
 
     it('should return the initial config when no middleware is given', async () => {
       mockMiddlewares = [];
-      service = new LoaderPipelineService(
-        mockLogger,
-        mockEventBus,
-        mockMiddlewares,
-      );
+      service = new LoaderPipelineService(mockMiddlewares);
 
       const initialConfig = { base: 0 };
       const result = await service.process(initialConfig);
 
       expect(result).toEqual(initialConfig);
-      expect(mockLogger.log).not.toHaveBeenCalled();
-      expect(mockEventBus.emit).toHaveBeenCalledWith(
-        'config.loaded',
-        initialConfig,
-      );
     });
 
     it("latter middlewares' fields should cover the former ones", async () => {
@@ -83,11 +49,7 @@ describe('LoaderPipelineService', () => {
       };
       mockMiddlewares = [middleware1, middleware2];
 
-      service = new LoaderPipelineService(
-        mockLogger,
-        mockEventBus,
-        mockMiddlewares,
-      );
+      service = new LoaderPipelineService(mockMiddlewares);
 
       const result = await service.process({ base: 0 });
       expect(result).toEqual({ base: 0, key: 2 });
@@ -99,21 +61,12 @@ describe('LoaderPipelineService', () => {
       };
       mockMiddlewares = [middleware1];
 
-      service = new LoaderPipelineService(
-        mockLogger,
-        mockEventBus,
-        mockMiddlewares,
-      );
+      service = new LoaderPipelineService(mockMiddlewares);
 
       const initialConfig = { base: 0 };
       const result = await service.process(initialConfig);
 
       expect(result).toEqual(initialConfig);
-      expect(mockLogger.log).toHaveBeenCalledTimes(1);
-      expect(mockEventBus.emit).toHaveBeenCalledWith(
-        'config.loaded',
-        initialConfig,
-      );
     });
   });
 
@@ -128,18 +81,12 @@ describe('LoaderPipelineService', () => {
       };
       mockMiddlewares = [middleware1, middleware2];
 
-      service = new LoaderPipelineService(
-        mockLogger,
-        mockEventBus,
-        mockMiddlewares,
-      );
+      service = new LoaderPipelineService(mockMiddlewares);
 
       await expect(service.process({ base: 0 })).rejects.toThrow(error);
 
       expect(middleware1.loadValidated).toHaveBeenCalled();
       expect(middleware2.loadValidated).not.toHaveBeenCalled();
-      expect(mockLogger.log).not.toHaveBeenCalled();
-      expect(mockEventBus.emit).not.toHaveBeenCalled();
     });
   });
 });

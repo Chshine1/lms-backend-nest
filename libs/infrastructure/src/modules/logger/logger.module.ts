@@ -1,47 +1,29 @@
-import { DynamicModule, forwardRef, Module } from '@nestjs/common';
-import { EventBusModule } from '../event-bus/event-bus.module';
+import { Module } from '@nestjs/common';
 import { ConfigurationModule } from '../configuration/configuration.module';
-import { LoggerLoader } from './logger.loader';
-import { LoggerService, LoggerServiceDependencies } from './logger.service';
+import { LoggerService } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
-import { TraceModule } from '@app/trace';
+import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
+import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
+import { TraceService } from '@app/trace';
 
 @Module({
-  imports: [EventBusModule, TraceModule, forwardRef(() => ConfigurationModule)],
+  imports: [ConfigurationModule],
   providers: [
+    TraceService,
     LogEnrichmentService,
-    LoggerServiceDependencies,
     {
       provide: LoggerService,
-      useFactory: (dep: LoggerServiceDependencies): LoggerService => {
-        return new LoggerService(dep);
+      useFactory: (enrichmentService: LogEnrichmentService): LoggerService => {
+        return new LoggerService(
+          new ConsoleSink('console-sink-1'),
+          new MemoryBuffer(),
+          enrichmentService,
+        );
       },
-      inject: [LoggerServiceDependencies],
+      inject: [LogEnrichmentService],
     },
-    LoggerLoader,
   ],
-  exports: [LoggerLoader, LoggerService],
+  exports: [ConfigurationModule, TraceService, LoggerService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class LoggerModule {
-  static forRoot(preloadedService?: LoggerService): DynamicModule {
-    return {
-      module: LoggerModule,
-      imports: [
-        EventBusModule,
-        TraceModule,
-        forwardRef(() => ConfigurationModule),
-      ],
-      providers: [
-        LogEnrichmentService,
-        LoggerServiceDependencies,
-        {
-          provide: LoggerService,
-          useValue: preloadedService,
-        },
-        LoggerLoader,
-      ],
-      exports: [LoggerLoader, LoggerService],
-    };
-  }
-}
+export class LoggerModule {}

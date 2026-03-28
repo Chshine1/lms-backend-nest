@@ -15,8 +15,6 @@ class GatewayConfig {
 }
 
 async function bootstrap(): Promise<void> {
-  console.log("aaa");
-  
   await initializeInfrastructure();
 
   // @ts-ignore
@@ -29,4 +27,6 @@ async function bootstrap(): Promise<void> {
   await app.listen(gatewayConfig.port);
 }
 
-bootstrap().catch((error) => { console.error(error); });
+bootstrap().catch((error) => {
+  console.error(error);
+});

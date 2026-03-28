@@ -1,10 +1,8 @@
 ﻿import { type Sink } from './contracts/middlewares.interface';
 import { LogEnrichmentService } from './services/log-enrichment.service';
 import { Injectable } from '@nestjs/common';
-import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
-import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
 import { BaseError, LogLevel } from '@app/contracts';
-import { LogBuffer } from './contracts/buffer.interface';
+import { type LogBuffer } from './contracts/buffer.interface';
 
 export interface LogParams {
   level: LogLevel;
@@ -14,24 +12,20 @@ export interface LogParams {
 }
 
 @Injectable()
-export class LoggerServiceDependencies {
-  public sink: Sink = new ConsoleSink('console-sink');
-  public buffer: LogBuffer = new MemoryBuffer();
-
-  constructor(public enrichmentService: LogEnrichmentService) {}
-}
-
-@Injectable()
 export class LoggerService {
   private flushing = false;
 
-  constructor(private readonly dependencies: LoggerServiceDependencies) {}
+  constructor(
+    public sink: Sink,
+    public buffer: LogBuffer,
+    public enrichmentService: LogEnrichmentService,
+  ) {}
 
   async log(params: LogParams): Promise<void> {
-    const entry = await this.dependencies.enrichmentService.enrich(params);
-    const accepted = this.dependencies.buffer.write(entry);
+    const entry = await this.enrichmentService.enrich(params);
+    const accepted = this.buffer.write(entry);
     if (!accepted) {
-      await this.dependencies.sink.emit(entry);
+      await this.sink.emit(entry);
     }
   }
 
@@ -39,7 +33,7 @@ export class LoggerService {
     if (this.flushing) return;
     this.flushing = true;
     try {
-      await this.dependencies.buffer.flush(this.dependencies.sink);
+      await this.buffer.flush(this.sink);
     } finally {
       this.flushing = false;
     }

@@ -5,20 +5,13 @@ import { Injectable } from '@nestjs/common';
 import { GetConfigValidationError } from './errors/index';
 
 @Injectable()
-export class ConfigurationServiceDependencies {
-  public configuration: Record<string, unknown> = {};
-}
-
-@Injectable()
 export class ConfigurationService {
-  constructor(
-    private readonly dependencies: ConfigurationServiceDependencies,
-  ) {}
+  constructor(private readonly configuration: Record<string, unknown> = {}) {}
 
   get<TConfig extends object>(
     cls: new (...args: unknown[]) => TConfig,
   ): TConfig {
-    const config = plainToInstance(cls, this.dependencies.configuration, {
+    const config = plainToInstance(cls, this.configuration, {
       excludeExtraneousValues: true,
     });
 
@@ -34,14 +27,14 @@ export class ConfigurationService {
     key: string,
     cls: new (...args: unknown[]) => TConfig,
   ): TConfig {
-    const keyConfig = this.dependencies.configuration[key];
+    const keyConfig = this.configuration[key];
 
     if (keyConfig === undefined) {
       const error = new ValidationError();
 
       error.property = key;
       error.constraints = { required: `${key} is required` };
-      error.target = this.dependencies.configuration;
+      error.target = this.configuration;
 
       throw new GetConfigValidationError(cls, [error]);
     }
