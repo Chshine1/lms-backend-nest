@@ -14,12 +14,11 @@ import {
   TypedClientModule,
   TypedClientMqOptions,
 } from '@app/typed-client';
-import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { PermissionModule } from '@app/authentication';
 import { LoggerService } from './modules/logger/logger.service';
-import { RabbitMqTraceInterceptor } from '@app/trace';
+import { RabbitMqTraceInterceptor, TraceService } from '@app/trace';
 
 export class DatabaseConfig {
   @IsString()
@@ -82,6 +81,7 @@ export interface MicroserviceInfrastructureOptions {
 
 interface InfrastructureServices {
   configurationService: ConfigurationService;
+  traceService: TraceService;
   loggerService: LoggerService;
 }
 
@@ -92,11 +92,12 @@ export async function initializeInfrastructure(): Promise<void> {
     await NestFactory.createApplicationContext(LoggerModule);
 
   try {
-    const configurationService = context.get(ConfigurationService);
-    const loggerService = context.get(LoggerService);
-
     (global as unknown as Record<string, unknown>)[GLOBAL_INFRASTRUCTURE_KEY] =
-      { configurationService, loggerService };
+      {
+        configurationService: context.get(ConfigurationService),
+        traceService: context.get(TraceService),
+        loggerService: context.get(LoggerService),
+      };
   } finally {
     await context.close();
   }
@@ -113,19 +114,30 @@ function getGlobalInfrastructure(): InfrastructureServices {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class InfrastructureModule {
   static forRootAsync(): DynamicModule {
-    // @ts-ignore
-    const _preloaded = getGlobalInfrastructure();
+    const preloaded = getGlobalInfrastructure();
 
     return {
       module: InfrastructureModule,
       imports: [],
       providers: [
         {
+          provide: ConfigurationService,
+          useValue: preloaded.configurationService,
+        },
+        {
+          provide: TraceService,
+          useValue: preloaded.traceService,
+        },
+        {
+          provide: LoggerService,
+          useValue: preloaded.loggerService,
+        },
+        {
           provide: APP_INTERCEPTOR,
           useClass: RabbitMqTraceInterceptor,
         },
       ],
-      exports: [ConfigurationModule, LoggerModule],
+      exports: [ConfigurationService, TraceService, LoggerService],
     };
   }
 
@@ -146,8 +158,6 @@ export class InfrastructureModule {
     return {
       module: InfrastructureModule,
       imports: [
-        ConfigurationModule,
-        LoggerModule,
         TypeOrmModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('database', DatabaseConfig);

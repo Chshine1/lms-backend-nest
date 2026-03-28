@@ -4,7 +4,7 @@ import {
   ConfigurationService,
   initializeInfrastructure,
 } from '@app/infrastructure';
-import { Expose } from 'class-transformer';
+import { ClassConstructor, Expose } from 'class-transformer';
 import { IsDefined, IsNumber } from 'class-validator';
 
 class GatewayConfig {
@@ -17,8 +17,11 @@ class GatewayConfig {
 async function bootstrap(): Promise<void> {
   await initializeInfrastructure();
 
-  // @ts-ignore
-  const { AppModule } = await import('./app.module');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const { AppModule } = (await import('./app.module')) as {
+    AppModule: ClassConstructor<unknown>;
+  };
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
@@ -27,6 +30,6 @@ async function bootstrap(): Promise<void> {
   await app.listen(gatewayConfig.port);
 }
 
-bootstrap().catch((error) => {
+bootstrap().catch((error: unknown) => {
   console.error(error);
 });

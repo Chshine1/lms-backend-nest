@@ -7,7 +7,6 @@
     "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
-    "@nestjs/microservices": "^11.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   }

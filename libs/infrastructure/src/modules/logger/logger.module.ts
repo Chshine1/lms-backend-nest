@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { LoggerService } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
-import { ConsoleSink } from '@app/infrastructure/configs/logger/sinks/console.sink';
-import { MemoryBuffer } from '@app/infrastructure/configs/logger/buffers/memory.buffer';
+import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
+import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
 import { TraceService } from '@app/trace';
 
 @Module({
