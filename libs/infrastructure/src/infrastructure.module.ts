@@ -9,7 +9,6 @@ import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { InfrastructureService } from './infrastructure.service';
 import { TypedClientModule, TypedClientMqOptions } from '@app/typed-client';
-import { TraceModule } from '@app/trace';
 import { PermissionModule } from '@app/authentication';
 import { APP_PIPE } from '@nestjs/core';
 
@@ -136,15 +135,11 @@ export class InfrastructureModule {
           },
           inject: [ConfigurationService],
         }),
-        TraceModule,
         TypedClientModule.forRoot(exchanges),
         ...typedClientImports,
         ...permissionImports,
       ],
-      exports: [
-        TypeOrmModule,
-        ...(typedClientImports.length === 0 ? [] : [TypedClientModule]),
-      ],
+      exports: [TypeOrmModule, TypedClientModule],
     };
   }
 }
