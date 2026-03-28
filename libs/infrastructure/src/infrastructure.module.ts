@@ -91,10 +91,7 @@ const GLOBAL_INFRASTRUCTURE_KEY = 'infrastructure';
 
 export async function initializeInfrastructure(): Promise<void> {
   const context: INestApplicationContext =
-    await NestFactory.createApplicationContext(BootstrapModule, {
-      logger: false,
-      bufferLogs: true,
-    });
+    await NestFactory.createApplicationContext(BootstrapModule);
 
   try {
     const configLoader = context.get(ConfigurationLoader);

@@ -25,7 +25,7 @@ export class LoaderPipelineService {
     let result: Record<string, unknown> = initialConfig;
 
     for (const middleware of this.middlewares) {
-      const newPart = await middleware.loadValidated(initialConfig);
+      const newPart = await middleware.loadValidated(result);
       result = merge(result, newPart);
       void this.loggerService.log({
         level: LogLevel.INFO,

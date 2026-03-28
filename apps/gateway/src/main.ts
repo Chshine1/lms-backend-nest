@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import {
   ConfigurationService,
@@ -16,8 +15,12 @@ class GatewayConfig {
 }
 
 async function bootstrap(): Promise<void> {
+  console.log("aaa");
+  
   await initializeInfrastructure();
 
+  // @ts-ignore
+  const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
@@ -26,4 +29,4 @@ async function bootstrap(): Promise<void> {
   await app.listen(gatewayConfig.port);
 }
 
-void bootstrap();
+bootstrap().catch((error) => { console.error(error); });
