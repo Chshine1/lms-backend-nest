@@ -1,4 +1,9 @@
-﻿import { CreateUserDto, UserContract, ValidateUserDto } from '@app/contracts';
+import {
+  CreateUserDto,
+  UserContract,
+  ValidateUserDto,
+  TenantContract,
+} from '@app/contracts';
 
 export interface UserPatterns extends Record<
   string,
@@ -15,5 +20,13 @@ export interface UserPatterns extends Record<
   'user.findById': {
     request: { id: number };
     response: UserContract | null;
+  };
+  'tenant.findById': {
+    request: number;
+    response: TenantContract | null;
+  };
+  'tenant.validate': {
+    request: number;
+    response: TenantContract | null;
   };
 }

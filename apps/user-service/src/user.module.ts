@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { TenantService } from './tenant.service';
 import { InfrastructureModule } from '@app/infrastructure';
 import { Tenant } from './entities/tenant.entity';
 import { Student } from './entities/student.entity';
@@ -40,7 +41,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, TenantService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserModule {}
