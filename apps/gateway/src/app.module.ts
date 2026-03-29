@@ -13,7 +13,6 @@ import { TypedClientModule, UserTypedClient } from '@app/typed-client';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [],
       exchanges: [

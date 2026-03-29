@@ -1,12 +1,13 @@
 import { IsDefined, ValidateNested } from 'class-validator';
 import {
+  DatabaseConfig,
   FileConfig,
   JwtConfig,
   LoggerLibConfig,
+  RabbitMQConfig,
   StorageConfig,
 } from '@app/contracts';
 import { Expose, Type } from 'class-transformer';
-import { DatabaseConfig, RabbitMQConfig } from '../../../infrastructure.module';
 
 export class AwsSchema {
   @IsDefined()

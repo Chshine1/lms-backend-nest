@@ -8,8 +8,7 @@
 } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 
-import { DatabaseConfig, RabbitMQConfig } from '../../../infrastructure.module';
-import { JwtConfig } from '@app/contracts';
+import { DatabaseConfig, JwtConfig, RabbitMQConfig } from '@app/contracts';
 
 export class AwsConfig {
   @IsDefined()
@@ -46,7 +45,7 @@ export class YamlSchema {
   @Type(() => JwtConfig)
   @Expose()
   jwt?: JwtConfig;
-  
+
   @IsOptional()
   @ValidateNested()
   @Type(() => GatewayConfig)
