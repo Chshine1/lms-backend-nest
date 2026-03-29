@@ -8,7 +8,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [Submission, Review],
       exchanges: [{ name: 'assignment-service', type: 'topic' }],

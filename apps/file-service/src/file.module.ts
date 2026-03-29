@@ -13,14 +13,15 @@ import {
   InfrastructureModule,
 } from '@app/infrastructure';
 import { StorageConfig, StorageProviderType } from '@app/contracts';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [File],
       exchanges: [{ name: 'file-service', type: 'topic' }],
     }),
+    TypeOrmModule.forFeature([File]),
   ],
   controllers: [FileController],
   providers: [

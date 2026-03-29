@@ -125,8 +125,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/infrastructure@workspace:libs/infrastructure"
   dependencies:
+    "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/trace": "workspace:*"
+    "@app/typed-client": "workspace:*"
     "@aws-sdk/client-ssm": "npm:^3.995.0"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
@@ -174,6 +176,7 @@ __metadata:
   resolution: "@app/typed-client@workspace:libs/typed-client"
   dependencies:
     "@app/contracts": "workspace:*"
+    "@app/infrastructure": "workspace:*"
     "@app/trace": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/common": "npm:^11.0.1"
@@ -2294,6 +2297,7 @@ __metadata:
   resolution: "@lms/course-service@workspace:apps/course-service"
   dependencies:
     "@app/contracts": "workspace:*"
+    "@app/infrastructure": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/cli": "npm:^11.0.0"

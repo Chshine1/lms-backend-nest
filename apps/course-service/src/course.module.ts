@@ -6,14 +6,15 @@ import { CourseVideo } from './entities/course-video.entity';
 import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
 import { InfrastructureModule } from '@app/infrastructure';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [Course, Classroom, CourseMaterial, CourseVideo],
       exchanges: [{ name: 'course-service', type: 'topic' }],
     }),
+    TypeOrmModule.forFeature([Course, Classroom, CourseMaterial, CourseVideo]),
   ],
   controllers: [CourseController],
   providers: [CourseService],

@@ -4,7 +4,7 @@ import { TypedClientBase } from './typed-client.base';
 import { TraceModule } from '@app/trace';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigurationService } from '@app/infrastructure';
-import { RabbitMQConfig } from '@app/infrastructure';
+import { RabbitMQConfig } from '@app/contracts';
 
 export interface TypedClientMqOptions {
   exchange: string;

@@ -10,10 +10,10 @@ import { Parent } from './entities/parent.entity';
 import { Admin } from './entities/admin.entity';
 import { Campus } from './entities/campus.entity';
 import { UserPermission } from './entities/user-permission.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [
         User,
@@ -28,6 +28,16 @@ import { UserPermission } from './entities/user-permission.entity';
       permissionEntity: UserPermission,
       exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
+    TypeOrmModule.forFeature([
+      User,
+      Tenant,
+      Student,
+      Teacher,
+      Parent,
+      Admin,
+      Campus,
+      UserPermission,
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService],

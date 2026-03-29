@@ -3,14 +3,15 @@ import { CourseSchedulingController } from './course-scheduling.controller';
 import { CourseSchedulingService } from './course-scheduling.service';
 import { CourseSchedule } from './entities/course-schedule.entity';
 import { InfrastructureModule } from '@app/infrastructure';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    InfrastructureModule.forRootAsync(),
     InfrastructureModule.forServiceAsync({
       entities: [CourseSchedule],
       exchanges: [{ name: 'course-scheduling-service', type: 'topic' }],
     }),
+    TypeOrmModule.forFeature([CourseSchedule]),
   ],
   controllers: [CourseSchedulingController],
   providers: [CourseSchedulingService],
