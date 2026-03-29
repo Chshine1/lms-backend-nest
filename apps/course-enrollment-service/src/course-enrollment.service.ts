@@ -7,7 +7,6 @@ import {
   EnrollmentNotFoundError,
   CreateEnrollmentDto,
   EnrollmentContract,
-  CourseContract,
 } from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
 

@@ -18,9 +18,10 @@ import {
   CreateCourseMaterialDto,
   UpdateCourseMaterialDto,
   CourseMaterialContract,
-  IdentityType, UserContract,
+  IdentityType,
+  UserContract,
 } from '@app/contracts';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { UserTypedClient } from '@app/typed-client';
 import { type Request } from 'express';
 
@@ -42,14 +43,17 @@ export class CourseService {
 
   // ==================== Course Operations ====================
 
-  async create(createCourseDto: CreateCourseDto, request: Request): Promise<CourseContract> {
+  async create(
+    createCourseDto: CreateCourseDto,
+    request: Request,
+  ): Promise<CourseContract> {
     // TODO: Just perform lightweight validation
     const tenant = await this.userClient.validateTenant(
       createCourseDto.tenantId,
     );
     if (tenant === null) {
       throw new NotFoundException(
-        `Tenant ${createCourseDto.tenantId} not found or inactive`,
+        `Tenant ${String(createCourseDto.tenantId)} not found or inactive`,
       );
     }
 
@@ -57,14 +61,10 @@ export class CourseService {
     const userId = request.user?.id;
     let creator: UserContract | null = null;
     if (userId !== undefined) {
-      creator = await this.userClient.findUserById(
-        userId,
-      );
+      creator = await this.userClient.findUserById(userId);
     }
     if (creator === null) {
-      throw new NotFoundException(
-        `User ${userId} not found`,
-      );
+      throw new NotFoundException(`User ${String(userId)} not found`);
     }
 
     // TODO: Simplify?
@@ -77,12 +77,12 @@ export class CourseService {
     }
 
     const course = this.courseRepository.create({
-      ...createCourseDto,
+      ...instanceToPlain(createCourseDto),
       teachers: createCourseDto.teachers ?? [],
     });
     const savedCourse = await this.courseRepository.save(course);
     this.logger.log(
-      `Course created: id=${savedCourse.id}, tenant=${savedCourse.tenantId}`,
+      `Course created: id=${String(savedCourse.id)}, tenant=${String(savedCourse.tenantId)}`,
     );
 
     return plainToInstance(CourseContract, savedCourse, {
@@ -100,20 +100,6 @@ export class CourseService {
 
   async findAll(): Promise<CourseContract[]> {
     const courses = await this.courseRepository.find();
-    return plainToInstance(CourseContract, courses, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  async findByTenant(tenantId: number): Promise<CourseContract[]> {
-    const courses = await this.courseRepository.find({ where: { tenantId } });
-    return plainToInstance(CourseContract, courses, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  async findByIds(ids: number[]): Promise<CourseContract[]> {
-    const courses = await this.courseRepository.findByIds(ids);
     return plainToInstance(CourseContract, courses, {
       excludeExtraneousValues: true,
     });
@@ -142,7 +128,7 @@ export class CourseService {
       );
       if (!tenant) {
         throw new NotFoundException(
-          `Tenant ${updateCourseDto.tenantId} not found or inactive`,
+          `Tenant ${String(updateCourseDto.tenantId)} not found or inactive`,
         );
       }
     }
@@ -156,31 +142,10 @@ export class CourseService {
 
     const course = await this.courseRepository.findOne({ where: { id } });
     if (course === null) {
-      throw new NotFoundException(`Course with id ${id} not found`);
+      throw new NotFoundException(`Course with id ${String(id)} not found`);
     }
     const updatedCourse = this.courseRepository.merge(course, updateCourseDto);
     const savedCourse = await this.courseRepository.save(updatedCourse);
-    return plainToInstance(CourseContract, savedCourse, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  async updateTeachers(
-    id: number,
-    teachers: number[],
-  ): Promise<CourseContract> {
-    const course = await this.courseRepository.findOne({ where: { id } });
-    if (course === null) {
-      throw new NotFoundException(`Course with id ${id} not found`);
-    }
-
-    // Cross-service: Validate all teachers
-    if (teachers.length > 0) {
-      await this.validateTeachers(teachers, course.tenantId);
-    }
-
-    course.teachers = teachers;
-    const savedCourse = await this.courseRepository.save(course);
     return plainToInstance(CourseContract, savedCourse, {
       excludeExtraneousValues: true,
     });
@@ -190,21 +155,23 @@ export class CourseService {
     // Cross-service: Validate teacher exists and has TEACHER identity type
     const user = await this.userClient.findUserById(teacherId);
     if (!user) {
-      throw new NotFoundException(`Teacher with id ${teacherId} not found`);
+      throw new NotFoundException(
+        `Teacher with id ${String(teacherId)} not found`,
+      );
     }
     if (user.identityType !== IdentityType.TEACHER) {
-      throw new NotFoundException(`User ${teacherId} is not a teacher`);
+      throw new NotFoundException(`User ${String(teacherId)} is not a teacher`);
     }
 
     const course = await this.courseRepository.findOne({ where: { id } });
     if (course === null) {
-      throw new NotFoundException(`Course with id ${id} not found`);
+      throw new NotFoundException(`Course with id ${String(id)} not found`);
     }
 
     // Ensure tenant consistency
     if (user.tenantId !== course.tenantId) {
       throw new Error(
-        `Teacher ${teacherId} does not belong to tenant ${course.tenantId}`,
+        `Teacher ${String(teacherId)} does not belong to tenant ${String(course.tenantId)}`,
       );
     }
 
@@ -213,7 +180,9 @@ export class CourseService {
       const savedCourse = await this.courseRepository.save(course);
 
       // Domain event: Notify scheduling-service that a teacher was added
-      this.logger.log(`Teacher ${teacherId} added to course ${id}`);
+      this.logger.log(
+        `Teacher ${String(teacherId)} added to course ${String(id)}`,
+      );
 
       return plainToInstance(CourseContract, savedCourse, {
         excludeExtraneousValues: true,
@@ -227,7 +196,7 @@ export class CourseService {
   async removeTeacher(id: number, teacherId: number): Promise<CourseContract> {
     const course = await this.courseRepository.findOne({ where: { id } });
     if (course === null) {
-      throw new NotFoundException(`Course with id ${id} not found`);
+      throw new NotFoundException(`Course with id ${String(id)} not found`);
     }
     course.teachers = course.teachers.filter((t) => t !== teacherId);
     const savedCourse = await this.courseRepository.save(course);
@@ -239,7 +208,7 @@ export class CourseService {
   async delete(id: number): Promise<void> {
     const course = await this.courseRepository.findOne({ where: { id } });
     if (course === null) {
-      throw new NotFoundException(`Course with id ${id} not found`);
+      throw new NotFoundException(`Course with id ${String(id)} not found`);
     }
 
     await this.courseRepository.softDelete(id);
@@ -250,7 +219,7 @@ export class CourseService {
     // - course-scheduling-service: delete related schedules
     // Implementation: Use RabbitMQOutboxService for reliable event delivery
     this.logger.log(
-      `Course deleted: id=${id}. ` +
+      `Course deleted: id=${String(id)}. ` +
         `TODO: Publish course.deleted event for enrollment-service and scheduling-service cleanup`,
     );
   }
@@ -266,7 +235,7 @@ export class CourseService {
     });
     if (!course) {
       throw new NotFoundException(
-        `Course ${createCourseUnitDto.courseId} not found`,
+        `Course ${String(createCourseUnitDto.courseId)} not found`,
       );
     }
 
@@ -304,7 +273,9 @@ export class CourseService {
   ): Promise<CourseUnitContract> {
     const unit = await this.courseUnitRepository.findOne({ where: { id } });
     if (unit === null) {
-      throw new NotFoundException(`Course unit with id ${id} not found`);
+      throw new NotFoundException(
+        `Course unit with id ${String(id)} not found`,
+      );
     }
     const updatedUnit = this.courseUnitRepository.merge(
       unit,
@@ -319,7 +290,9 @@ export class CourseService {
   async deleteUnit(id: number): Promise<void> {
     const unit = await this.courseUnitRepository.findOne({ where: { id } });
     if (unit === null) {
-      throw new NotFoundException(`Course unit with id ${id} not found`);
+      throw new NotFoundException(
+        `Course unit with id ${String(id)} not found`,
+      );
     }
 
     await this.courseUnitRepository.softDelete(id);
@@ -327,7 +300,7 @@ export class CourseService {
     // TODO: Publish domain event 'course-unit.deleted' for assignment-service
     // to handle cascade deletion of related assignments
     this.logger.log(
-      `Course unit deleted: id=${id}. ` +
+      `Course unit deleted: id=${String(id)}. ` +
         `TODO: Publish course-unit.deleted event for assignment-service cleanup`,
     );
   }
@@ -343,7 +316,7 @@ export class CourseService {
     });
     if (!unit) {
       throw new NotFoundException(
-        `Course unit ${createAssignmentDto.courseUnitId} not found`,
+        `Course unit ${String(createAssignmentDto.courseUnitId)} not found`,
       );
     }
 
@@ -409,7 +382,7 @@ export class CourseService {
       where: { id },
     });
     if (assignment === null) {
-      throw new NotFoundException(`Assignment with id ${id} not found`);
+      throw new NotFoundException(`Assignment with id ${String(id)} not found`);
     }
 
     const updatedAssignment = this.assignmentRepository.merge(
@@ -428,7 +401,7 @@ export class CourseService {
       where: { id },
     });
     if (assignment === null) {
-      throw new NotFoundException(`Assignment with id ${id} not found`);
+      throw new NotFoundException(`Assignment with id ${String(id)} not found`);
     }
     await this.assignmentRepository.softDelete(id);
   }
@@ -454,7 +427,7 @@ export class CourseService {
     });
     if (!unit) {
       throw new NotFoundException(
-        `Course unit ${createCourseMaterialDto.courseUnitId} not found`,
+        `Course unit ${String(createCourseMaterialDto.courseUnitId)} not found`,
       );
     }
 
@@ -501,7 +474,9 @@ export class CourseService {
       where: { id },
     });
     if (material === null) {
-      throw new NotFoundException(`Course material with id ${id} not found`);
+      throw new NotFoundException(
+        `Course material with id ${String(id)} not found`,
+      );
     }
 
     const updatedMaterial = this.courseMaterialRepository.merge(
@@ -520,7 +495,9 @@ export class CourseService {
       where: { id },
     });
     if (material === null) {
-      throw new NotFoundException(`Course material with id ${id} not found`);
+      throw new NotFoundException(
+        `Course material with id ${String(id)} not found`,
+      );
     }
     await this.courseMaterialRepository.softDelete(id);
   }
@@ -552,7 +529,7 @@ export class CourseService {
     if (invalidTeachers.length > 0) {
       throw new Error(
         `Invalid teachers: ${invalidTeachers.join(', ')}. ` +
-          `They must exist, have TEACHER identity type, and belong to tenant ${tenantId}`,
+          `They must exist, have TEACHER identity type, and belong to tenant ${String(tenantId)}`,
       );
     }
   }

@@ -32,7 +32,7 @@ export class CourseTypedClient extends TypedClientBase<CoursePatterns> {
   }
 
   findAllCourses(): Promise<CoursePatterns['course.findAll']['response']> {
-    return this.rpc('course.findAll', undefined as void);
+    return this.rpc('course.findAll', undefined);
   }
 
   findCoursesByTeacher(

@@ -94,4 +94,10 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ['libs/typed-client/src/patterns/*.patterns.ts'],
+    rules: {
+      '@typescript-eslint/no-invalid-void-type': 'off',
+    },
+  },
 );
