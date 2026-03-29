@@ -3,7 +3,9 @@ import { LogParams } from '../logger.service';
 import { TraceService } from '@app/trace';
 import { ConfigurationService } from '../../configuration/configuration.service';
 import { EnvSchema } from '../../../configs/configuration/schemas/env.schema';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LogEnrichmentService {
   private readonly serviceName: string;
 

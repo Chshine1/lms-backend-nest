@@ -6,7 +6,7 @@ import { GetConfigValidationError } from './errors/index';
 
 @Injectable()
 export class ConfigurationService {
-  constructor(private readonly configuration: Record<string, unknown> = {}) {}
+  constructor(private readonly configuration: Record<string, unknown>) {}
 
   get<TConfig extends object>(
     cls: new (...args: unknown[]) => TConfig,
