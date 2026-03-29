@@ -28,4 +28,12 @@ export interface CourseEnrollmentPatterns extends Record<
     request: { studentId: number; courseId: number };
     response: never;
   };
+  'course-enrollment.getEnrollmentsByStudentWithCourse': {
+    request: { studentId: number };
+    response: EnrollmentContract[];
+  };
+  'course-enrollment.getByStudentAndCourse': {
+    request: { studentId: number; courseId: number };
+    response: EnrollmentContract | null;
+  };
 }

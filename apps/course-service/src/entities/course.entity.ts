@@ -23,14 +23,10 @@ export class Course implements CourseContract {
   @Column()
   name!: string;
 
-  @Column({
-    type: 'smallint',
-  })
+  @Column({ type: 'smallint', })
   subject!: CourseSubject;
 
-  @Column({
-    type: 'smallint',
-  })
+  @Column({ type: 'smallint', })
   level!: CourseLevel;
 
   @Column({ name: 'total_hours' })
@@ -61,8 +57,8 @@ export class Course implements CourseContract {
   })
   waitlistStrategy!: WaitlistStrategy;
 
-  @Column({ name: 'teacher_id' })
-  teacherId!: string;
+  @Column({ type: 'int', array: true, default: '{}' })
+  teachers!: number[];
 
   @Column({
     type: 'smallint',

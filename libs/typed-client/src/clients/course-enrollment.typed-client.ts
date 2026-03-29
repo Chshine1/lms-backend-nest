@@ -50,4 +50,20 @@ export class CourseEnrollmentTypedClient extends TypedClientBase<CourseEnrollmen
   }): Promise<void> {
     return this.rpc('course-enrollment.unenrollByStudentAndCourse', data);
   }
+
+  getEnrollmentsByStudentWithCourse(data: {
+    studentId: number;
+  }): Promise<EnrollmentContract[]> {
+    return this.rpc(
+      'course-enrollment.getEnrollmentsByStudentWithCourse',
+      data,
+    );
+  }
+
+  getEnrollmentByStudentAndCourse(data: {
+    studentId: number;
+    courseId: number;
+  }): Promise<EnrollmentContract | null> {
+    return this.rpc('course-enrollment.getByStudentAndCourse', data);
+  }
 }

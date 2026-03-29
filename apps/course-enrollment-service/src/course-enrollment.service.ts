@@ -6,7 +6,10 @@ import {
   AlreadyEnrolledError,
   EnrollmentNotFoundError,
   CreateEnrollmentDto,
+  EnrollmentContract,
+  CourseContract,
 } from '@app/contracts';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CourseEnrollmentService {
@@ -38,20 +41,59 @@ export class CourseEnrollmentService {
     return this.enrollmentRepo.save(enrollment);
   }
 
-  async getEnrollmentsByCourse(courseId: number): Promise<Enrollment[]> {
-    return this.enrollmentRepo.find({ where: { courseId } });
+  async getEnrollmentsByCourse(
+    courseId: number,
+  ): Promise<EnrollmentContract[]> {
+    const enrollments = await this.enrollmentRepo.find({ where: { courseId } });
+    return plainToInstance(EnrollmentContract, enrollments, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]> {
-    return this.enrollmentRepo.find({ where: { studentId } });
+  async getEnrollmentsByStudent(
+    studentId: number,
+  ): Promise<EnrollmentContract[]> {
+    const enrollments = await this.enrollmentRepo.find({
+      where: { studentId },
+    });
+    return plainToInstance(EnrollmentContract, enrollments, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async getEnrollmentById(id: number): Promise<Enrollment> {
+  async getEnrollmentsByStudentWithCourse(
+    studentId: number,
+  ): Promise<EnrollmentContract[]> {
+    const enrollments = await this.enrollmentRepo.find({
+      where: { studentId },
+      relations: ['course'],
+    });
+    return plainToInstance(EnrollmentContract, enrollments, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getEnrollmentById(id: number): Promise<EnrollmentContract> {
     const enrollment = await this.enrollmentRepo.findOne({ where: { id } });
     if (!enrollment) {
       throw new EnrollmentNotFoundError(id);
     }
-    return enrollment;
+    return plainToInstance(EnrollmentContract, enrollment, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getEnrollmentByStudentAndCourse(
+    studentId: number,
+    courseId: number,
+  ): Promise<EnrollmentContract | null> {
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { studentId, courseId },
+    });
+    if (!enrollment) return null;
+    return plainToInstance(EnrollmentContract, enrollment, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async unenrollStudent(id: number): Promise<void> {

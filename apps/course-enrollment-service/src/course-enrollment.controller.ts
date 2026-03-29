@@ -77,4 +77,33 @@ export class CourseEnrollmentController implements ExtractController<CourseEnrol
       data.courseId,
     );
   }
+
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.getEnrollmentsByStudentWithCourse',
+    queue:
+      'course-enrollment-service-course-enrollment-getEnrollmentsByStudentWithCourse',
+  })
+  getEnrollmentsByStudentWithCourse(data: {
+    studentId: number;
+  }): Promise<EnrollmentContract[]> {
+    return this.courseEnrollmentService.getEnrollmentsByStudentWithCourse(
+      data.studentId,
+    );
+  }
+
+  @RabbitRPC({
+    exchange: 'course-enrollment-service',
+    routingKey: 'course-enrollment.getByStudentAndCourse',
+    queue: 'course-enrollment-service-course-enrollment-getByStudentAndCourse',
+  })
+  getEnrollmentByStudentAndCourse(data: {
+    studentId: number;
+    courseId: number;
+  }): Promise<EnrollmentContract | null> {
+    return this.courseEnrollmentService.getEnrollmentByStudentAndCourse(
+      data.studentId,
+      data.courseId,
+    );
+  }
 }

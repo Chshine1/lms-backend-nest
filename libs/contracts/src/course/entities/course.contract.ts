@@ -65,7 +65,7 @@ export class CourseContract extends BaseEntityContract {
   waitlistStrategy!: WaitlistStrategy;
 
   @Expose()
-  teacherId!: string;
+  teachers!: number[];
 
   @Expose()
   status!: CourseStatus;
