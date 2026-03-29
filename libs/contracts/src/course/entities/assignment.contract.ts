@@ -1,12 +1,5 @@
 import { Expose } from 'class-transformer';
-import { BaseEntityContract } from '../../base-entity.contract';
-
-export enum AssignmentType {
-  HOMEWORK = 1,
-  QUIZ = 2,
-  EXAM = 3,
-  PROJECT = 4,
-}
+import { BaseEntityContract } from '../../base-entity';
 
 export class AssignmentContract extends BaseEntityContract {
   @Expose()
@@ -16,17 +9,11 @@ export class AssignmentContract extends BaseEntityContract {
   title!: string;
 
   @Expose()
-  description?: string;
+  description!: string;
 
   @Expose()
-  type!: AssignmentType;
+  dueDate!: Date;
 
   @Expose()
-  maxScore!: number;
-
-  @Expose()
-  dueDate?: Date;
-
-  @Expose()
-  order!: number;
+  attachments!: number[];
 }

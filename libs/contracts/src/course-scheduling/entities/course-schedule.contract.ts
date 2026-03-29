@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { BaseEntityContract } from '../../base-entity.contract';
+import { BaseEntityContract } from '../../base-entity';
 
 export enum DayOfWeek {
   MONDAY = 'MONDAY',

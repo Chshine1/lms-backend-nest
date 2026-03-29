@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { BaseEntityContract } from '../../base-entity.contract';
+import { BaseEntityContract } from '../../base-entity';
 
 export class CampusContract extends BaseEntityContract {
   @Expose()

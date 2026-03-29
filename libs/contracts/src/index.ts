@@ -6,4 +6,4 @@ export * from './course-scheduling/index';
 export * from './errors/index';
 export * from './file/index';
 export * from './user/index';
-export * from './base-entity.contract';
+export * from './base-entity';
