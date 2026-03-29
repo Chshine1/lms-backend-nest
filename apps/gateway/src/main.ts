@@ -4,22 +4,13 @@ import {
   ConfigurationService,
   initializeInfrastructure,
 } from '@app/infrastructure';
-import { ClassConstructor, Expose } from 'class-transformer';
-import { IsDefined, IsNumber } from 'class-validator';
-
-class GatewayConfig {
-  @Expose()
-  @IsDefined()
-  @IsNumber()
-  port!: number;
-}
+import { ClassConstructor } from 'class-transformer';
+import { GatewayConfig } from '@app/infrastructure';
 
 async function bootstrap(): Promise<void> {
   await initializeInfrastructure();
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  const { AppModule } = (await import('./app.module')) as {
+  const { AppModule } = (await import('./app.module.js')) as {
     AppModule: ClassConstructor<unknown>;
   };
   const app = await NestFactory.create(AppModule);

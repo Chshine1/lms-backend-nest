@@ -3,6 +3,7 @@ import { EnvSchema } from '../schemas/env.schema';
 import { YamlSchema } from '../schemas/yaml.schema';
 import { GetParametersByPathCommand, SSMClient } from '@aws-sdk/client-ssm';
 
+// TODO: Usage needed
 export class AwsLoader extends LoaderMiddlewareBase<[EnvSchema, YamlSchema]> {
   protected async load(
     dependencies: [EnvSchema, YamlSchema],

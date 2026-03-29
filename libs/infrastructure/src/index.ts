@@ -9,6 +9,10 @@ export {
   initializeInfrastructure,
 } from './infrastructure.module';
 
+export {
+  GatewayConfig,
+} from './configs/configuration/schemas/yaml.schema'
+
 export { ConfigurationService } from './modules/configuration/configuration.service';
 export { LoggerService } from './modules/logger/logger.service';
 

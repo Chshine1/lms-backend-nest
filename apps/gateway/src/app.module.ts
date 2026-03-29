@@ -4,12 +4,12 @@ import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
-import { UserClientModule } from './user-client/user-client.module';
 import { JwtConfig } from '@app/contracts';
 import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
+import { TypedClientModule, UserTypedClient } from '@app/typed-client';
 
 @Module({
   imports: [
@@ -37,7 +37,12 @@ import {
         };
       },
     }),
-    UserClientModule,
+    TypedClientModule.forFeature({
+      mqOptions: {
+        exchange: 'user-service',
+      },
+      client: UserTypedClient,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

@@ -1,6 +1,7 @@
 ﻿import {
   IsBoolean,
   IsDefined,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -8,6 +9,7 @@
 import { Expose, Type } from 'class-transformer';
 
 import { DatabaseConfig, RabbitMQConfig } from '../../../infrastructure.module';
+import { JwtConfig } from '@app/contracts';
 
 export class AwsConfig {
   @IsDefined()
@@ -26,11 +28,30 @@ export class AwsConfig {
   withDecryption?: boolean;
 }
 
+export class GatewayConfig {
+  @Expose()
+  @IsDefined()
+  @IsNumber()
+  port!: number;
+}
+
 export class YamlSchema {
   @IsOptional()
   @IsBoolean()
   @Expose()
   skipAws?: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => JwtConfig)
+  @Expose()
+  jwt?: JwtConfig;
+  
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GatewayConfig)
+  @Expose()
+  gateway?: GatewayConfig;
 
   @IsDefined()
   @ValidateNested()
