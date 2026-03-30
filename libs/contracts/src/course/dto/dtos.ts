@@ -14,67 +14,6 @@ export class CreateCourseDto {
   teachers?: number[];
 }
 
-export class UpdateCourseDto {
-  @ApiProperty({ required: false })
-  name?: string;
-
-  @ApiProperty({ required: false })
-  description?: string;
-
-  @ApiProperty({ type: [Number], required: false })
-  teachers?: number[];
-}
-
-export class CreateUnitDto {
-  @ApiProperty()
-  title!: string;
-
-  @ApiProperty()
-  description!: string;
-
-  @ApiProperty({ required: false })
-  position?: number;
-}
-
-export class UpdateUnitDto {
-  @ApiProperty({ required: false })
-  title?: string;
-
-  @ApiProperty({ required: false })
-  description?: string;
-
-  @ApiProperty({ required: false })
-  position?: number;
-}
-
-export class CreateAssignmentDto {
-  @ApiProperty()
-  title!: string;
-
-  @ApiProperty()
-  description!: string;
-
-  @ApiProperty()
-  dueDate!: Date;
-
-  @ApiProperty({ type: [Number], required: false })
-  attachments?: number[];
-}
-
-export class UpdateAssignmentDto {
-  @ApiProperty({ required: false })
-  title?: string;
-
-  @ApiProperty({ required: false })
-  description?: string;
-
-  @ApiProperty({ required: false })
-  dueDate?: Date;
-
-  @ApiProperty({ type: [Number], required: false })
-  attachments?: number[];
-}
-
 export class AssignmentBatchDto {
   @ApiProperty({ required: false })
   id?: number;

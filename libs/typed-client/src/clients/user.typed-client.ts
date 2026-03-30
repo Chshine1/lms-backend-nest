@@ -19,7 +19,7 @@ export class UserTypedClient extends TypedClientBase<UserPatterns> {
     super(amqpConnection, traceService, options);
   }
 
-  validateUserExists(id: number): Promise<boolean> {
+  validateUserExists(id: number[]): Promise<boolean[]> {
     return this.rpc('user.validateExists', id);
   }
 }

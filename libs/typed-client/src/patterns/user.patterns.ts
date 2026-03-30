@@ -3,7 +3,7 @@ export interface UserPatterns extends Record<
   { request: unknown; response: unknown }
 > {
   'user.validateExists': {
-    request: number;
-    response: boolean;
+    request: number[];
+    response: boolean[];
   };
 }

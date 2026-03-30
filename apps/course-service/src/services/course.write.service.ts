@@ -1,0 +1,61 @@
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Course } from '@/course-service/src/entities/course.entity';
+import { Repository } from 'typeorm';
+import { CourseUnitService } from '@/course-service/src/services/course-unit.service';
+import { UserTypedClient } from '@app/typed-client';
+import { Transactional } from 'nestjs-transaction';
+import { BatchUpdateCourseDto, CreateCourseDto } from '@app/contracts';
+import { instanceToPlain } from 'class-transformer';
+
+@Injectable()
+export class CourseWriteService {
+  constructor(
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
+    private unitService: CourseUnitService,
+    private userClient: UserTypedClient,
+  ) {}
+
+  @Transactional()
+  async createCourse(dto: CreateCourseDto): Promise<Course> {
+    const userId = -1;
+    if (dto.teachers !== undefined && dto.teachers.length > 0) {
+      await this.userClient.validateUserExists(dto.teachers);
+    }
+
+    const course = this.courseRepository.create({
+      ...instanceToPlain(dto),
+      createdBy: userId,
+    });
+    await this.courseRepository.save(course);
+
+    // TODO: 发布 CourseCreatedEvent
+    return course;
+  }
+
+  @Transactional()
+  async batchUpdateCourse(
+    courseId: number,
+    dto: BatchUpdateCourseDto,
+  ): Promise<Course> {
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId },
+      relations: ['courseUnits', 'courseUnits.assignments'],
+    });
+    if (course === null) throw new NotFoundException('Course not found');
+
+    if (dto.name !== undefined) course.name = dto.name;
+    if (dto.description !== undefined) course.description = dto.description;
+
+    if (dto.teachers !== undefined) {
+      await this.userClient.validateUserExists(dto.teachers);
+      course.teachers = dto.teachers;
+    }
+
+    if (dto.units !== undefined) {
+      await this.unitService.updateUnits(course, dto.units);
+    }
+    return this.courseRepository.save(course);
+  }
+}

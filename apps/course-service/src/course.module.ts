@@ -3,11 +3,16 @@ import { Course } from './entities/course.entity';
 import { CourseUnit } from './entities/course-unit.entity';
 import { Assignment } from './entities/assignment.entity';
 import { CourseMaterial } from './entities/course-material.entity';
-import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
 import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserTypedClient } from '@app/typed-client';
+import {
+  AssignmentService,
+  CourseReadService,
+  CourseWriteService,
+  CourseUnitService,
+} from './services/index';
 
 @Module({
   imports: [
@@ -24,7 +29,12 @@ import { UserTypedClient } from '@app/typed-client';
     TypeOrmModule.forFeature([Course, CourseUnit, Assignment, CourseMaterial]),
   ],
   controllers: [CourseController],
-  providers: [CourseService],
+  providers: [
+    AssignmentService,
+    CourseReadService,
+    CourseWriteService,
+    CourseUnitService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CourseModule {}
