@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { CourseUnit } from './course-unit.entity';
-import { BaseEntity, CourseContract } from '@app/contracts';
-import { Assignment } from '@/course-service/src/entities/assignment.entity';
+import { BaseEntity, CourseContract, UnitBatchDto } from '@app/contracts';
+import { BadRequestException } from '@nestjs/common';
 
 @Entity('courses')
 export class Course extends BaseEntity implements CourseContract {
@@ -25,44 +25,55 @@ export class Course extends BaseEntity implements CourseContract {
   })
   courseUnits!: CourseUnit[];
 
-  addUnit(title: string, description: string, position?: number): CourseUnit {
-    if (this.courseUnits.length >= 50) {
-      throw new Error('Course cannot have more than 50 units');
+  updateUnits(unitDtos: UnitBatchDto[]): void {
+    // TODO: This uses float ordering, precision boundary conditions need extra handling
+    for (const dto of unitDtos) {
+      if (dto.id !== undefined) {
+        this.updateExistingUnit(dto.id, dto);
+      } else {
+        this.createNewUnit(dto);
+      }
     }
-    const order = position ?? this.courseUnits.length + 1;
-    if (this.courseUnits.some((u) => u.position === order)) {
-      throw new Error(`Unit with order ${String(order)} already exists`);
+  }
+
+  private updateExistingUnit(id: number, dto: UnitBatchDto): void {
+    const unit = this.courseUnits.find((u) => u.id === id);
+    if (unit === undefined) {
+      throw new BadRequestException(`Unit with id ${String(dto.id)} not found`);
     }
+
+    if (dto.title !== undefined) unit.title = dto.title;
+    if (dto.description !== undefined) unit.description = dto.description;
+    if (dto.position !== undefined) unit.position = dto.position;
+
+    if (dto.assignments !== undefined) {
+      unit.updateAssignments(dto.assignments);
+    }
+  }
+
+  createNewUnit(dto: UnitBatchDto): CourseUnit {
+    if (
+      dto.title === undefined ||
+      dto.description === undefined ||
+      dto.position === undefined
+    ) {
+      throw new BadRequestException(
+        'Missing required fields for new course unit',
+      );
+    }
+
     const unit = new CourseUnit();
-    unit.title = title;
-    unit.description = description;
-    unit.position = order;
+
+    unit.title = dto.title;
+    unit.description = dto.description;
+    unit.position = dto.position;
+
+    if (dto.assignments !== undefined) {
+      unit.updateAssignments(dto.assignments);
+    }
+
     unit.course = this;
     this.courseUnits.push(unit);
     return unit;
-  }
-
-  updateUnit(unitId: number, title?: string, description?: string): void {
-    const unit = this.courseUnits.find((u) => u.id === unitId);
-    if (!unit) throw new Error('Unit not found');
-    if (title) unit.title = title;
-    if (description) unit.description = description;
-  }
-
-  removeUnit(unitId: number): void {
-    const index = this.courseUnits.findIndex((u) => u.id === unitId);
-    if (index === -1) throw new Error('Unit not found');
-    this.courseUnits.splice(index, 1);
-  }
-
-  addAssignmentToUnit(
-    unitId: number,
-    title: string,
-    description: string,
-    dueDate: Date,
-  ): Assignment {
-    const unit = this.courseUnits.find((u) => u.id === unitId);
-    if (!unit) throw new Error('Unit not found');
-    return unit.addAssignment(title, description, dueDate);
   }
 }

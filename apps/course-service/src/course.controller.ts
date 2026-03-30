@@ -1,20 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { CourseService } from './course.service';
-import {
-  CourseContract,
-  CreateCourseDto,
-  UpdateCourseDto,
-  CreateCourseUnitDto,
-  UpdateCourseUnitDto,
-  CourseUnitContract,
-  CreateAssignmentDto,
-  UpdateAssignmentDto,
-  AssignmentContract,
-  CreateCourseMaterialDto,
-  UpdateCourseMaterialDto,
-  CourseMaterialContract,
-} from '@app/contracts';
+import { CourseService } from './services/course.service';
+import { CourseContract, CreateCourseDto } from '@app/contracts';
 import { ExtractController, CourseTypedClient } from '@app/typed-client';
 
 @Controller()
@@ -61,15 +48,6 @@ export class CourseController implements ExtractController<CourseTypedClient> {
 
   @RabbitRPC({
     exchange: 'course-service',
-    routingKey: 'course.update',
-    queue: 'course-service-course-update',
-  })
-  updateCourse(id: number, dto: UpdateCourseDto): Promise<CourseContract> {
-    return this.courseService.update(id, dto);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
     routingKey: 'course.addTeacher',
     queue: 'course-service-course-addTeacher',
   })
@@ -93,166 +71,5 @@ export class CourseController implements ExtractController<CourseTypedClient> {
   })
   deleteCourse(id: number): Promise<void> {
     return this.courseService.delete(id);
-  }
-
-  // ==================== Course Unit Endpoints ====================
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course-unit.create',
-    queue: 'course-service-course-unit-create',
-  })
-  createCourseUnit(data: CreateCourseUnitDto): Promise<CourseUnitContract> {
-    return this.courseService.createUnit(data);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course-unit.findById',
-    queue: 'course-service-course-unit-findById',
-  })
-  findCourseUnitById(id: number): Promise<CourseUnitContract | null> {
-    return this.courseService.findUnitById(id);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course-unit.findByCourse',
-    queue: 'course-service-course-unit-findByCourse',
-  })
-  findCourseUnitsByCourse(courseId: number): Promise<CourseUnitContract[]> {
-    return this.courseService.findUnitsByCourse(courseId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course-unit.update',
-    queue: 'course-service-course-unit-update',
-  })
-  updateCourseUnit(
-    id: number,
-    dto: UpdateCourseUnitDto,
-  ): Promise<CourseUnitContract> {
-    return this.courseService.updateUnit(id, dto);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course-unit.delete',
-    queue: 'course-service-course-unit-delete',
-  })
-  deleteCourseUnit(id: number): Promise<void> {
-    return this.courseService.deleteUnit(id);
-  }
-
-  // ==================== Assignment Endpoints ====================
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.create',
-    queue: 'course-service-assignment-create',
-  })
-  createAssignment(data: CreateAssignmentDto): Promise<AssignmentContract> {
-    return this.courseService.createAssignment(data);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.findById',
-    queue: 'course-service-assignment-findById',
-  })
-  findAssignmentById(id: number): Promise<AssignmentContract | null> {
-    return this.courseService.findAssignmentById(id);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.findByUnit',
-    queue: 'course-service-assignment-findByUnit',
-  })
-  findAssignmentsByUnit(courseUnitId: number): Promise<AssignmentContract[]> {
-    return this.courseService.findAssignmentsByUnit(courseUnitId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.findByCourse',
-    queue: 'course-service-assignment-findByCourse',
-  })
-  findAssignmentsByCourse(courseId: number): Promise<AssignmentContract[]> {
-    return this.courseService.findAssignmentsByCourse(courseId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.update',
-    queue: 'course-service-assignment-update',
-  })
-  updateAssignment(
-    id: number,
-    dto: UpdateAssignmentDto,
-  ): Promise<AssignmentContract> {
-    return this.courseService.updateAssignment(id, dto);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'assignment.delete',
-    queue: 'course-service-assignment-delete',
-  })
-  deleteAssignment(id: number): Promise<void> {
-    return this.courseService.deleteAssignment(id);
-  }
-
-  // ==================== Course Material Endpoints ====================
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'material.create',
-    queue: 'course-service-material-create',
-  })
-  createMaterial(
-    data: CreateCourseMaterialDto,
-  ): Promise<CourseMaterialContract> {
-    return this.courseService.createMaterial(data);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'material.findById',
-    queue: 'course-service-material-findById',
-  })
-  findMaterialById(id: number): Promise<CourseMaterialContract | null> {
-    return this.courseService.findMaterialById(id);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'material.findByUnit',
-    queue: 'course-service-material-findByUnit',
-  })
-  findMaterialsByUnit(courseUnitId: number): Promise<CourseMaterialContract[]> {
-    return this.courseService.findMaterialsByUnit(courseUnitId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'material.update',
-    queue: 'course-service-material-update',
-  })
-  updateMaterial(
-    id: number,
-    dto: UpdateCourseMaterialDto,
-  ): Promise<CourseMaterialContract> {
-    return this.courseService.updateMaterial(id, dto);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'material.delete',
-    queue: 'course-service-material-delete',
-  })
-  deleteMaterial(id: number): Promise<void> {
-    return this.courseService.deleteMaterial(id);
   }
 }

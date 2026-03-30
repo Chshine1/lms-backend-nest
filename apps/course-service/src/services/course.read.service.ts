@@ -3,7 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from '@/course-service/src/entities/course.entity';
 import { Repository } from 'typeorm';
 import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
-import { CourseResponseDto, UnitDetailDto } from '@app/contracts';
+import {
+  AssignmentContract,
+  CourseContract,
+  CourseMaterialContract,
+  CourseUnitContract,
+} from '@app/contracts';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CourseReadService {
@@ -14,58 +20,49 @@ export class CourseReadService {
     private unitRepository: Repository<CourseUnit>,
   ) {}
 
-  async findCourseWithUnits(courseId: number): Promise<CourseResponseDto> {
+  async findCourseWithUnits(courseId: number): Promise<{
+    course: CourseContract;
+    courseUnits: CourseUnitContract[];
+  }> {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
       relations: ['courseUnits'],
     });
-    if (!course) throw new NotFoundException('Course not found');
-    return this.toCourseResponse(course);
+    if (course === null) throw new NotFoundException('Course not found');
+    return {
+      course: plainToInstance(CourseContract, course, {
+        excludeExtraneousValues: true,
+      }),
+      courseUnits: plainToInstance(CourseUnitContract, course.courseUnits, {
+        excludeExtraneousValues: true,
+      }),
+    };
   }
 
-  async findUnitDetail(unitId: number): Promise<UnitDetailDto> {
+  async findUnitDetail(unitId: number): Promise<{
+    courseUnit: CourseUnitContract;
+    assignments: AssignmentContract[];
+    courseMaterials: CourseMaterialContract[];
+  }> {
     const unit = await this.unitRepository.findOne({
       where: { id: unitId },
       relations: ['assignments', 'courseMaterials'],
     });
-    if (!unit) throw new NotFoundException('Unit not found');
-    return this.toUnitDetail(unit);
-  }
-
-  private toCourseResponse(course: Course): CourseResponseDto {
+    if (unit === null) throw new NotFoundException('Unit not found');
     return {
-      id: course.id,
-      name: course.name,
-      description: course.description,
-      tenantId: course.tenantId,
-      teachers: course.teachers,
-      createdBy: course.createdBy,
-      createdAt: course.createdAt,
-      updatedAt: course.updatedAt,
-      courseUnits: course.courseUnits.map((u) => ({
-        id: u.id,
-        title: u.title,
-        position: u.position,
-      })),
-    };
-  }
-
-  private toUnitDetail(unit: CourseUnit): UnitDetailDto {
-    return {
-      id: unit.id,
-      title: unit.title,
-      position: unit.position,
-      description: unit.description,
-      assignments: unit.assignments.map((a) => ({
-        id: a.id,
-        title: a.title,
-        dueDate: a.dueDate,
-      })),
-      courseMaterials: unit.courseMaterials.map((m) => ({
-        id: m.id,
-        title: m.title,
-        fileId: m.fileId,
-      })),
+      courseUnit: plainToInstance(CourseUnitContract, unit, {
+        excludeExtraneousValues: true,
+      }),
+      assignments: plainToInstance(AssignmentContract, unit.assignments, {
+        excludeExtraneousValues: true,
+      }),
+      courseMaterials: plainToInstance(
+        CourseMaterialContract,
+        unit.courseMaterials,
+        {
+          excludeExtraneousValues: true,
+        },
+      ),
     };
   }
 }

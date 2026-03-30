@@ -2,7 +2,12 @@ import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Course } from './course.entity';
 import { Assignment } from './assignment.entity';
 import { CourseMaterial } from './course-material.entity';
-import { BaseEntity, CourseUnitContract } from '@app/contracts';
+import {
+  AssignmentBatchDto,
+  BaseEntity,
+  CourseUnitContract,
+} from '@app/contracts';
+import { BadRequestException } from '@nestjs/common';
 
 @Entity('course_units')
 export class CourseUnit extends BaseEntity implements CourseUnitContract {
@@ -15,7 +20,7 @@ export class CourseUnit extends BaseEntity implements CourseUnitContract {
   @Column({ type: 'text' })
   description!: string;
 
-  @Column()
+  @Column({ type: 'double precision' })
   position!: number;
 
   @ManyToOne(() => Course, (course) => course.courseUnits, {
@@ -29,20 +34,58 @@ export class CourseUnit extends BaseEntity implements CourseUnitContract {
   })
   assignments!: Assignment[];
 
-  @OneToMany(() => CourseMaterial, (material) => material.courseUnit, {
-    cascade: true,
-  })
-  courseMaterials!: CourseMaterial[];
+  updateAssignments(assignmentDtos: AssignmentBatchDto[]): void {
+    for (const dto of assignmentDtos) {
+      if (dto.id !== undefined) {
+        this.updateExistingAssignment(dto.id, dto);
+      } else {
+        this.createNewAssignment(dto);
+      }
+    }
+  }
 
-  addAssignment(title: string, description: string, dueDate: Date): Assignment {
+  private updateExistingAssignment(
+    assignmentId: number,
+    dto: AssignmentBatchDto,
+  ): void {
+    const assignment = this.assignments.find((a) => a.id === assignmentId);
+    if (assignment === undefined) {
+      throw new BadRequestException(
+        `Assignment with id ${String(dto.id)} not found`,
+      );
+    }
+
+    if (dto.title !== undefined) assignment.title = dto.title;
+    if (dto.description !== undefined) assignment.description = dto.description;
+    if (dto.dueDate !== undefined) assignment.dueDate = dto.dueDate;
+  }
+
+  private createNewAssignment(dto: AssignmentBatchDto): Assignment {
+    if (
+      dto.title === undefined ||
+      dto.description === undefined ||
+      dto.dueDate === undefined
+    ) {
+      throw new BadRequestException(
+        'Missing required fields for new assignment',
+      );
+    }
+
     const assignment = new Assignment();
-    assignment.title = title;
-    assignment.description = description;
-    assignment.dueDate = dueDate;
+
+    assignment.title = dto.title;
+    assignment.description = dto.description;
+    assignment.dueDate = dto.dueDate;
+
     assignment.courseUnit = this;
     this.assignments.push(assignment);
     return assignment;
   }
+
+  @OneToMany(() => CourseMaterial, (material) => material.courseUnit, {
+    cascade: true,
+  })
+  courseMaterials!: CourseMaterial[];
 
   addMaterial(
     fileId: number,

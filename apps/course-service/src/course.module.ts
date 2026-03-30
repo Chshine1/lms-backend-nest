@@ -7,12 +7,7 @@ import { CourseController } from './course.controller';
 import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserTypedClient } from '@app/typed-client';
-import {
-  AssignmentService,
-  CourseReadService,
-  CourseWriteService,
-  CourseUnitService,
-} from './services/index';
+import { CourseReadService, CourseWriteService } from './services/index';
 
 @Module({
   imports: [
@@ -29,12 +24,7 @@ import {
     TypeOrmModule.forFeature([Course, CourseUnit, Assignment, CourseMaterial]),
   ],
   controllers: [CourseController],
-  providers: [
-    AssignmentService,
-    CourseReadService,
-    CourseWriteService,
-    CourseUnitService,
-  ],
+  providers: [CourseReadService, CourseWriteService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CourseModule {}

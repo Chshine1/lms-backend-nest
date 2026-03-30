@@ -24,7 +24,7 @@ export class BaseEntityContract {
   version!: number;
 }
 
-export abstract class BaseEntity {
+export abstract class BaseEntity implements BaseEntityContract {
   @PrimaryGeneratedColumn()
   id!: number;
 

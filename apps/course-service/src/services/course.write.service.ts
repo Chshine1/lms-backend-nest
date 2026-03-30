@@ -2,7 +2,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from '@/course-service/src/entities/course.entity';
 import { Repository } from 'typeorm';
-import { CourseUnitService } from '@/course-service/src/services/course-unit.service';
 import { UserTypedClient } from '@app/typed-client';
 import { Transactional } from 'nestjs-transaction';
 import { BatchUpdateCourseDto, CreateCourseDto } from '@app/contracts';
@@ -13,7 +12,6 @@ export class CourseWriteService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
-    private unitService: CourseUnitService,
     private userClient: UserTypedClient,
   ) {}
 
@@ -48,14 +46,8 @@ export class CourseWriteService {
     if (dto.name !== undefined) course.name = dto.name;
     if (dto.description !== undefined) course.description = dto.description;
 
-    if (dto.teachers !== undefined) {
-      await this.userClient.validateUserExists(dto.teachers);
-      course.teachers = dto.teachers;
-    }
+    if (dto.units !== undefined) course.updateUnits(dto.units);
 
-    if (dto.units !== undefined) {
-      await this.unitService.updateUnits(course, dto.units);
-    }
     return this.courseRepository.save(course);
   }
 }
