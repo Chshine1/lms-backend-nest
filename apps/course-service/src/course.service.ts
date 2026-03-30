@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, EntityManager } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Assignment } from './entities/assignment.entity';
 import { Course } from './entities/course.entity';
 import { CourseUnit } from './entities/course-unit.entity';
@@ -22,6 +22,7 @@ import {
   UpdateUnitDto,
 } from '@app/contracts';
 import { instanceToPlain } from 'class-transformer';
+import { Transactional } from 'nestjs-transaction';
 
 @Injectable()
 export class CourseService {
@@ -32,7 +33,6 @@ export class CourseService {
     private unitRepo: Repository<CourseUnit>,
     @InjectRepository(Assignment)
     private assignmentRepo: Repository<Assignment>,
-    private dataSource: DataSource,
     private userClient: UserTypedClient,
     private fileClient: FileTypedClient,
   ) {}
@@ -55,9 +55,9 @@ export class CourseService {
     return this.toUnitDetail(unit);
   }
 
+  @Transactional()
   async createCourse(dto: CreateCourseDto, userId: number): Promise<Course> {
     if (dto.teachers?.length) {
-      // TODO: 发布 UserValidationRequested 领域事件？或直接调用 client
       await this.validateUsers(dto.teachers);
     }
 
@@ -71,6 +71,8 @@ export class CourseService {
     return course;
   }
 
+  // 添加事务装饰器
+  @Transactional()
   async updateCourse(courseId: number, dto: UpdateCourseDto): Promise<Course> {
     const course = await this.courseRepo.findOne({ where: { id: courseId } });
     if (!course) throw new NotFoundException('Course not found');
@@ -86,6 +88,7 @@ export class CourseService {
     return course;
   }
 
+  @Transactional()
   async batchUpdateCourse(
     courseId: number,
     dto: BatchUpdateCourseDto,
@@ -96,89 +99,81 @@ export class CourseService {
     });
     if (!course) throw new NotFoundException('Course not found');
 
-    return await this.dataSource.transaction(async (manager) => {
-      if (dto.name !== undefined) course.name = dto.name;
-      if (dto.description !== undefined) course.description = dto.description;
-      if (dto.teachers !== undefined) {
-        await this.validateUsers(dto.teachers);
-        course.teachers = dto.teachers;
-      }
-      await manager.save(course);
+    if (dto.name !== undefined) course.name = dto.name;
+    if (dto.description !== undefined) course.description = dto.description;
+    if (dto.teachers !== undefined) {
+      await this.validateUsers(dto.teachers);
+      course.teachers = dto.teachers;
+    }
+    await this.courseRepo.save(course);
 
-      if (dto.units) {
-        const existingUnitsMap = new Map(
-          course.courseUnits.map((u) => [u.id, u]),
-        );
+    if (dto.units) {
+      const existingUnitsMap = new Map(
+        course.courseUnits.map((u) => [u.id, u]),
+      );
 
-        for (const unitDto of dto.units) {
-          if (unitDto.id && existingUnitsMap.has(unitDto.id)) {
-            const unit = existingUnitsMap.get(unitDto.id);
-            if (unit === undefined) {
-              // TODO: Shouldn't happen
-              throw new NotFoundException('Unit not found');
-            }
-            if (unitDto.title !== undefined) unit.title = unitDto.title;
-            if (unitDto.description !== undefined)
-              unit.description = unitDto.description;
-            if (unitDto.position !== undefined) {
-              if (
-                this.isPositionConflict(
-                  course.courseUnits,
-                  unitDto.position,
-                  unit.id,
-                )
-              ) {
-                throw new BadRequestException(
-                  `Position ${String(unitDto.position)} already used`,
-                );
-              }
-              unit.position = unitDto.position;
-            }
-            await manager.save(unit);
-
-            if (unitDto.assignments) {
-              await this.processAssignments(manager, unit, unitDto.assignments);
-            }
-          } else if (!unitDto.id) {
+      for (const unitDto of dto.units) {
+        if (unitDto.id && existingUnitsMap.has(unitDto.id)) {
+          const unit = existingUnitsMap.get(unitDto.id);
+          if (unit === undefined) {
+            throw new NotFoundException('Unit not found');
+          }
+          if (unitDto.title !== undefined) unit.title = unitDto.title;
+          if (unitDto.description !== undefined)
+            unit.description = unitDto.description;
+          if (unitDto.position !== undefined) {
             if (
-              unitDto.title === undefined ||
-              unitDto.description === undefined ||
-              unitDto.position === undefined
+              this.isPositionConflict(
+                course.courseUnits,
+                unitDto.position,
+                unit.id,
+              )
             ) {
-              throw new BadRequestException();
-            }
-            if (this.isPositionConflict(course.courseUnits, unitDto.position)) {
               throw new BadRequestException(
                 `Position ${String(unitDto.position)} already used`,
               );
             }
-            const newUnit = course.addUnit(
-              unitDto.title,
-              unitDto.description,
-              unitDto.position,
-            );
-            await manager.save(newUnit);
+            unit.position = unitDto.position;
+          }
+          await this.unitRepo.save(unit);
 
-            if (unitDto.assignments) {
-              await this.processAssignments(
-                manager,
-                newUnit,
-                unitDto.assignments,
-              );
-            }
-          } else {
+          if (unitDto.assignments) {
+            await this.processAssignments(unit, unitDto.assignments);
+          }
+        } else if (!unitDto.id) {
+          if (
+            unitDto.title === undefined ||
+            unitDto.description === undefined ||
+            unitDto.position === undefined
+          ) {
+            throw new BadRequestException();
+          }
+          if (this.isPositionConflict(course.courseUnits, unitDto.position)) {
             throw new BadRequestException(
-              `Unit with id ${String(unitDto.id)} not found`,
+              `Position ${String(unitDto.position)} already used`,
             );
           }
+          const newUnit = course.addUnit(
+            unitDto.title,
+            unitDto.description,
+            unitDto.position,
+          );
+          await this.unitRepo.save(newUnit);
+
+          if (unitDto.assignments) {
+            await this.processAssignments(newUnit, unitDto.assignments);
+          }
+        } else {
+          throw new BadRequestException(
+            `Unit with id ${String(unitDto.id)} not found`,
+          );
         }
       }
-      return course;
-    });
+    }
+    return course;
   }
 
   private async processAssignments(
-    manager: EntityManager,
     unit: CourseUnit,
     assignments: AssignmentBatchDto[],
   ): Promise<void> {
@@ -190,7 +185,6 @@ export class CourseService {
       if (aDto.id && existingAssignmentsMap.has(aDto.id)) {
         const assignment = existingAssignmentsMap.get(aDto.id);
         if (assignment === undefined) {
-          // TODO: Not supposed to happen
           throw new NotFoundException('Assignment not found');
         }
         if (aDto.title !== undefined) assignment.title = aDto.title;
@@ -201,7 +195,7 @@ export class CourseService {
           await this.validateFiles(aDto.attachments);
           assignment.attachments = aDto.attachments;
         }
-        await manager.save(assignment);
+        await this.assignmentRepo.save(assignment);
       } else if (!aDto.id) {
         if (
           aDto.title === undefined ||
@@ -218,7 +212,7 @@ export class CourseService {
           aDto.dueDate,
         );
         if (aDto.attachments) assignment.attachments = aDto.attachments;
-        await manager.save(assignment);
+        await this.assignmentRepo.save(assignment);
       } else {
         throw new BadRequestException(
           `Assignment with id ${String(aDto.id)} not found`,
@@ -227,6 +221,7 @@ export class CourseService {
     }
   }
 
+  @Transactional()
   async createUnit(courseId: number, dto: CreateUnitDto): Promise<CourseUnit> {
     const course = await this.courseRepo.findOne({
       where: { id: courseId },
@@ -249,6 +244,7 @@ export class CourseService {
     return unit;
   }
 
+  @Transactional()
   async updateUnit(unitId: number, dto: UpdateUnitDto): Promise<CourseUnit> {
     const unit = await this.unitRepo.findOne({
       where: { id: unitId },
@@ -274,6 +270,7 @@ export class CourseService {
     return unit;
   }
 
+  @Transactional()
   async createAssignment(
     unitId: number,
     dto: CreateAssignmentDto,
@@ -296,6 +293,7 @@ export class CourseService {
     return assignment;
   }
 
+  @Transactional()
   async updateAssignment(
     assignmentId: number,
     dto: UpdateAssignmentDto,
