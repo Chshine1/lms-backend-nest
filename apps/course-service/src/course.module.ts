@@ -6,21 +6,23 @@ import { CourseMaterial } from './entities/index';
 import { CourseController } from './course.controller';
 import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserTypedClient } from '@app/typed-client';
 import { CourseReadService, CourseWriteService } from './services/index';
+import { TypedClientModule, UserTypedClient } from '@app/typed-client';
 
 @Module({
   imports: [
     InfrastructureModule.forServiceAsync({
       entities: [Course, CourseUnit, Assignment, CourseMaterial],
-      exchanges: [{ name: 'course-service', type: 'topic' }],
-      typedClients: [
-        {
-          client: UserTypedClient,
-          options: { exchange: 'user-service' },
-        },
-      ],
+      exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
+    TypedClientModule.forFeature([
+      {
+        mqOptions: {
+          exchange: 'user-service',
+        },
+        client: UserTypedClient,
+      },
+    ]),
     TypeOrmModule.forFeature([Course, CourseUnit, Assignment, CourseMaterial]),
   ],
   controllers: [CourseController],

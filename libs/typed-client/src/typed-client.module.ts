@@ -1,8 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
-import { TraceModule } from '@app/trace';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { TraceModule, TraceService } from '@app/trace';
+import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigurationService } from '@app/infrastructure';
 import { RabbitMQConfig } from '@app/contracts';
 
@@ -10,7 +10,10 @@ export interface TypedClientMqOptions {
   exchange: string;
 }
 
-export const TYPED_CLIENT_MQ_OPTIONS = Symbol('TYPED_CLIENT_MQ_OPTIONS');
+interface ForFeatureConfig {
+  client: ClassConstructor<TypedClientBase>;
+  mqOptions: TypedClientMqOptions;
+}
 
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -40,21 +43,30 @@ export class TypedClientModule {
     };
   }
 
-  static forFeature(config: {
-    mqOptions: TypedClientMqOptions;
-    client: ClassConstructor<TypedClientBase>;
-  }): DynamicModule {
-    // TODO: CRITICAL, this configuration provider will be covered with multiple forFeature() calls
+  static forFeature(configs: ForFeatureConfig[]): DynamicModule {
+    const providers = configs.flatMap((config) => [
+      {
+        provide: config.client,
+        useFactory: (
+          amqpConnection: AmqpConnection,
+          traceService: TraceService,
+        ): TypedClientBase => {
+          return new config.client(
+            amqpConnection,
+            traceService,
+            config.mqOptions,
+          );
+        },
+        inject: [AmqpConnection, TraceService],
+      },
+    ]);
+
+    const exports = configs.map((c) => c.client);
+
     return {
       module: TypedClientModule,
-      providers: [
-        {
-          provide: TYPED_CLIENT_MQ_OPTIONS,
-          useValue: config.mqOptions,
-        },
-        config.client,
-      ],
-      exports: [config.client],
+      providers,
+      exports,
     };
   }
 }

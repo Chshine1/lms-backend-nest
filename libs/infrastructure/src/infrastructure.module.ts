@@ -8,11 +8,7 @@ import { APP_INTERCEPTOR, NestFactory } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClassConstructor } from 'class-transformer';
 
-import {
-  type TypedClientBase,
-  TypedClientModule,
-  TypedClientMqOptions,
-} from '@app/typed-client';
+import { TypedClientModule } from '@app/typed-client';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
 import { LoggerService } from './modules/logger/logger.service';
@@ -42,10 +38,6 @@ export interface MicroserviceInfrastructureOptions {
   entities: ClassConstructor<object>[];
   permissionEntity?: ClassConstructor<object>;
   exchanges?: { name: string; type: string }[];
-  typedClients?: {
-    client: ClassConstructor<TypedClientBase>;
-    options: TypedClientMqOptions;
-  }[];
 }
 
 @Module({})

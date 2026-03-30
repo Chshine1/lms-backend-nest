@@ -1,5 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
 import { TypedClientBase } from '../typed-client.base';
 import {
   CreateReviewDto,
@@ -9,24 +8,10 @@ import {
   UpdateReviewDto,
   UpdateSubmissionDto,
 } from '@app/contracts';
-import {
-  TYPED_CLIENT_MQ_OPTIONS,
-  type TypedClientMqOptions,
-} from '../typed-client.module';
 import { AssignmentPatterns } from '../patterns/assignment.patterns';
-import { TraceService } from '@app/trace';
 
 @Injectable()
 export class AssignmentTypedClient extends TypedClientBase<AssignmentPatterns> {
-  constructor(
-    amqpConnection: AmqpConnection,
-    traceService: TraceService,
-    @Inject(TYPED_CLIENT_MQ_OPTIONS)
-    options: TypedClientMqOptions,
-  ) {
-    super(amqpConnection, traceService, options);
-  }
-
   createSubmission(data: CreateSubmissionDto): Promise<SubmissionContract> {
     return this.rpc('assignment.createSubmission', data);
   }

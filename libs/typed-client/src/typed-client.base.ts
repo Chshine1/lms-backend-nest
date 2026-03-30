@@ -1,9 +1,5 @@
-import { Inject } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import {
-  TYPED_CLIENT_MQ_OPTIONS,
-  type TypedClientMqOptions,
-} from './typed-client.module';
+import { type TypedClientMqOptions } from './typed-client.module';
 import { TraceService } from '@app/trace';
 
 export abstract class TypedClientBase<
@@ -12,10 +8,10 @@ export abstract class TypedClientBase<
 > {
   protected readonly exchange: string;
 
-  protected constructor(
+  public constructor(
     private readonly amqpConnection: AmqpConnection,
     private readonly traceService: TraceService,
-    @Inject(TYPED_CLIENT_MQ_OPTIONS) options: TypedClientMqOptions,
+    options: TypedClientMqOptions,
   ) {
     this.exchange = options.exchange;
   }

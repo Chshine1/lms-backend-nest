@@ -36,12 +36,14 @@ import { TypedClientModule, UserTypedClient } from '@app/typed-client';
         };
       },
     }),
-    TypedClientModule.forFeature({
-      mqOptions: {
-        exchange: 'user-service',
+    TypedClientModule.forFeature([
+      {
+        mqOptions: {
+          exchange: 'user-service',
+        },
+        client: UserTypedClient,
       },
-      client: UserTypedClient,
-    }),
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

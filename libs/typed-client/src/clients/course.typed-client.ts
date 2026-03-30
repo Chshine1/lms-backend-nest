@@ -1,24 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
 import { TypedClientBase } from '../typed-client.base';
 import { CoursePatterns } from '../patterns/course.patterns';
-import { TraceService } from '@app/trace';
-import {
-  TYPED_CLIENT_MQ_OPTIONS,
-  type TypedClientMqOptions,
-} from '../typed-client.module';
 
 @Injectable()
 export class CourseTypedClient extends TypedClientBase<CoursePatterns> {
-  constructor(
-    amqpConnection: AmqpConnection,
-    traceService: TraceService,
-    @Inject(TYPED_CLIENT_MQ_OPTIONS)
-    options: TypedClientMqOptions,
-  ) {
-    super(amqpConnection, traceService, options);
-  }
-
   createCourse(
     data: CoursePatterns['course.create']['request'],
   ): Promise<CoursePatterns['course.create']['response']> {
