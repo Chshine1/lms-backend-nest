@@ -14,7 +14,7 @@ export class AssignmentBatchDto {
   dueDate?: Date;
 }
 
-export class UnitBatchDto {
+export class CourseUnitBatchDto {
   @ApiProperty({ required: false })
   id?: number;
 
@@ -38,6 +38,6 @@ export class BatchUpdateCourseDto {
   @ApiProperty({ required: false })
   description?: string;
 
-  @ApiProperty({ type: [UnitBatchDto], required: false })
-  units?: UnitBatchDto[];
+  @ApiProperty({ type: [CourseUnitBatchDto], required: false })
+  units?: CourseUnitBatchDto[];
 }

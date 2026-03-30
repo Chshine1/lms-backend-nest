@@ -1,6 +1,6 @@
 export { CreateCourseDto } from './create-course.dto';
 export {
   AssignmentBatchDto,
-  UnitBatchDto,
+  CourseUnitBatchDto,
   BatchUpdateCourseDto,
 } from './batch-update-course.dto';
