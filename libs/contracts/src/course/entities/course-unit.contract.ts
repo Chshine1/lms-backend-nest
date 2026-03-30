@@ -12,5 +12,5 @@ export class CourseUnitContract extends BaseEntityContract {
   description?: string;
 
   @Expose()
-  order!: number;
+  position!: number;
 }

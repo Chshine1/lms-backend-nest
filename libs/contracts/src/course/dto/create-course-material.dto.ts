@@ -27,5 +27,5 @@ export class CreateCourseMaterialDto {
   @IsDefined()
   @IsString()
   @IsNotEmpty()
-  uploaderId!: string;
+  uploaderId!: number;
 }

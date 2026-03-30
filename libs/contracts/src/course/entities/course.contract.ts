@@ -6,14 +6,14 @@ export class CourseContract extends BaseEntityContract {
   name!: string;
 
   @Expose()
-  tenantId!: number;
+  description!: string;
 
   @Expose()
-  campusId!: number;
+  tenantId!: number;
 
   @Expose()
   teachers!: number[];
 
   @Expose()
-  createdBy!: string;
+  createdBy!: number;
 }

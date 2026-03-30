@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity, CourseMaterialContract } from '@app/contracts';
+import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
 
 @Entity('course_materials')
 export class CourseMaterial
@@ -19,5 +20,11 @@ export class CourseMaterial
   description!: string;
 
   @Column({ name: 'uploader_id' })
-  uploaderId!: string;
+  uploaderId!: number;
+
+  @ManyToOne(() => CourseUnit, (unit) => unit.courseMaterials, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'course_unit_id' })
+  courseUnit!: CourseUnit;
 }

@@ -260,7 +260,7 @@ export class CourseService {
   async findUnitsByCourse(courseId: number): Promise<CourseUnitContract[]> {
     const units = await this.courseUnitRepository.find({
       where: { courseId },
-      order: { order: 'ASC' },
+      order: { position: 'ASC' },
     });
     return plainToInstance(CourseUnitContract, units, {
       excludeExtraneousValues: true,
@@ -413,11 +413,11 @@ export class CourseService {
   ): Promise<CourseMaterialContract> {
     // Cross-service: Validate uploader exists
     const uploader = await this.userClient.findUserById(
-      Number(createCourseMaterialDto.uploaderId),
+      createCourseMaterialDto.uploaderId,
     );
     if (!uploader) {
       throw new NotFoundException(
-        `User ${createCourseMaterialDto.uploaderId} not found`,
+        `User ${String(createCourseMaterialDto.uploaderId)} not found`,
       );
     }
 

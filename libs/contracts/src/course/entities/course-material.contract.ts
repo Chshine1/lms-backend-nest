@@ -15,5 +15,5 @@ export class CourseMaterialContract extends BaseEntityContract {
   description!: string;
 
   @Expose()
-  uploaderId!: string;
+  uploaderId!: number;
 }
