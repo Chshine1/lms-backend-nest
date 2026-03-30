@@ -30,7 +30,7 @@ export class AppController {
     user: UserContract;
   }> {
     try {
-      const user = await this.userClient.createUser(body);
+      const user = await this.userClient.validateUserExists(body);
       const payload = { sub: user.id, username: user.username };
       return {
         access_token: this.jwtService.sign(payload),
