@@ -1,12 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { CourseService } from './services/course.service';
+import { CourseReadService, CourseWriteService } from './services/index';
 import { CourseContract, CreateCourseDto } from '@app/contracts';
 import { ExtractController, CourseTypedClient } from '@app/typed-client';
 
 @Controller()
 export class CourseController implements ExtractController<CourseTypedClient> {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(
+    private readonly courseReadService: CourseReadService,
+    private readonly courseWriteService: CourseWriteService,
+  ) {}
 
   // ==================== Course Endpoints ====================
 
@@ -16,7 +19,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-create',
   })
   createCourse(data: CreateCourseDto): Promise<CourseContract> {
-    return this.courseService.create(data);
+    return this.courseReadService.create(data);
   }
 
   @RabbitRPC({
@@ -25,7 +28,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-findById',
   })
   findCourseById(id: number): Promise<CourseContract | null> {
-    return this.courseService.findById(id);
+    return this.courseReadService.findById(id);
   }
 
   @RabbitRPC({
@@ -34,7 +37,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-findAll',
   })
   findAllCourses(): Promise<CourseContract[]> {
-    return this.courseService.findAll();
+    return this.courseReadService.findAll();
   }
 
   @RabbitRPC({
@@ -43,7 +46,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-findByTeacher',
   })
   findCoursesByTeacher(teacherId: number): Promise<CourseContract[]> {
-    return this.courseService.findByTeacher(teacherId);
+    return this.courseReadService.findByTeacher(teacherId);
   }
 
   @RabbitRPC({
@@ -52,7 +55,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-addTeacher',
   })
   addTeacher(id: number, teacherId: number): Promise<CourseContract> {
-    return this.courseService.addTeacher(id, teacherId);
+    return this.courseReadService.addTeacher(id, teacherId);
   }
 
   @RabbitRPC({
@@ -61,7 +64,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-removeTeacher',
   })
   removeTeacher(id: number, teacherId: number): Promise<CourseContract> {
-    return this.courseService.removeTeacher(id, teacherId);
+    return this.courseReadService.removeTeacher(id, teacherId);
   }
 
   @RabbitRPC({
@@ -70,6 +73,6 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     queue: 'course-service-course-delete',
   })
   deleteCourse(id: number): Promise<void> {
-    return this.courseService.delete(id);
+    return this.courseReadService.delete(id);
   }
 }

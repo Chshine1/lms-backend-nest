@@ -10,6 +10,8 @@ import {
   CourseUnitContract,
 } from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
+import { Assignment } from '@/course-service/src/entities/assignment.entity';
+import { CourseMaterial } from '@/course-service/src/entities/course-material.entity';
 
 @Injectable()
 export class CourseReadService {
@@ -18,6 +20,10 @@ export class CourseReadService {
     private courseRepository: Repository<Course>,
     @InjectRepository(CourseUnit)
     private unitRepository: Repository<CourseUnit>,
+    @InjectRepository(Assignment)
+    private assignmentRepository: Repository<Assignment>,
+    @InjectRepository(CourseMaterial)
+    private courseMaterialRepository: Repository<CourseMaterial>,
   ) {}
 
   async findCourseWithUnits(courseId: number): Promise<{
@@ -40,25 +46,28 @@ export class CourseReadService {
   }
 
   async findUnitDetail(unitId: number): Promise<{
-    courseUnit: CourseUnitContract;
     assignments: AssignmentContract[];
     courseMaterials: CourseMaterialContract[];
   }> {
-    const unit = await this.unitRepository.findOne({
-      where: { id: unitId },
-      relations: ['assignments', 'courseMaterials'],
+    const exists = await this.unitRepository.exists({ where: { id: unitId } });
+    if (!exists) {
+      throw new NotFoundException('Unit not found');
+    }
+
+    const assignments = await this.assignmentRepository.find({
+      where: { courseUnitId: unitId },
     });
-    if (unit === null) throw new NotFoundException('Unit not found');
+    const courseMaterials = await this.courseMaterialRepository.find({
+      where: { courseUnitId: unitId },
+    });
+
     return {
-      courseUnit: plainToInstance(CourseUnitContract, unit, {
-        excludeExtraneousValues: true,
-      }),
-      assignments: plainToInstance(AssignmentContract, unit.assignments, {
+      assignments: plainToInstance(AssignmentContract, assignments, {
         excludeExtraneousValues: true,
       }),
       courseMaterials: plainToInstance(
         CourseMaterialContract,
-        unit.courseMaterials,
+        courseMaterials,
         {
           excludeExtraneousValues: true,
         },

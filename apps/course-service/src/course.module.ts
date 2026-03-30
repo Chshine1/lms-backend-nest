@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { Course } from './entities/course.entity';
-import { CourseUnit } from './entities/course-unit.entity';
-import { Assignment } from './entities/assignment.entity';
-import { CourseMaterial } from './entities/course-material.entity';
+import { Course } from './entities/index';
+import { CourseUnit } from './entities/index';
+import { Assignment } from './entities/index';
+import { CourseMaterial } from './entities/index';
 import { CourseController } from './course.controller';
 import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
