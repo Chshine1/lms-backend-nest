@@ -5,8 +5,8 @@ import { Course } from '@/course-service/src/entities/course.entity';
 
 export class CourseUnitCollection {
   private constructor(
-    private course: Course,
-    private courseUnits: CourseUnit[],
+    private readonly course: Course,
+    private readonly courseUnits: CourseUnit[],
   ) {}
 
   static create(course: Course, units: CourseUnit[]): CourseUnitCollection {
@@ -25,7 +25,7 @@ export class CourseUnitCollection {
   }
 
   private updateExistingCourseUnit(id: number, dto: CourseUnitBatchDto): void {
-    const courseUnit = this.courseUnits.find((u) => u.id === id);
+    const courseUnit = this.courseUnits.find((c) => c.id === id);
     if (courseUnit === undefined) {
       throw new BadRequestException(`Unit with id ${String(dto.id)} not found`);
     }

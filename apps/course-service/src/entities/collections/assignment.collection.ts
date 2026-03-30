@@ -5,8 +5,8 @@ import { Assignment } from '@/course-service/src/entities/assignment.entity';
 
 export class AssignmentCollection {
   private constructor(
-    private courseUnit: CourseUnit,
-    private assignments: Assignment[],
+    private readonly courseUnit: CourseUnit,
+    private readonly assignments: Assignment[],
   ) {}
 
   static create(
@@ -27,7 +27,7 @@ export class AssignmentCollection {
   }
 
   private updateExistingAssignment(id: number, dto: AssignmentBatchDto): void {
-    const assignment = this.assignments.find((u) => u.id === id);
+    const assignment = this.assignments.find((a) => a.id === id);
     if (assignment === undefined) {
       throw new BadRequestException(
         `Assignment with id ${String(dto.id)} not found`,

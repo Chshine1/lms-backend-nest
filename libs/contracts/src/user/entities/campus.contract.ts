@@ -10,7 +10,4 @@ export class CampusContract extends BaseEntityContract {
 
   @Expose()
   location!: string;
-
-  @Expose()
-  timezone?: string;
 }

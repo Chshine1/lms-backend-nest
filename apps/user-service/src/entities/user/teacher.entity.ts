@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { TeacherContract } from '@app/contracts';
+import { User } from '@/user-service/src/entities/user/user.entity';
 
 @Entity('teachers')
 export class Teacher implements TeacherContract {
@@ -14,4 +15,10 @@ export class Teacher implements TeacherContract {
 
   @Column({ name: 'hire_date', type: 'date' })
   hireDate!: Date;
+
+  @OneToOne(() => User, (user) => user.student, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user!: User;
 }

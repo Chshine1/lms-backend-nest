@@ -6,10 +6,4 @@ export class StudentContract {
 
   @Expose()
   studentId!: string;
-
-  @Expose()
-  gradeLevel!: string;
-
-  @Expose()
-  enrollmentDate!: Date;
 }

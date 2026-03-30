@@ -1,15 +1,12 @@
+import { Column, Entity, Index, OneToOne, Unique } from 'typeorm';
 import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  Unique,
-  UpdateDateColumn,
-  VersionColumn,
-} from 'typeorm';
-import { IdentityType, UserContract, UserStatus } from '@app/contracts';
+  BaseEntity,
+  IdentityType,
+  UserContract,
+  UserStatus,
+} from '@app/contracts';
+import { Student } from '@/user-service/src/entities/user/student.entity';
+import { Teacher } from '@/user-service/src/entities/user/teacher.entity';
 
 @Entity('users')
 @Unique('UQ_user_tenant_username', ['tenantId', 'username'])
@@ -22,10 +19,7 @@ import { IdentityType, UserContract, UserStatus } from '@app/contracts';
     WHERE status = 1 AND deleted_at IS NULL;
 */
 @Index('IDX_active_user_identity', { synchronize: false })
-export class User implements UserContract {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class User extends BaseEntity implements UserContract {
   @Column({ name: 'tenant_id' })
   tenantId!: number;
 
@@ -61,15 +55,13 @@ export class User implements UserContract {
   })
   identityType!: IdentityType;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
+  @OneToOne(() => Student, (student) => student.user, {
+    cascade: true,
+  })
+  student?: Student;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt?: Date;
-
-  @VersionColumn()
-  version!: number;
+  @OneToOne(() => Teacher, (teacher) => teacher.user, {
+    cascade: true,
+  })
+  teacher?: Teacher;
 }

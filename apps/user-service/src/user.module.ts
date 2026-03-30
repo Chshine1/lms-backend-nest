@@ -1,29 +1,20 @@
 import { Module } from '@nestjs/common';
-import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TenantService } from './tenant.service';
 import { InfrastructureModule } from '@app/infrastructure';
-import { Tenant } from './entities/tenant.entity';
-import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
-import { Parent } from './entities/parent.entity';
-import { Campus } from './entities/campus.entity';
 import { UserPermission } from './entities/user-permission.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@/user-service/src/entities/user/user.entity';
+import { Tenant } from '@/user-service/src/entities/tenant/tenant.entity';
+import { Student } from '@/user-service/src/entities/user/student.entity';
+import { Campus } from '@/user-service/src/entities/tenant/campus.entity';
 
 @Module({
   imports: [
     InfrastructureModule.forServiceAsync({
-      entities: [
-        User,
-        Tenant,
-        Student,
-        Teacher,
-        Parent,
-        Campus,
-        UserPermission,
-      ],
+      entities: [User, Tenant, Student, Teacher, Campus, UserPermission],
       permissionEntity: UserPermission,
       exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
@@ -32,7 +23,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       Tenant,
       Student,
       Teacher,
-      Parent,
       Campus,
       UserPermission,
     ]),
