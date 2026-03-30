@@ -6,18 +6,20 @@ import { UserTypedClient } from '@app/typed-client';
 import { Transactional } from 'nestjs-transaction';
 import { BatchUpdateCourseDto, CreateCourseDto } from '@app/contracts';
 import { instanceToPlain } from 'class-transformer';
+import { UserContextService } from '@app/authentication';
 
 @Injectable()
 export class CourseWriteService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    private userContextService: UserContextService,
     private userClient: UserTypedClient,
   ) {}
 
   @Transactional()
   async createCourse(dto: CreateCourseDto): Promise<Course> {
-    const userId = -1;
+    const userId = this.userContextService.getUserId();
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
       await this.userClient.validateUserExists(dto.teachers);
     }

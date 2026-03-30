@@ -15,10 +15,10 @@ import {
 } from '@app/typed-client';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
-import { PermissionModule } from '@app/authentication';
 import { LoggerService } from './modules/logger/logger.service';
 import { RabbitMqTraceInterceptor, TraceService } from '@app/trace';
 import { DatabaseConfig } from '@app/contracts';
+import { AuthenticationModule } from '@app/authentication';
 
 const GLOBAL_INFRASTRUCTURE_KEY = 'infrastructure';
 
@@ -57,15 +57,6 @@ export class InfrastructureModule {
     permissionEntity,
     exchanges = [],
   }: MicroserviceInfrastructureOptions): DynamicModule {
-    const permissionImports: DynamicModule[] = permissionEntity
-      ? [
-          PermissionModule.forFeature({
-            entity: permissionEntity,
-            guardType: 'rabbitmq',
-          }),
-        ]
-      : [];
-
     return {
       module: InfrastructureModule,
       imports: [
@@ -87,7 +78,7 @@ export class InfrastructureModule {
           inject: [ConfigurationService],
         }),
         TypedClientModule.forRoot(exchanges),
-        ...permissionImports,
+        AuthenticationModule.forRoot(permissionEntity),
       ],
       providers: [
         {
@@ -95,7 +86,12 @@ export class InfrastructureModule {
           useClass: RabbitMqTraceInterceptor,
         },
       ],
-      exports: [LoggerModule, TypeOrmModule, TypedClientModule],
+      exports: [
+        LoggerModule,
+        TypeOrmModule,
+        AuthenticationModule,
+        TypedClientModule,
+      ],
     };
   }
 }

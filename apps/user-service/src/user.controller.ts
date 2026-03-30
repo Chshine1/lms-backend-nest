@@ -22,7 +22,7 @@ export class UserController implements ExtractController<UserTypedClient> {
     private readonly tenantService: TenantService,
   ) {}
 
-  @RequirePermissions(UserServiceResource.USER, UserServiceAction.MANAGE)
+  @RequirePermissions([[UserServiceResource.USER, UserServiceAction.MANAGE]])
   @RabbitRPC({
     exchange: 'user-service',
     routingKey: 'user.create',

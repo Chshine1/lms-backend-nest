@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { type Request } from 'express';
-import { RmqContext } from '@nestjs/microservices';
 import { PermissionService } from './permission.service';
 import { PERMISSION_KEY } from './permission.decorator';
+import { UserContextService } from '../user-context/user-context.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -57,6 +57,7 @@ export class RabbitMQPermissionGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly permissionService: PermissionService,
+    private readonly userContextService: UserContextService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -71,17 +72,7 @@ export class RabbitMQPermissionGuard implements CanActivate {
       return true;
     }
 
-    const rmqContext = context.switchToRpc().getContext<RmqContext>();
-    const message = rmqContext.getMessage() as Record<string, unknown>;
-    const props = message['properties'] as Record<string, unknown> | undefined;
-    const headers = (props && props['headers']) as
-      | Record<string, unknown>
-      | undefined;
-    const userId = headers?.['x-user-id'] as number | undefined;
-
-    if (!userId) {
-      throw new ForbiddenException();
-    }
+    const userId = this.userContextService.getUserId();
 
     const userPermissions =
       await this.permissionService.getUserPermissions(userId);
