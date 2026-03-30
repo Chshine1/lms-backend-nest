@@ -1,8 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { plainToInstance } from 'class-transformer';
+import { CourseTypedClient, ExtractController } from '@app/typed-client';
 import { CourseReadService, CourseWriteService } from './services/index';
-import { CourseContract, CreateCourseDto } from '@app/contracts';
-import { ExtractController, CourseTypedClient } from '@app/typed-client';
+import {
+  AssignmentContract,
+  BatchUpdateCourseDto,
+  CourseContract,
+  CourseMaterialContract,
+  CourseUnitContract,
+  CreateCourseDto,
+} from '@app/contracts';
 
 @Controller()
 export class CourseController implements ExtractController<CourseTypedClient> {
@@ -11,68 +19,57 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     private readonly courseWriteService: CourseWriteService,
   ) {}
 
-  // ==================== Course Endpoints ====================
-
   @RabbitRPC({
     exchange: 'course-service',
     routingKey: 'course.create',
     queue: 'course-service-course-create',
   })
-  createCourse(data: CreateCourseDto): Promise<CourseContract> {
-    return this.courseReadService.create(data);
+  async createCourse(data: CreateCourseDto): Promise<CourseContract> {
+    const course = await this.courseWriteService.createCourse(data);
+    return plainToInstance(CourseContract, course, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @RabbitRPC({
     exchange: 'course-service',
-    routingKey: 'course.findById',
-    queue: 'course-service-course-findById',
+    routingKey: 'course.batch-update',
+    queue: 'course-service-course-batch-update',
   })
-  findCourseById(id: number): Promise<CourseContract | null> {
-    return this.courseReadService.findById(id);
+  async batchUpdateCourse(data: {
+    courseId: number;
+    data: BatchUpdateCourseDto;
+  }): Promise<CourseContract> {
+    const course = await this.courseWriteService.batchUpdateCourse(
+      data.courseId,
+      data.data,
+    );
+    return plainToInstance(CourseContract, course, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @RabbitRPC({
     exchange: 'course-service',
-    routingKey: 'course.findAll',
-    queue: 'course-service-course-findAll',
+    routingKey: 'course.find-course-with-units',
+    queue: 'course-service-course-find-course-with-units',
   })
-  findAllCourses(): Promise<CourseContract[]> {
-    return this.courseReadService.findAll();
+  async findCourseWithUnits(data: { courseId: number }): Promise<{
+    course: CourseContract;
+    courseUnits: CourseUnitContract[];
+  }> {
+    return this.courseReadService.findCourseWithUnits(data.courseId);
   }
 
   @RabbitRPC({
     exchange: 'course-service',
-    routingKey: 'course.findByTeacher',
-    queue: 'course-service-course-findByTeacher',
+    routingKey: 'course.find-unit-detail',
+    queue: 'course-service-course-find-unit-detail',
   })
-  findCoursesByTeacher(teacherId: number): Promise<CourseContract[]> {
-    return this.courseReadService.findByTeacher(teacherId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course.addTeacher',
-    queue: 'course-service-course-addTeacher',
-  })
-  addTeacher(id: number, teacherId: number): Promise<CourseContract> {
-    return this.courseReadService.addTeacher(id, teacherId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course.removeTeacher',
-    queue: 'course-service-course-removeTeacher',
-  })
-  removeTeacher(id: number, teacherId: number): Promise<CourseContract> {
-    return this.courseReadService.removeTeacher(id, teacherId);
-  }
-
-  @RabbitRPC({
-    exchange: 'course-service',
-    routingKey: 'course.delete',
-    queue: 'course-service-course-delete',
-  })
-  deleteCourse(id: number): Promise<void> {
-    return this.courseReadService.delete(id);
+  async findUnitDetail(data: { unitId: number }): Promise<{
+    assignments: AssignmentContract[];
+    courseMaterials: CourseMaterialContract[];
+  }> {
+    return this.courseReadService.findUnitDetail(data.unitId);
   }
 }
