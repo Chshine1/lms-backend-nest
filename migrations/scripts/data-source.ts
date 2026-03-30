@@ -1,5 +1,4 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { Admin } from '../../apps/user-service/src/entities/admin.entity';
 import { Campus } from '../../apps/user-service/src/entities/campus.entity';
 import { Parent } from '../../apps/user-service/src/entities/parent.entity';
 import { Student } from '../../apps/user-service/src/entities/student.entity';
@@ -23,7 +22,6 @@ const options: DataSourceOptions = {
   password: 'lms',
   database: 'lms',
   entities: [
-    Admin,
     Campus,
     Parent,
     Student,

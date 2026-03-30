@@ -8,7 +8,6 @@ import { Tenant } from './entities/tenant.entity';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { Parent } from './entities/parent.entity';
-import { Admin } from './entities/admin.entity';
 import { Campus } from './entities/campus.entity';
 import { UserPermission } from './entities/user-permission.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -22,7 +21,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         Student,
         Teacher,
         Parent,
-        Admin,
         Campus,
         UserPermission,
       ],
@@ -35,7 +33,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       Student,
       Teacher,
       Parent,
-      Admin,
       Campus,
       UserPermission,
     ]),
