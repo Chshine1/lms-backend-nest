@@ -1,6 +1,5 @@
 ﻿import { DynamicModule, Module } from '@nestjs/common';
 import { PermissionModule } from './permission/permission.module';
-import { UserContextModule } from './user-context/user-context.module';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 
 export interface AuthenticationModuleOptions {
@@ -15,18 +14,15 @@ export class AuthenticationModule {
     permissionEntity,
     endpointsProtocol,
   }: AuthenticationModuleOptions): DynamicModule {
-    const permissionModuleImport =
-      permissionEntity === undefined
-        ? []
-        : [PermissionModule.forFeature(permissionEntity)];
-
     return {
       module: AuthenticationModule,
       imports: [
-        UserContextModule.forRoot(endpointsProtocol),
-        ...permissionModuleImport,
+        PermissionModule.forFeature({
+          entity: permissionEntity,
+          endpointsProtocol,
+        }),
       ],
-      exports: [UserContextModule],
+      exports: [PermissionModule],
     };
   }
 }

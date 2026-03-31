@@ -11,28 +11,38 @@ import { UserContextModule } from '../user-context/user-context.module';
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class PermissionModule {
-  /**
-   * Register a permission guard.
-   * @param entity - The entity class storing users' permissions in this application.
-   * @returns Registers the entity class for typeorm, and a guard to intercept accesses without permission.
-   * Exports nothing.
-   */
-  static forFeature(entity: EntityClassOrSchema): DynamicModule {
+  static forFeature({
+    entity,
+    endpointsProtocol,
+  }: {
+    entity: EntityClassOrSchema | undefined;
+    endpointsProtocol: 'http' | 'rabbitmq';
+  }): DynamicModule {
+    const permissionImports =
+      entity === undefined ? [] : [TypeOrmModule.forFeature([entity])];
+    const permissionProviders =
+      entity === undefined
+        ? []
+        : [
+            {
+              provide: PermissionService,
+              useFactory: (repo: Repository<Permission>): PermissionService =>
+                new PermissionService(repo),
+              inject: [getRepositoryToken(entity)],
+            },
+            {
+              provide: APP_GUARD,
+              useClass: RabbitMQPermissionGuard,
+            },
+          ];
     return {
       module: PermissionModule,
-      imports: [UserContextModule, TypeOrmModule.forFeature([entity])],
-      providers: [
-        {
-          provide: PermissionService,
-          useFactory: (repo: Repository<Permission>) =>
-            new PermissionService(repo),
-          inject: [getRepositoryToken(entity)],
-        },
-        {
-          provide: APP_GUARD,
-          useClass: RabbitMQPermissionGuard,
-        },
+      imports: [
+        UserContextModule.forRoot(endpointsProtocol),
+        ...permissionImports,
       ],
+      providers: [...permissionProviders],
+      exports: [UserContextModule],
     };
   }
 }

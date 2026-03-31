@@ -1,14 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
-import { TraceModule, TraceService } from '@app/trace';
-import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
-import { RabbitMQConfig } from '@app/contracts';
-import { AuthenticationModule } from '@app/authentication';
+import { TraceService } from '@app/trace';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { TypedClientCoreModule } from './typed-client.core.module';
 
 interface ForFeatureOptions {
   client: ClassConstructor<TypedClientBase>;
@@ -23,25 +18,7 @@ export class TypedClientModule {
   static forRoot(mqExchanges: { name: string; type: string }[]): DynamicModule {
     return {
       module: TypedClientModule,
-      imports: [
-        AuthenticationModule,
-        TraceModule,
-        RabbitMQModule.forRootAsync({
-          imports: [InfrastructureModule],
-          useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey('rabbitmq', RabbitMQConfig);
-            return {
-              exchanges: mqExchanges.map((exchange) => ({
-                name: exchange.name,
-                type: exchange.type,
-              })),
-              uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
-              connectionInitOptions: { wait: true },
-            };
-          },
-          inject: [ConfigurationService],
-        }),
-      ],
+      imports: [TypedClientCoreModule.forRoot(mqExchanges)],
     };
   }
 
@@ -67,6 +44,7 @@ export class TypedClientModule {
 
     return {
       module: TypedClientModule,
+      imports: [TypedClientCoreModule],
       providers,
       exports,
     };
