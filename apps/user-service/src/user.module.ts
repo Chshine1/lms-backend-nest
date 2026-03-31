@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
-import { ConfigurationService } from '@app/infrastructure';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { UserPermission } from './entities/user-permission.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user/user.entity';
@@ -23,7 +26,7 @@ import { CoreModule } from '@app/core';
       exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
     JwtModule.registerAsync({
-      global: true,
+      imports: [InfrastructureModule],
       useFactory: (
         configurationService: ConfigurationService,
       ): JwtModuleOptions => {

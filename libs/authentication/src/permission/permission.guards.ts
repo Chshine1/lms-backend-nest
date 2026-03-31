@@ -89,5 +89,3 @@ export class RabbitMQPermissionGuard implements CanActivate {
     return true;
   }
 }
-
-export type PermissionGuardType = 'http' | 'rabbitmq';

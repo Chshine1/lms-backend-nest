@@ -42,7 +42,6 @@ export class TypedClientModule {
           inject: [ConfigurationService],
         }),
       ],
-      exports: [RabbitMQModule],
     };
   }
 

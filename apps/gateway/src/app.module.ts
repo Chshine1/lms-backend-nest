@@ -4,7 +4,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { JwtConfig } from '@app/contracts';
-import { ConfigurationService } from '@app/infrastructure';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import {
   CourseTypedClient,
   TypedClientModule,
@@ -31,7 +34,7 @@ import { CoreModule } from '@app/core';
     }),
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigurationService],
+      imports: [InfrastructureModule],
       useFactory: (configService: ConfigurationService) => {
         const jwtSection = configService.getByKey('jwt', JwtConfig);
         return {
