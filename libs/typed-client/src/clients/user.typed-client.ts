@@ -12,4 +12,8 @@ export class UserTypedClient extends TypedClientBase<UserPatterns> {
   userLogin(userLoginDto: UserLoginDto): Promise<string> {
     return this.rpc('user.login', userLoginDto);
   }
+
+  getUsers(ids: number[]): Promise<(UserContract | undefined)[]> {
+    return this.rpc('user.get', ids);
+  }
 }

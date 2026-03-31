@@ -1,10 +1,18 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from '@/course-service/src/entities/course.entity';
 import { Repository } from 'typeorm';
 import { UserTypedClient } from '@app/typed-client';
 import { Transactional } from 'nestjs-transaction';
-import { BatchUpdateCourseDto, CreateCourseDto } from '@app/contracts';
+import {
+  BatchUpdateCourseDto,
+  CreateCourseDto,
+  IdentityType,
+} from '@app/contracts';
 import { instanceToPlain } from 'class-transformer';
 import { UserContextService } from '@app/authentication';
 
@@ -21,7 +29,13 @@ export class CourseWriteService {
   async createCourse(dto: CreateCourseDto): Promise<Course> {
     const userId = this.userContextService.getUserId();
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
-      await this.userClient.validateUserExists(dto.teachers);
+      const users = await this.userClient.getUsers(dto.teachers);
+      const invalid = users.some(
+        (u) => u === undefined || u.identityType !== IdentityType.TEACHER,
+      );
+      if (invalid) {
+        throw new BadRequestException('Invalid teachers');
+      }
     }
 
     const course = this.courseRepository.create({

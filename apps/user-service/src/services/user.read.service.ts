@@ -1,10 +1,11 @@
 ﻿import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/user-service/src/entities/user/user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { UserLoginDto } from '@app/contracts';
+import { UserContract, UserLoginDto } from '@app/contracts';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserReadService {
@@ -31,5 +32,18 @@ export class UserReadService {
       role: user.identityType,
     };
     return await this.jwtService.signAsync(payload);
+  }
+
+  async getUsers(ids: number[]): Promise<(UserContract | undefined)[]> {
+    const users = await this.userRepository.find({
+      where: { id: In(ids) },
+    });
+    return ids.map((id) => {
+      const user = users.find((u) => u.id === id);
+      if (user === undefined) return undefined;
+      return plainToInstance(UserContract, user, {
+        excludeExtraneousValues: true,
+      });
+    });
   }
 }

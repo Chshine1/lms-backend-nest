@@ -12,4 +12,8 @@ export interface UserPatterns extends Record<
     request: UserLoginDto;
     response: string;
   };
+  'user.get': {
+    request: number[];
+    response: (UserContract | undefined)[];
+  };
 }

@@ -35,4 +35,13 @@ export class UserController implements ExtractController<UserTypedClient> {
   userLogin(userLoginDto: UserLoginDto): Promise<string> {
     return this.userReadService.userLogin(userLoginDto);
   }
+
+  @RabbitRPC({
+    exchange: 'user-service',
+    routingKey: 'user.get',
+    queue: 'user-service-user-get',
+  })
+  getUsers(ids: number[]): Promise<(UserContract | undefined)[]> {
+    return this.userReadService.getUsers(ids);
+  }
 }
