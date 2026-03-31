@@ -36,29 +36,22 @@ export class CoreModule {
           endpointsProtocol,
         }),
         TypedClientModule.forRoot(exchanges),
-        ...(entities.length === 0
-          ? []
-          : [
-              TypeOrmModule.forRootAsync({
-                useFactory: (configService: ConfigurationService) => {
-                  const section = configService.getByKey(
-                    'database',
-                    DatabaseConfig,
-                  );
-                  return {
-                    type: 'postgres',
-                    host: section.host,
-                    port: section.port,
-                    username: section.username,
-                    password: section.password,
-                    database: section.database,
-                    entities,
-                    synchronize: false,
-                  };
-                },
-                inject: [ConfigurationService],
-              }),
-            ]),
+        TypeOrmModule.forRootAsync({
+          useFactory: (configService: ConfigurationService) => {
+            const section = configService.getByKey('database', DatabaseConfig);
+            return {
+              type: 'postgres',
+              host: section.host,
+              port: section.port,
+              username: section.username,
+              password: section.password,
+              database: section.database,
+              entities,
+              synchronize: false,
+            };
+          },
+          inject: [ConfigurationService],
+        }),
       ],
       exports: [
         InfrastructureModule,
