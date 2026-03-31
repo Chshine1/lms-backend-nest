@@ -5,7 +5,7 @@
   "root": "apps/gateway",
   "compilerOptions": {
     "tsConfigPath": "apps/gateway/tsconfig.app.json",
-    "webpack": true
+    "webpack": false
   },
   "projects": {
     "assignment-service": {
