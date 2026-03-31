@@ -1,4 +1,4 @@
-﻿import { DynamicModule, Module } from '@nestjs/common';
+﻿import { DynamicModule, Global, Module } from '@nestjs/common';
 import { TraceModule } from '@app/trace';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import {
@@ -8,6 +8,7 @@ import {
 import { RabbitMQConfig } from '@app/contracts';
 import { AuthenticationModule } from '@app/authentication';
 
+@Global()
 @Module({})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TypedClientCoreModule {

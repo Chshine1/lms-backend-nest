@@ -44,7 +44,6 @@ export class TypedClientModule {
 
     return {
       module: TypedClientModule,
-      imports: [TypedClientCoreModule],
       providers,
       exports,
     };
