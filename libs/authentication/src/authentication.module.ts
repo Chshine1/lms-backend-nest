@@ -1,6 +1,5 @@
 ﻿import { DynamicModule, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
-import { ClsModule } from 'nestjs-cls';
 import { PermissionModule } from './permission/permission.module';
 
 @Module({})
@@ -10,11 +9,6 @@ export class AuthenticationModule {
     return {
       module: AuthenticationModule,
       imports: [
-        ClsModule.forRoot({
-          middleware: {
-            mount: false,
-          },
-        }),
         PermissionModule.forFeature(permissionEntity),
       ],
       exports: [PermissionModule],
