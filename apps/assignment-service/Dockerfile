@@ -1,12 +1,10 @@
 FROM node:24.14.0-alpine AS deps
 WORKDIR /app
 
-ENV YARN_CACHE_FOLDER=/yarn-cache
-
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY --parents apps/*/package.json ./
 COPY --parents libs/*/package.json ./
-COPY .yarn ./.yarn/
+COPY .yarn/releases ./.yarn/releases/
 
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate
 
@@ -22,9 +20,6 @@ RUN yarn nest build assignment-service
 
 FROM node:24.14.0-alpine AS workspace
 WORKDIR /app
-
-ENV YARN_CACHE_FOLDER=/yarn-cache
-COPY --from=deps /yarn-cache /yarn-cache
 
 COPY --from=builder /app/dist/apps/assignment-service/ ./
 COPY --from=builder /app/package.json /app/yarn.lock /app/.yarnrc.yml ./
