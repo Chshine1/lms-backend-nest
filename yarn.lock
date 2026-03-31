@@ -2355,6 +2355,7 @@ __metadata:
     "@nestjs/jwt": "npm:^11.0.2"
     "@nestjs/passport": "npm:^11.0.5"
     "@nestjs/platform-express": "npm:^11.0.1"
+    "@nestjs/swagger": "npm:^11.2.6"
     "@types/passport-jwt": "npm:^4"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
