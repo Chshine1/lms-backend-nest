@@ -37,6 +37,7 @@ export class CoreModule {
         }),
         TypedClientModule.forRoot(exchanges),
         TypeOrmModule.forRootAsync({
+          imports: [InfrastructureModule],
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('database', DatabaseConfig);
             return {
