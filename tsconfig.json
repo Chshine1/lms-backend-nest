@@ -28,6 +28,12 @@
       "@app/contracts/*": [
         "libs/contracts/src/*"
       ],
+      "@app/core": [
+        "libs/core/src"
+      ],
+      "@app/core/*": [
+        "libs/core/src/*"
+      ],
       "@app/infrastructure": [
         "libs/infrastructure/src"
       ],
@@ -80,5 +86,7 @@
     "libs/**/*",
     "@types"
   ],
-  "exclude": ["migrations/**/*.ts"]
+  "exclude": [
+    "migrations/**/*.ts"
+  ]
 }

@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
+import { ConfigurationService } from '@app/infrastructure';
 import { UserPermission } from './entities/user-permission.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user/user.entity';
@@ -15,12 +12,14 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { JwtConfig } from '@app/contracts';
 import { UserReadService } from './services/user.read.service';
 import { UserWriteService } from './services/user.write.service';
+import { CoreModule } from '@app/core';
 
 @Module({
   imports: [
-    InfrastructureModule.forServiceAsync({
-      entities: [User, Tenant, Student, Teacher, Campus, UserPermission],
+    CoreModule.forRoot({
       permissionEntity: UserPermission,
+      endpointsProtocol: 'rabbitmq',
+      entities: [User, Tenant, Student, Teacher, Campus, UserPermission],
       exchanges: [{ name: 'user-service', type: 'topic' }],
     }),
     JwtModule.registerAsync({

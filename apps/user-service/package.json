@@ -8,6 +8,7 @@
   "dependencies": {
     "@app/authentication": "workspace:*",
     "@app/contracts": "workspace:*",
+    "@app/core": "workspace:*",
     "@app/infrastructure": "workspace:*",
     "@app/typed-client": "workspace:*",
     "@golevelup/nestjs-rabbitmq": "^9.0.0",

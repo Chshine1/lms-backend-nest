@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { CourseSchedulingController } from './course-scheduling.controller';
 import { CourseSchedulingService } from './course-scheduling.service';
 import { CourseSchedule } from './entities/course-schedule.entity';
-import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CoreModule } from '@app/core';
 
 @Module({
   imports: [
-    InfrastructureModule.forServiceAsync({
+    CoreModule.forRoot({
+      endpointsProtocol: 'rabbitmq',
       entities: [CourseSchedule],
       exchanges: [{ name: 'course-scheduling-service', type: 'topic' }],
     }),

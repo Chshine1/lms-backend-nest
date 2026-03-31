@@ -4,12 +4,11 @@ import { LoggerService } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
 import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
-import { TraceService } from '@app/trace';
+import { TraceModule } from '@app/trace';
 
 @Module({
-  imports: [ConfigurationModule],
+  imports: [TraceModule, ConfigurationModule],
   providers: [
-    TraceService,
     LogEnrichmentService,
     {
       provide: LoggerService,
@@ -23,7 +22,7 @@ import { TraceService } from '@app/trace';
       inject: [LogEnrichmentService],
     },
   ],
-  exports: [ConfigurationModule, TraceService, LoggerService],
+  exports: [LoggerService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class LoggerModule {}

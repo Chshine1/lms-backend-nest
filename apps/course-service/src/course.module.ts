@@ -4,14 +4,15 @@ import { CourseUnit } from './entities/index';
 import { Assignment } from './entities/index';
 import { CourseMaterial } from './entities/index';
 import { CourseController } from './course.controller';
-import { InfrastructureModule } from '@app/infrastructure';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CourseReadService, CourseWriteService } from './services/index';
 import { TypedClientModule, UserTypedClient } from '@app/typed-client';
+import { CoreModule } from '@app/core';
 
 @Module({
   imports: [
-    InfrastructureModule.forServiceAsync({
+    CoreModule.forRoot({
+      endpointsProtocol: 'rabbitmq',
       entities: [Course, CourseUnit, Assignment, CourseMaterial],
       exchanges: [{ name: 'user-service', type: 'topic' }],
     }),

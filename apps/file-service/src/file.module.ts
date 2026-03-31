@@ -8,16 +8,15 @@ import {
 } from '@/file-service/src/storage/storage-provider.interface';
 import { LocalStorageProvider } from '@/file-service/src/storage/providers/local-storage.provider';
 import { S3StorageProvider } from '@/file-service/src/storage/providers/s3-storage.provider';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
+import { ConfigurationService } from '@app/infrastructure';
 import { StorageConfig, StorageProviderType } from '@app/contracts';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CoreModule } from '@app/core';
 
 @Module({
   imports: [
-    InfrastructureModule.forServiceAsync({
+    CoreModule.forRoot({
+      endpointsProtocol: 'rabbitmq',
       entities: [File],
       exchanges: [{ name: 'file-service', type: 'topic' }],
     }),

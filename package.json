@@ -95,6 +95,7 @@
       "^@app/audit(|/.*)$": "<rootDir>/libs/audit/src/$1",
       "^@app/authentication(|/.*)$": "<rootDir>/libs/authentication/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
       "^@app/trace(|/.*)$": "<rootDir>/libs/trace/src/$1",

@@ -4,10 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { JwtConfig } from '@app/contracts';
-import {
-  ConfigurationService,
-  InfrastructureModule,
-} from '@app/infrastructure';
+import { ConfigurationService } from '@app/infrastructure';
 import {
   CourseTypedClient,
   TypedClientModule,
@@ -18,10 +15,12 @@ import {
   CourseController,
   CommonController,
 } from './controllers/index';
+import { CoreModule } from '@app/core';
 
 @Module({
   imports: [
-    InfrastructureModule.forServiceAsync({
+    CoreModule.forRoot({
+      endpointsProtocol: 'http',
       entities: [],
       exchanges: [
         {

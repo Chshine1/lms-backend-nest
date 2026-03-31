@@ -1,8 +1,8 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AsyncLocalStorage } from 'async_hooks';
 import { randomUUID } from 'crypto';
 
-@Injectable({ scope: Scope.DEFAULT })
+@Injectable()
 export class TraceService {
   private readonly als = new AsyncLocalStorage<{ traceId: string }>();
 

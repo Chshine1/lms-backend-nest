@@ -1,5 +1,4 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { type TypedClientMqOptions } from './typed-client.module';
 import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 
@@ -13,7 +12,9 @@ export abstract class TypedClientBase<
     private readonly amqpConnection: AmqpConnection,
     private readonly traceService: TraceService,
     private readonly userContextService: UserContextService,
-    options: TypedClientMqOptions,
+    options: {
+      exchange: string;
+    },
   ) {
     this.exchange = options.exchange;
   }

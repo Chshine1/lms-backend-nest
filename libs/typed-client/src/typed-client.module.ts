@@ -3,17 +3,18 @@ import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
 import { TraceModule, TraceService } from '@app/trace';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { ConfigurationService } from '@app/infrastructure';
+import {
+  ConfigurationService,
+  InfrastructureModule,
+} from '@app/infrastructure';
 import { RabbitMQConfig } from '@app/contracts';
 import { AuthenticationModule } from '@app/authentication';
 
-export interface TypedClientMqOptions {
-  exchange: string;
-}
-
-interface ForFeatureConfig {
+interface ForFeatureOptions {
   client: ClassConstructor<TypedClientBase>;
-  mqOptions: TypedClientMqOptions;
+  mqOptions: {
+    exchange: string;
+  };
 }
 
 @Module({})
@@ -23,7 +24,9 @@ export class TypedClientModule {
     return {
       module: TypedClientModule,
       imports: [
+        InfrastructureModule,
         AuthenticationModule,
+        TraceModule,
         RabbitMQModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('rabbitmq', RabbitMQConfig);
@@ -38,14 +41,11 @@ export class TypedClientModule {
           },
           inject: [ConfigurationService],
         }),
-        TraceModule,
       ],
-      providers: [],
-      exports: [RabbitMQModule, TraceModule],
     };
   }
 
-  static forFeature(configs: ForFeatureConfig[]): DynamicModule {
+  static forFeature(configs: ForFeatureOptions[]): DynamicModule {
     const providers = configs.flatMap((config) => [
       {
         provide: config.client,

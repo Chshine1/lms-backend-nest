@@ -125,29 +125,41 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/core@workspace:*, @app/core@workspace:libs/core":
+  version: 0.0.0-use.local
+  resolution: "@app/core@workspace:libs/core"
+  dependencies:
+    "@app/authentication": "workspace:*"
+    "@app/contracts": "workspace:*"
+    "@app/infrastructure": "workspace:*"
+    "@app/trace": "workspace:*"
+    "@app/typed-client": "workspace:*"
+    "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/typeorm": "npm:^11.0.0"
+    class-transformer: "npm:^0.5.1"
+    pg: "npm:^8.20.0"
+    typeorm: "npm:^0.3.28"
+  languageName: unknown
+  linkType: soft
+
 "@app/infrastructure@workspace:*, @app/infrastructure@workspace:libs/infrastructure":
   version: 0.0.0-use.local
   resolution: "@app/infrastructure@workspace:libs/infrastructure"
   dependencies:
-    "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/trace": "workspace:*"
-    "@app/typed-client": "workspace:*"
     "@aws-sdk/client-ssm": "npm:^3.995.0"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
     "@nestjs/microservices": "npm:^11.0.1"
-    "@nestjs/typeorm": "npm:^11.0.0"
     "@types/pg": "npm:^8"
     change-case: "npm:^5.4.4"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
     js-yaml: "npm:^4.1.1"
     lodash: "npm:^4.17.23"
-    pg: "npm:^8.20.0"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
-    typeorm: "npm:^0.3.28"
   languageName: unknown
   linkType: soft
 
@@ -179,6 +191,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/typed-client@workspace:libs/typed-client"
   dependencies:
+    "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/infrastructure": "workspace:*"
     "@app/trace": "workspace:*"
@@ -2238,7 +2251,7 @@ __metadata:
   resolution: "@lms/assignment-service@workspace:apps/assignment-service"
   dependencies:
     "@app/contracts": "workspace:*"
-    "@app/infrastructure": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/cli": "npm:^11.0.0"
@@ -2259,7 +2272,7 @@ __metadata:
   resolution: "@lms/course-enrollment-service@workspace:apps/course-enrollment-service"
   dependencies:
     "@app/contracts": "workspace:*"
-    "@app/infrastructure": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/cli": "npm:^11.0.0"
@@ -2280,7 +2293,7 @@ __metadata:
   resolution: "@lms/course-scheduling-service@workspace:apps/course-scheduling-service"
   dependencies:
     "@app/contracts": "workspace:*"
-    "@app/infrastructure": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/cli": "npm:^11.0.0"
@@ -2302,7 +2315,7 @@ __metadata:
   dependencies:
     "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
-    "@app/infrastructure": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/cli": "npm:^11.0.0"
@@ -2324,6 +2337,7 @@ __metadata:
   resolution: "@lms/file-service@workspace:apps/file-service"
   dependencies:
     "@app/contracts": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/infrastructure": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@aws-sdk/client-s3": "npm:^3.1014.0"
@@ -2347,6 +2361,7 @@ __metadata:
   resolution: "@lms/gateway@workspace:apps/gateway"
   dependencies:
     "@app/contracts": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/infrastructure": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@nestjs/cli": "npm:^11.0.0"
@@ -2372,6 +2387,7 @@ __metadata:
   dependencies:
     "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
+    "@app/core": "workspace:*"
     "@app/infrastructure": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"

@@ -3,7 +3,7 @@ import { RmqContext } from '@nestjs/microservices';
 import { ClsService } from 'nestjs-cls';
 
 @Injectable()
-export class RabbitMQUserContextGuard implements CanActivate {
+export class RabbitMQUserContextInterceptor implements CanActivate {
   constructor(private clsService: ClsService) {}
 
   canActivate(context: ExecutionContext): boolean {
