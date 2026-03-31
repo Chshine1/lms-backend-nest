@@ -10,6 +10,15 @@ export class FileController implements ExtractController<FileTypedClient> {
 
   @RabbitRPC({
     exchange: 'file-service',
+    routingKey: 'file.validateExists',
+    queue: 'file-service-file-validateExists',
+  })
+  validateFileExists(_ids: number[]): Promise<boolean[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  @RabbitRPC({
+    exchange: 'file-service',
     routingKey: 'file.create',
     queue: 'file-service-file-create',
   })
