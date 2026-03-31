@@ -10,10 +10,11 @@ import { UserTypedClient } from '@app/typed-client';
 import { Transactional } from 'nestjs-transaction';
 import {
   BatchUpdateCourseDto,
+  CourseContract,
   CreateCourseDto,
   IdentityType,
 } from '@app/contracts';
-import { instanceToPlain } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { UserContextService } from '@app/authentication';
 
 @Injectable()
@@ -26,7 +27,7 @@ export class CourseWriteService {
   ) {}
 
   @Transactional()
-  async createCourse(dto: CreateCourseDto): Promise<Course> {
+  async createCourse(dto: CreateCourseDto): Promise<CourseContract> {
     const userId = this.userContextService.getUserId();
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
       const users = await this.userClient.getUsers(dto.teachers);
@@ -45,14 +46,16 @@ export class CourseWriteService {
     await this.courseRepository.save(course);
 
     // TODO: 发布 CourseCreatedEvent
-    return course;
+    return plainToInstance(CourseContract, course, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Transactional()
   async batchUpdateCourse(
     courseId: number,
     dto: BatchUpdateCourseDto,
-  ): Promise<Course> {
+  ): Promise<CourseContract> {
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
       relations: ['courseUnits', 'courseUnits.assignments'],
@@ -64,6 +67,9 @@ export class CourseWriteService {
 
     if (dto.units !== undefined) course.updateUnits(dto.units);
 
-    return this.courseRepository.save(course);
+    const result = await this.courseRepository.save(course);
+    return plainToInstance(CourseContract, result, {
+      excludeExtraneousValues: true,
+    });
   }
 }

@@ -1,6 +1,5 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { plainToInstance } from 'class-transformer';
 import { CourseTypedClient, ExtractController } from '@app/typed-client';
 import { CourseReadService, CourseWriteService } from './services/index';
 import {
@@ -26,11 +25,8 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     routingKey: 'course.create',
     queue: 'course-service-course-create',
   })
-  async createCourse(data: CreateCourseDto): Promise<CourseContract> {
-    const course = await this.courseWriteService.createCourse(data);
-    return plainToInstance(CourseContract, course, {
-      excludeExtraneousValues: true,
-    });
+  createCourse(data: CreateCourseDto): Promise<CourseContract> {
+    return this.courseWriteService.createCourse(data);
   }
 
   @RabbitRPC({
@@ -38,17 +34,11 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     routingKey: 'course.batch-update',
     queue: 'course-service-course-batch-update',
   })
-  async batchUpdateCourse(data: {
+  batchUpdateCourse(data: {
     courseId: number;
     data: BatchUpdateCourseDto;
   }): Promise<CourseContract> {
-    const course = await this.courseWriteService.batchUpdateCourse(
-      data.courseId,
-      data.data,
-    );
-    return plainToInstance(CourseContract, course, {
-      excludeExtraneousValues: true,
-    });
+    return this.courseWriteService.batchUpdateCourse(data.courseId, data.data);
   }
 
   @RabbitRPC({
@@ -68,10 +58,16 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     routingKey: 'course.find-unit-detail',
     queue: 'course-service-course-find-unit-detail',
   })
-  async findUnitDetail(data: { unitId: number }): Promise<{
+  async findUnitDetail(data: {
+    courseId: number;
+    courseUnitId: number;
+  }): Promise<{
     assignments: AssignmentContract[];
     courseMaterials: CourseMaterialContract[];
   }> {
-    return this.courseReadService.findUnitDetail(data.unitId);
+    return this.courseReadService.findUnitDetail(
+      data.courseId,
+      data.courseUnitId,
+    );
   }
 }

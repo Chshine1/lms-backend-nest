@@ -45,20 +45,25 @@ export class CourseReadService {
     };
   }
 
-  async findUnitDetail(unitId: number): Promise<{
+  async findUnitDetail(
+    courseId: number,
+    courseUnitId: number,
+  ): Promise<{
     assignments: AssignmentContract[];
     courseMaterials: CourseMaterialContract[];
   }> {
-    const exists = await this.unitRepository.exists({ where: { id: unitId } });
+    const exists = await this.unitRepository.exists({
+      where: { id: courseUnitId, courseId: courseId },
+    });
     if (!exists) {
       throw new NotFoundException('Unit not found');
     }
 
     const assignments = await this.assignmentRepository.find({
-      where: { courseUnitId: unitId },
+      where: { courseUnitId: courseUnitId },
     });
     const courseMaterials = await this.courseMaterialRepository.find({
-      where: { courseUnitId: unitId },
+      where: { courseUnitId: courseUnitId },
     });
 
     return {

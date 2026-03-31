@@ -33,7 +33,8 @@ export interface CoursePatterns extends Record<
   };
   'course.find-unit-detail': {
     request: {
-      unitId: number;
+      courseId: number;
+      courseUnitId: number;
     };
     response: {
       assignments: AssignmentContract[];

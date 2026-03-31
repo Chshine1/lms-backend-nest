@@ -1,5 +1,4 @@
 ﻿import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -9,7 +8,16 @@ import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
-import { TypedClientModule, UserTypedClient } from '@app/typed-client';
+import {
+  CourseTypedClient,
+  TypedClientModule,
+  UserTypedClient,
+} from '@app/typed-client';
+import {
+  UserController,
+  CourseController,
+  CommonController,
+} from './controllers/index';
 
 @Module({
   imports: [
@@ -43,9 +51,15 @@ import { TypedClientModule, UserTypedClient } from '@app/typed-client';
         },
         client: UserTypedClient,
       },
+      {
+        mqOptions: {
+          exchange: 'course-service',
+        },
+        client: CourseTypedClient,
+      },
     ]),
   ],
-  controllers: [AppController],
+  controllers: [CommonController, UserController, CourseController],
   providers: [AppService, JwtStrategy],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
