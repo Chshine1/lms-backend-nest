@@ -24,10 +24,10 @@ export class TypedClientModule {
     return {
       module: TypedClientModule,
       imports: [
-        InfrastructureModule,
         AuthenticationModule,
         TraceModule,
         RabbitMQModule.forRootAsync({
+          imports: [InfrastructureModule],
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('rabbitmq', RabbitMQConfig);
             return {
