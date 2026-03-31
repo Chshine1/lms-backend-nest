@@ -1,12 +1,10 @@
 ﻿import { DynamicModule, Global, Module } from '@nestjs/common';
-import { TraceModule } from '@app/trace';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
 import { RabbitMQConfig } from '@app/contracts';
-import { AuthenticationModule } from '@app/authentication';
 
 @Global()
 @Module({})
@@ -16,8 +14,6 @@ export class TypedClientCoreModule {
     return {
       module: TypedClientCoreModule,
       imports: [
-        AuthenticationModule,
-        TraceModule,
         RabbitMQModule.forRootAsync({
           imports: [InfrastructureModule],
           useFactory: (configService: ConfigurationService) => {
@@ -34,7 +30,7 @@ export class TypedClientCoreModule {
           inject: [ConfigurationService],
         }),
       ],
-      exports: [AuthenticationModule, TraceModule, RabbitMQModule],
+      exports: [RabbitMQModule],
     };
   }
 }
