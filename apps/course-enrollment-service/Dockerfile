@@ -1,16 +1,4 @@
-FROM node:24.14.0-alpine AS deps
-WORKDIR /app
-
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY --parents apps/*/package.json ./
-COPY --parents libs/*/package.json ./
-COPY .yarn/releases ./.yarn/releases/
-
-RUN corepack enable && corepack prepare yarn@4.12.0 --activate
-
-RUN yarn install --immutable
-
-FROM deps AS builder
+FROM lms-deps-base:latest AS builder
 
 COPY nest-cli.json tsconfig.json ./
 COPY apps/course-enrollment-service ./apps/course-enrollment-service/

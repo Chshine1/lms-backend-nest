@@ -23,10 +23,13 @@ Monorepo NestJS microservices backend for a Learning Management System.
 ### Quick Start
 
 ```bash
-# 1. Build and start all containers
+# 1. Build a stable base dependency image
+docker build -f Dockerfile.deps -t lms-deps-base:latest .
+
+# 2. Build and start all containers
 docker compose -f docker-compose.development.yml up --build
 
-# 2. Access services
+# 3. Access services
 open http://localhost:3000        # Gateway API
 open http://localhost:15672       # RabbitMQ Management (lms/lms)
 open http://localhost:3030        # Grafana Logs Dashboard

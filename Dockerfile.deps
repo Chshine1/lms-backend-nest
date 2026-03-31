@@ -1,0 +1,11 @@
+﻿FROM node:24.14.0-alpine AS deps-base
+WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY --parents apps/*/package.json ./
+COPY --parents libs/*/package.json ./
+COPY .yarn/releases ./.yarn/releases/
+
+RUN corepack enable && corepack prepare yarn@4.12.0 --activate
+
+RUN yarn install --immutable
