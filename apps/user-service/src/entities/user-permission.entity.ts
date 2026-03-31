@@ -2,7 +2,6 @@
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   PrimaryColumn,
 } from 'typeorm';
 import { type Permission } from '@app/authentication';
@@ -21,7 +20,6 @@ export enum UserServiceAction {
 @Entity('user_permissions')
 export class UserPermission implements Permission {
   @PrimaryColumn()
-  @Index()
   userId!: number;
 
   @PrimaryColumn({

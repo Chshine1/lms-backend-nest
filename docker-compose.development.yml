@@ -29,6 +29,7 @@ services:
       - ./.yarnrc.yml:/app/.yarnrc.yml:ro
       - ./package.json:/app/package.json:ro
       - ./yarn.lock:/app/yarn.lock:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
     command: sh -c "yarn run migration:run"
     depends_on:
       postgres:
