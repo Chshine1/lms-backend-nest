@@ -31,8 +31,7 @@ import { CoreModule } from '@app/core';
     }),
     PassportModule,
     JwtModule.registerAsync({
-      imports: [],
-      inject: [ConfigurationService],
+      imports: [ConfigurationService],
       useFactory: (configService: ConfigurationService) => {
         const jwtSection = configService.getByKey('jwt', JwtConfig);
         return {
@@ -42,6 +41,7 @@ import { CoreModule } from '@app/core';
           },
         };
       },
+      inject: [ConfigurationService],
     }),
     TypedClientModule.forFeature([
       {
