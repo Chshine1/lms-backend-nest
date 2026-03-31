@@ -8,7 +8,13 @@
 } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 
-import { DatabaseConfig, JwtConfig, RabbitMQConfig } from '@app/contracts';
+import {
+  DatabaseConfig,
+  FileConfig,
+  JwtConfig,
+  RabbitMQConfig,
+  StorageConfig,
+} from '@app/contracts';
 
 export class AwsConfig {
   @IsDefined()
@@ -51,6 +57,18 @@ export class YamlSchema {
   @Type(() => GatewayConfig)
   @Expose()
   gateway?: GatewayConfig;
+  
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StorageConfig)
+  @Expose()
+  storage?: StorageConfig;
+  
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => FileConfig)
+  @Expose()
+  file?: StorageConfig;
 
   @IsDefined()
   @ValidateNested()
