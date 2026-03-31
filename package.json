@@ -11,7 +11,7 @@
     "libs/*"
   ],
   "scripts": {
-    "build": "nest build",
+    "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{apps,libs}/**/*.ts\"",
     "dep:check": "yarn workspaces foreach --all --exclude \"lms-nest-backend\" exec npx depcheck",

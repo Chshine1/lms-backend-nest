@@ -2,10 +2,7 @@
 export * from './modules/logger/errors/index';
 export * from './modules/configuration/errors/index';
 
-export {
-  InfrastructureModule,
-  type MicroserviceInfrastructureOptions,
-} from './infrastructure.module';
+export { InfrastructureModule } from './infrastructure.module';
 
 export { GatewayConfig } from './configs/configuration/schemas/yaml.schema';
 
