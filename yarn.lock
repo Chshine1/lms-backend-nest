@@ -106,6 +106,7 @@ __metadata:
     "@nestjs/core": "npm:^11.0.1"
     "@nestjs/microservices": "npm:^11.1.17"
     "@nestjs/typeorm": "npm:^11.0.0"
+    class-transformer: "npm:^0.5.1"
     nestjs-cls: "npm:^6.2.0"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
@@ -2299,6 +2300,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@lms/course-service@workspace:apps/course-service"
   dependencies:
+    "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/infrastructure": "workspace:*"
     "@app/typed-client": "workspace:*"
@@ -2375,6 +2377,7 @@ __metadata:
     "@nestjs/cli": "npm:^11.0.0"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/jwt": "npm:^11.0.2"
     "@nestjs/platform-express": "npm:^11.0.1"
     "@nestjs/typeorm": "npm:^11.0.0"
     "@types/bcrypt": "npm:^6"

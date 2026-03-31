@@ -6,6 +6,7 @@
     "build": "nest build course-service"
   },
   "dependencies": {
+    "@app/authentication": "workspace:*",
     "@app/contracts": "workspace:*",
     "@app/infrastructure": "workspace:*",
     "@app/typed-client": "workspace:*",
