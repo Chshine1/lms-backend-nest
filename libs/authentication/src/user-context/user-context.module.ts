@@ -5,6 +5,13 @@ import { ClsModule } from 'nestjs-cls';
 import { UserContextService } from './user-context.service';
 
 @Module({
+  imports: [
+    ClsModule.forRoot({
+      middleware: {
+        mount: false,
+      },
+    }),
+  ],
   providers: [UserContextService],
   exports: [UserContextService],
 })
@@ -13,13 +20,6 @@ export class UserContextModule {
   static forRoot(endpointsProtocol: 'http' | 'rabbitmq'): DynamicModule {
     return {
       module: UserContextModule,
-      imports: [
-        ClsModule.forRoot({
-          middleware: {
-            mount: false,
-          },
-        }),
-      ],
       providers: [
         {
           provide: APP_INTERCEPTOR,
