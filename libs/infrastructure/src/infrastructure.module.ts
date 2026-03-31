@@ -1,38 +1,14 @@
-import {
-  DynamicModule,
-  Global,
-  INestApplicationContext,
-  Module,
-} from '@nestjs/common';
-import { APP_INTERCEPTOR, NestFactory } from '@nestjs/core';
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClassConstructor } from 'class-transformer';
 
 import { TypedClientModule } from '@app/typed-client';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationService } from './modules/configuration/configuration.service';
-import { LoggerService } from './modules/logger/logger.service';
-import { RabbitMqTraceInterceptor, TraceService } from '@app/trace';
+import { RabbitMqTraceInterceptor } from '@app/trace';
 import { DatabaseConfig } from '@app/contracts';
 import { AuthenticationModule } from '@app/authentication';
-
-const GLOBAL_INFRASTRUCTURE_KEY = 'infrastructure';
-
-export async function initializeInfrastructure(): Promise<void> {
-  const context: INestApplicationContext =
-    await NestFactory.createApplicationContext(LoggerModule);
-
-  try {
-    (global as unknown as Record<string, unknown>)[GLOBAL_INFRASTRUCTURE_KEY] =
-      {
-        configurationService: context.get(ConfigurationService),
-        traceService: context.get(TraceService),
-        loggerService: context.get(LoggerService),
-      };
-  } finally {
-    await context.close();
-  }
-}
 
 export interface MicroserviceInfrastructureOptions {
   entities: ClassConstructor<object>[];

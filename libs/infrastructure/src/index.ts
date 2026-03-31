@@ -5,7 +5,6 @@ export * from './modules/configuration/errors/index';
 export {
   InfrastructureModule,
   type MicroserviceInfrastructureOptions,
-  initializeInfrastructure,
 } from './infrastructure.module';
 
 export { GatewayConfig } from './configs/configuration/schemas/yaml.schema';

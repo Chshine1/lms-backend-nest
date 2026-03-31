@@ -1,70 +1,38 @@
 import { Controller } from '@nestjs/common';
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { UserService } from './user.service';
-import { TenantService } from './tenant.service';
-import {
-  CreateUserDto,
-  UserContract,
-  ValidateUserDto,
-  TenantContract,
-} from '@app/contracts';
+import { UserContract, CreateUserDto, UserLoginDto } from '@app/contracts';
 import {
   UserServiceAction,
   UserServiceResource,
 } from '@/user-service/src/entities/user-permission.entity';
 import { RequirePermissions } from '@app/authentication';
 import { ExtractController, UserTypedClient } from '@app/typed-client';
+import { UserReadService } from '@/user-service/src/services/user.read.service';
+import { UserWriteService } from '@/user-service/src/services/user.write.service';
 
 @Controller()
 export class UserController implements ExtractController<UserTypedClient> {
   constructor(
-    private readonly userService: UserService,
-    private readonly tenantService: TenantService,
+    private readonly userReadService: UserReadService,
+    private readonly userWriteService: UserWriteService,
   ) {}
 
-  @RequirePermissions([[UserServiceResource.USER, UserServiceAction.MANAGE]])
+  @RequirePermissions(UserServiceResource.USER, UserServiceAction.MANAGE)
   @RabbitRPC({
     exchange: 'user-service',
     routingKey: 'user.create',
     queue: 'user-service-user-create',
   })
   createUser(createUserDto: CreateUserDto): Promise<UserContract> {
-    return this.userService.create(createUserDto);
+    return this.userWriteService.create(createUserDto);
   }
 
   @RabbitRPC({
     exchange: 'user-service',
-    routingKey: 'user.validate',
-    queue: 'user-service-user-validate',
+    routingKey: 'user.login',
+    queue: 'user-service-user-login',
   })
-  validateUser(data: ValidateUserDto): Promise<UserContract | null> {
-    return this.userService.validateUser(data.username, data.password);
-  }
-
-  @RabbitRPC({
-    exchange: 'user-service',
-    routingKey: 'user.findById',
-    queue: 'user-service-user-findById',
-  })
-  findUserById(id: number): Promise<UserContract | null> {
-    return this.userService.findById(id);
-  }
-
-  @RabbitRPC({
-    exchange: 'user-service',
-    routingKey: 'tenant.findById',
-    queue: 'user-service-tenant-findById',
-  })
-  findTenantById(id: number): Promise<TenantContract | null> {
-    return this.tenantService.findById(id);
-  }
-
-  @RabbitRPC({
-    exchange: 'user-service',
-    routingKey: 'tenant.validate',
-    queue: 'user-service-tenant-validate',
-  })
-  validateTenant(id: number): Promise<TenantContract | null> {
-    return this.tenantService.validateTenant(id);
+  userLogin(userLoginDto: UserLoginDto): Promise<string> {
+    return this.userReadService.userLogin(userLoginDto);
   }
 }

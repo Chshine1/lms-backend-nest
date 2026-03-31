@@ -28,9 +28,6 @@ export class BatchUpdateUserDto {
   phone?: string;
 
   @ApiProperty({ required: false })
-  passwordHash?: string;
-
-  @ApiProperty({ required: false })
   status?: UserStatus;
 
   @ApiProperty({ required: false })
@@ -38,4 +35,7 @@ export class BatchUpdateUserDto {
 
   @ApiProperty({ required: false })
   derivation?: StudentBatchDto | TeacherBatchDto;
+
+  @ApiProperty({ required: false })
+  password?: string;
 }

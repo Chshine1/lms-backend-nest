@@ -7,3 +7,5 @@ export {
   TeacherBatchDto,
   BatchUpdateUserDto,
 } from './batch-update-user.dto';
+export { CreateUserDto } from './create-user.dto';
+export { UserLoginDto } from './user-login.dto';
