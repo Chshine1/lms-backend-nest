@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
 import { TraceModule, TraceService } from '@app/trace';
@@ -24,7 +24,7 @@ export class TypedClientModule {
   }
 
   static forFeature(configs: ForFeatureOptions[]): DynamicModule {
-    const providers = configs.flatMap((config) => [
+    const providers: Provider[] = configs.flatMap((config) => [
       {
         provide: config.client,
         // Pay attention to constructor here, not strong-typed, so no compiling checks

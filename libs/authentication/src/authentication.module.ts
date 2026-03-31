@@ -1,13 +1,17 @@
 ﻿import { DynamicModule, Module } from '@nestjs/common';
 import { PermissionModule } from './permission/permission.module';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { UserContextModule } from './user-context/user-context.module';
 
 export interface AuthenticationModuleOptions {
   permissionEntity?: EntityClassOrSchema;
   endpointsProtocol: 'http' | 'rabbitmq';
 }
 
-@Module({})
+@Module({
+  imports: [UserContextModule],
+  exports: [UserContextModule],
+})
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class AuthenticationModule {
   static forRoot({
@@ -17,12 +21,12 @@ export class AuthenticationModule {
     return {
       module: AuthenticationModule,
       imports: [
-        PermissionModule.forFeature({
-          entity: permissionEntity,
-          endpointsProtocol,
-        }),
+        UserContextModule.forRoot(endpointsProtocol),
+        ...(permissionEntity === undefined
+          ? []
+          : [PermissionModule.forRoot(permissionEntity)]),
       ],
-      exports: [PermissionModule],
+      exports: permissionEntity === undefined ? [] : [PermissionModule],
     };
   }
 }
