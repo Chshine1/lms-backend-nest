@@ -8,9 +8,7 @@ export class AuthenticationModule {
   static forRoot(permissionEntity?: ClassConstructor<unknown>): DynamicModule {
     return {
       module: AuthenticationModule,
-      imports: [
-        PermissionModule.forFeature(permissionEntity),
-      ],
+      imports: [PermissionModule.forFeature(permissionEntity)],
       exports: [PermissionModule],
     };
   }

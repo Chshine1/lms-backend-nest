@@ -5,6 +5,7 @@ import { TraceModule, TraceService } from '@app/trace';
 import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigurationService } from '@app/infrastructure';
 import { RabbitMQConfig } from '@app/contracts';
+import { AuthenticationModule } from '@app/authentication';
 
 export interface TypedClientMqOptions {
   exchange: string;
@@ -22,6 +23,7 @@ export class TypedClientModule {
     return {
       module: TypedClientModule,
       imports: [
+        AuthenticationModule,
         RabbitMQModule.forRootAsync({
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('rabbitmq', RabbitMQConfig);

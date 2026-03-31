@@ -72,7 +72,7 @@ export class RabbitMQPermissionGuard implements CanActivate {
       return true;
     }
 
-    const userId = this.userContextService.getUserId();
+    const userId = this.userContextService.getRequiredUserId();
 
     const userPermissions =
       await this.permissionService.getUserPermissions(userId);

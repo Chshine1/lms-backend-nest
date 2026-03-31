@@ -28,7 +28,7 @@ export class CourseWriteService {
 
   @Transactional()
   async createCourse(dto: CreateCourseDto): Promise<CourseContract> {
-    const userId = this.userContextService.getUserId();
+    const userId = this.userContextService.getRequiredUserId();
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
       const users = await this.userClient.getUsers(dto.teachers);
       const invalid = users.some(

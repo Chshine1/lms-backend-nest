@@ -1,17 +1,19 @@
-﻿import { Injectable } from '@nestjs/common';
+﻿import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class UserContextService {
   constructor(private readonly cls: ClsService) {}
 
-  getUserId(): number {
-    const userId = this.cls.get<number>('userId');
-    if (!userId) {
-      throw new Error(
-        'No user ID in current context. Make sure RabbitMQPermissionGuard is applied.',
-      );
+  getRequiredUserId(): number {
+    const userId = this.cls.get<number | undefined>('userId');
+    if (userId === undefined) {
+      throw new UnauthorizedException('No user ID in current context.');
     }
     return userId;
+  }
+
+  getUserId(): number | undefined {
+    return this.cls.get<number | undefined>('userId');
   }
 }
