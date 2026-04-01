@@ -4,3 +4,6 @@ storage:
 
 file:
   signedUrlExpiry: 3600
+
+health:
+  port: 3006

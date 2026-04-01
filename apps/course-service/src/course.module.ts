@@ -7,6 +7,7 @@ import { CourseController } from './course.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CourseReadService, CourseWriteService } from './services/index';
 import { TypedClientModule, UserTypedClient } from '@app/typed-client';
+import { HealthModule } from '@app/infrastructure';
 import { CoreModule } from '@app/core';
 
 @Module({
@@ -15,6 +16,10 @@ import { CoreModule } from '@app/core';
       endpointsProtocol: 'rabbitmq',
       entities: [Course, CourseUnit, Assignment, CourseMaterial],
       exchanges: [{ name: 'user-service', type: 'topic' }],
+    }),
+    HealthModule.forRoot({
+      database: true,
+      rabbitmq: true,
     }),
     TypedClientModule.forFeature([
       {

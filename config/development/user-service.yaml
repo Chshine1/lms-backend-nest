@@ -1,3 +1,6 @@
 jwt:
   secret: dev-secret-key-change-in-production
   expiry: 3600
+
+health:
+  port: 3001

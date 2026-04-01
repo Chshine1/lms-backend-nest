@@ -108,11 +108,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: gateway
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   user-service:
     build:
       context: .
       dockerfile: apps/user-service/Dockerfile
+    ports:
+      - '3001:3001'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -124,11 +132,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: user-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3001/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   course-service:
     build:
       context: .
       dockerfile: apps/course-service/Dockerfile
+    ports:
+      - '3002:3002'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -140,11 +156,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: course-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3002/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   assignment-service:
     build:
       context: .
       dockerfile: apps/assignment-service/Dockerfile
+    ports:
+      - '3003:3003'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -156,11 +180,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: assignment-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3003/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   course-enrollment-service:
     build:
       context: .
       dockerfile: apps/course-enrollment-service/Dockerfile
+    ports:
+      - '3004:3004'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -172,11 +204,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: course-enrollment-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3004/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   course-scheduling-service:
     build:
       context: .
       dockerfile: apps/course-scheduling-service/Dockerfile
+    ports:
+      - '3005:3005'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -188,11 +228,19 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: course-scheduling-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3005/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   file-service:
     build:
       context: .
       dockerfile: apps/file-service/Dockerfile
+    ports:
+      - '3006:3006'
     volumes:
       - ./config:/app/config:ro
     depends_on:
@@ -204,3 +252,9 @@ services:
       ENVIRONMENT: development
       SERVICE_NAME: file-service
       CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3006/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

@@ -3,6 +3,7 @@ import { CourseSchedulingController } from './course-scheduling.controller';
 import { CourseSchedulingService } from './course-scheduling.service';
 import { CourseSchedule } from './entities/course-schedule.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HealthModule } from '@app/infrastructure';
 import { CoreModule } from '@app/core';
 
 @Module({
@@ -11,6 +12,10 @@ import { CoreModule } from '@app/core';
       endpointsProtocol: 'rabbitmq',
       entities: [CourseSchedule],
       exchanges: [{ name: 'course-scheduling-service', type: 'topic' }],
+    }),
+    HealthModule.forRoot({
+      database: true,
+      rabbitmq: true,
     }),
     TypeOrmModule.forFeature([CourseSchedule]),
   ],

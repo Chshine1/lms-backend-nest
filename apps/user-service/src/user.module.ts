@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import {
   ConfigurationService,
+  HealthModule,
   InfrastructureModule,
 } from '@app/infrastructure';
 import { UserPermission } from './entities/user-permission.entity';
@@ -24,6 +25,10 @@ import { CoreModule } from '@app/core';
       endpointsProtocol: 'rabbitmq',
       entities: [User, Tenant, Student, Teacher, Campus, UserPermission],
       exchanges: [{ name: 'user-service', type: 'topic' }],
+    }),
+    HealthModule.forRoot({
+      database: true,
+      rabbitmq: true,
     }),
     JwtModule.registerAsync({
       imports: [InfrastructureModule],

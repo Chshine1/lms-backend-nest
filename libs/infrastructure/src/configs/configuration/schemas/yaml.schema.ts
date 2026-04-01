@@ -11,6 +11,7 @@ import { Expose, Type } from 'class-transformer';
 import {
   DatabaseConfig,
   FileConfig,
+  HealthConfig,
   JwtConfig,
   RabbitMQConfig,
   StorageConfig,
@@ -57,13 +58,13 @@ export class YamlSchema {
   @Type(() => GatewayConfig)
   @Expose()
   gateway?: GatewayConfig;
-  
+
   @IsOptional()
   @ValidateNested()
   @Type(() => StorageConfig)
   @Expose()
   storage?: StorageConfig;
-  
+
   @IsOptional()
   @ValidateNested()
   @Type(() => FileConfig)
@@ -87,4 +88,10 @@ export class YamlSchema {
   @Type(() => AwsConfig)
   @Expose()
   aws!: AwsConfig;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => HealthConfig)
+  @Expose()
+  health!: HealthConfig;
 }
