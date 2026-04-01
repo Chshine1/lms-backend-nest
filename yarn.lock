@@ -93,8 +93,15 @@ __metadata:
     "@app/infrastructure": "workspace:*"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
+    class-transformer: "npm:^0.5.1"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    "@nestjs/core": ^11.0.1
+    class-transformer: ^0.5.1
+    reflect-metadata: ^0.2.2
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -104,13 +111,21 @@ __metadata:
   dependencies:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
-    "@nestjs/microservices": "npm:^11.1.17"
+    "@nestjs/microservices": "npm:^11.0.1"
     "@nestjs/typeorm": "npm:^11.0.0"
-    class-transformer: "npm:^0.5.1"
     nestjs-cls: "npm:^6.2.0"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
     typeorm: "npm:^0.3.28"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    "@nestjs/core": ^11.0.1
+    "@nestjs/microservices": ^11.0.1
+    "@nestjs/typeorm": ^11.0.0
+    nestjs-cls: ^6.2.0
+    reflect-metadata: ^0.2.2
+    rxjs: ^7.8.1
+    typeorm: ^0.3.28
   languageName: unknown
   linkType: soft
 
@@ -118,10 +133,23 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/contracts@workspace:libs/contracts"
   dependencies:
+    "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/core": "npm:^11.0.1"
     "@nestjs/swagger": "npm:^11.2.6"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.1"
     typeorm: "npm:^0.3.28"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    "@nestjs/core": ^11.0.1
+    "@nestjs/swagger": ^11.2.6
+    class-transformer: ^0.5.1
+    class-validator: ^0.14.3
+    reflect-metadata: ^0.2.2
+    rxjs: ^7.8.1
+    typeorm: ^0.3.28
   languageName: unknown
   linkType: soft
 
@@ -136,11 +164,24 @@ __metadata:
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/core": "npm:^11.0.1"
     "@nestjs/terminus": "npm:^11.1.1"
     "@nestjs/typeorm": "npm:^11.0.0"
     class-transformer: "npm:^0.5.1"
+    class-validator: "npm:^0.14.3"
     pg: "npm:^8.20.0"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.1"
     typeorm: "npm:^0.3.28"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    "@nestjs/core": ^11.0.1
+    "@nestjs/typeorm": ^11.0.0
+    class-transformer: ^0.5.1
+    class-validator: ^0.14.3
+    reflect-metadata: ^0.2.2
+    rxjs: ^7.8.1
+    typeorm: ^0.3.28
   languageName: unknown
   linkType: soft
 
@@ -162,6 +203,10 @@ __metadata:
     lodash: "npm:^4.17.23"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    class-transformer: ^0.5.1
+    class-validator: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -172,8 +217,13 @@ __metadata:
     "@app/contracts": "workspace:*"
     "@nestjs/common": "npm:^11.0.1"
     amqplib: "npm:^0.10.9"
+    class-transformer: "npm:^0.5.1"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    amqplib: ^0.10.9
+    class-transformer: ^0.5.1
   languageName: unknown
   linkType: soft
 
@@ -186,6 +236,9 @@ __metadata:
     "@nestjs/core": "npm:^11.0.1"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
+  peerDependencies:
+    "@nestjs/common": ^11.0.1
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -201,8 +254,14 @@ __metadata:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
     class-transformer: "npm:^0.5.1"
+    class-validator: "npm:^0.14.3"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
+  peerDependencies:
+    "@golevelup/nestjs-rabbitmq": ^9.0.0
+    "@nestjs/common": ^11.0.1
+    class-transformer: ^0.5.1
+    class-validator: ^0.14.3
   languageName: unknown
   linkType: soft
 
@@ -2554,7 +2613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/microservices@npm:^11.0.1, @nestjs/microservices@npm:^11.1.17":
+"@nestjs/microservices@npm:^11.0.1":
   version: 11.1.17
   resolution: "@nestjs/microservices@npm:11.1.17"
   dependencies:
@@ -9441,15 +9500,6 @@ __metadata:
     parseurl: "npm:^1.3.3"
     path-to-regexp: "npm:^8.0.0"
   checksum: 10c0/3279de7450c8eae2f6e095e9edacbdeec0abb5cb7249c6e719faa0db2dba43574b4fff5892d9220631c9abaff52dd3cad648cfea2aaace845e1a071915ac8867
-  languageName: node
-  linkType: hard
-
-"rxjs@npm:7.8.1":
-  version: 7.8.1
-  resolution: "rxjs@npm:7.8.1"
-  dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/3c49c1ecd66170b175c9cacf5cef67f8914dcbc7cd0162855538d365c83fea631167cacb644b3ce533b2ea0e9a4d0b12175186985f89d75abe73dbd8f7f06f68
   languageName: node
   linkType: hard
 

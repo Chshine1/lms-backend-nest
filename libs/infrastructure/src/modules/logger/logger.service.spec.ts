@@ -43,11 +43,11 @@ describe('LoggerService', () => {
       ),
     } as unknown as LogEnrichmentService;
 
-    loggerService = new LoggerService({
-      sink: mockSink,
-      buffer: mockBuffer,
-      enrichmentService: mockEnrichmentService,
-    });
+    loggerService = new LoggerService(
+      mockSink,
+      mockBuffer,
+      mockEnrichmentService,
+    );
   });
 
   describe('log', () => {
@@ -74,11 +74,11 @@ describe('LoggerService', () => {
         flush: jest.fn(),
       } as jest.Mocked<LogBuffer>;
 
-      const testLogger = new LoggerService({
-        sink: mockSink,
-        buffer: rejectingBuffer,
-        enrichmentService: mockEnrichmentService,
-      });
+      const testLogger = new LoggerService(
+        mockSink,
+        rejectingBuffer,
+        mockEnrichmentService,
+      );
 
       const logParams = {
         level: LogLevel.INFO,
