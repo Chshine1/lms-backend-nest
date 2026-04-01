@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from '@/course-service/src/entities/course.entity';
 import { Repository } from 'typeorm';
 import { UserTypedClient } from '@app/typed-client';
-import { Transactional } from 'nestjs-transaction';
 import {
   BatchUpdateCourseDto,
   CourseContract,
@@ -26,7 +25,6 @@ export class CourseWriteService {
     private userClient: UserTypedClient,
   ) {}
 
-  @Transactional()
   async createCourse(dto: CreateCourseDto): Promise<CourseContract> {
     const userId = this.userContextService.getRequiredUserId();
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
@@ -51,7 +49,6 @@ export class CourseWriteService {
     });
   }
 
-  @Transactional()
   async batchUpdateCourse(
     courseId: number,
     dto: BatchUpdateCourseDto,
