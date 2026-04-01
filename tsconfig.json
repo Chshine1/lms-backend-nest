@@ -40,12 +40,6 @@
       "@app/infrastructure/*": [
         "libs/infrastructure/src/*"
       ],
-      "@app/rabbitmq": [
-        "libs/rabbitmq/src"
-      ],
-      "@app/rabbitmq/*": [
-        "libs/rabbitmq/src/*"
-      ],
       "@app/trace": [
         "libs/trace/src"
       ],
@@ -84,7 +78,7 @@
   "include": [
     "apps/**/*",
     "libs/**/*",
-    "@types"
+    "@types/*"
   ],
   "exclude": [
     "migrations/**/*.ts"

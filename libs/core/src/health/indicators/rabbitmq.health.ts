@@ -4,6 +4,7 @@ import {
   HealthIndicatorResult,
   HealthIndicatorService,
 } from '@nestjs/terminus';
+import type { Channel } from 'amqplib';
 
 @Injectable()
 export class RabbitMQHealthIndicator {
@@ -22,20 +23,17 @@ export class RabbitMQHealthIndicator {
       const testQueue = 'health-check-queue';
       const testMessage = { timestamp: Date.now() };
 
-      await this.amqpConnection.channel.assertQueue(testQueue, {
+      const channel: Channel = this.amqpConnection.channel;
+
+      await channel.assertQueue(testQueue, {
         durable: false,
         autoDelete: true,
       });
-      this.amqpConnection.channel.publish(
-        '',
-        testQueue,
-        Buffer.from(JSON.stringify(testMessage)),
-        {
-          persistent: false,
-        },
-      );
-      await this.amqpConnection.channel.consume(testQueue, () => {});
-      await this.amqpConnection.channel.deleteQueue(testQueue);
+      channel.publish('', testQueue, Buffer.from(JSON.stringify(testMessage)), {
+        persistent: false,
+      });
+      await channel.consume(testQueue, () => {});
+      await channel.deleteQueue(testQueue);
     } catch (error) {
       return indicator.down({ message: 'RabbitMQ health check failed', error });
     }

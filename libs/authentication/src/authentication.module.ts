@@ -3,7 +3,7 @@ import { PermissionModule } from './permission/permission.module';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { UserContextModule } from './user-context/user-context.module';
 
-export interface AuthenticationModuleOptions {
+interface AuthenticationModuleOptions {
   permissionEntity?: EntityClassOrSchema;
   endpointsProtocol: 'http' | 'rabbitmq';
 }

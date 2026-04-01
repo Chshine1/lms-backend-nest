@@ -10,10 +10,8 @@ import {
   CourseUnitContract,
   CreateCourseDto,
 } from '@app/contracts';
-import { UserContext } from '@app/authentication';
 
 @Controller()
-@UserContext()
 export class CourseController implements ExtractController<CourseTypedClient> {
   constructor(
     private readonly courseReadService: CourseReadService,

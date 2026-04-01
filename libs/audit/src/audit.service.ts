@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { LoggerService } from '@app/infrastructure';
 import { LogLevel } from '@app/contracts';
 
-export interface AuditLogPayload {
+interface AuditLogPayload {
   actor: { header: string };
   action: string;
   ip: string;

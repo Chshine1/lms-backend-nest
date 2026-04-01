@@ -2,9 +2,6 @@
   "name": "@lms/user-service",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "build": "nest build user-service"
-  },
   "dependencies": {
     "@app/authentication": "workspace:*",
     "@app/contracts": "workspace:*",
@@ -25,7 +22,6 @@
     "typeorm": "^0.3.28"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
     "@types/bcrypt": "^6"
   }
 }
