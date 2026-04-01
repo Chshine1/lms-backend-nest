@@ -9,6 +9,7 @@ import { ClassConstructor } from 'class-transformer';
 import { TypedClientModule } from '@app/typed-client';
 import { AuthenticationModule } from '@app/authentication';
 import { TraceModule } from '@app/trace';
+import { HealthModule } from './health/health.module';
 
 export interface CoreModuleOptions {
   permissionEntity?: ClassConstructor<object>;
@@ -53,6 +54,7 @@ export class CoreModule {
           },
           inject: [ConfigurationService],
         }),
+        HealthModule,
       ],
       exports: [
         InfrastructureModule,
