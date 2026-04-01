@@ -3,7 +3,6 @@ import { CourseEnrollmentController } from './course-enrollment.controller';
 import { CourseEnrollmentService } from './course-enrollment.service';
 import { Enrollment } from './entities/enrollment.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HealthModule } from '@app/infrastructure';
 import { CoreModule } from '@app/core';
 
 @Module({
@@ -12,10 +11,6 @@ import { CoreModule } from '@app/core';
       endpointsProtocol: 'rabbitmq',
       entities: [Enrollment],
       exchanges: [{ name: 'course-enrollment-service', type: 'topic' }],
-    }),
-    HealthModule.forRoot({
-      database: true,
-      rabbitmq: true,
     }),
     TypeOrmModule.forFeature([Enrollment]),
   ],

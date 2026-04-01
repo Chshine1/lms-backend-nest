@@ -4,7 +4,6 @@ import { AssignmentService } from './assignment.service';
 import { Submission } from './entities/submission.entity';
 import { Review } from './entities/review.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HealthModule } from '@app/infrastructure';
 import { CoreModule } from '@app/core';
 
 @Module({
@@ -13,10 +12,6 @@ import { CoreModule } from '@app/core';
       endpointsProtocol: 'rabbitmq',
       entities: [Submission, Review],
       exchanges: [{ name: 'assignment-service', type: 'topic' }],
-    }),
-    HealthModule.forRoot({
-      database: true,
-      rabbitmq: true,
     }),
     TypeOrmModule.forFeature([Submission, Review]),
   ],

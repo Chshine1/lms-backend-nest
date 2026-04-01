@@ -6,7 +6,6 @@ import { JwtStrategy } from './auth/jwt.strategy';
 import { JwtConfig } from '@app/contracts';
 import {
   ConfigurationService,
-  HealthModule,
   InfrastructureModule,
 } from '@app/infrastructure';
 import {
@@ -32,10 +31,6 @@ import { CoreModule } from '@app/core';
           type: 'topic',
         },
       ],
-    }),
-    HealthModule.forRoot({
-      database: false,
-      rabbitmq: true,
     }),
     PassportModule,
     JwtModule.registerAsync({

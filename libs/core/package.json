@@ -9,6 +9,7 @@
     "@app/infrastructure": "workspace:*",
     "@app/trace": "workspace:*",
     "@app/typed-client": "workspace:*",
+    "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/terminus": "^11.1.1",
     "@nestjs/typeorm": "^11.0.0",

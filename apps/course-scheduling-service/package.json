@@ -6,6 +6,7 @@
     "build": "nest build course-scheduling-service"
   },
   "dependencies": {
+    "@app/infrastructure": "workspace:*",
     "@app/contracts": "workspace:*",
     "@app/core": "workspace:*",
     "@app/typed-client": "workspace:*",
