@@ -3,38 +3,25 @@
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.js",
-  "peerDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^9.0.0",
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/terminus": "^11.1.1",
-    "@nestjs/typeorm": "^11.0.0",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.3",
-    "pg": "^8.20.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.28"
-  },
   "dependencies": {
     "@app/authentication": "workspace:*",
     "@app/contracts": "workspace:*",
     "@app/infrastructure": "workspace:*",
     "@app/trace": "workspace:*",
-    "@app/typed-client": "workspace:*"
-  },
-  "devDependencies": {
+    "@app/typed-client": "workspace:*",
     "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/terminus": "^11.1.1",
     "@nestjs/typeorm": "^11.0.0",
-    "@types/amqplib": "^0.10.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.8"
   }
 }
