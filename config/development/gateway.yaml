@@ -4,3 +4,6 @@ jwt:
 
 gateway:
   port: 3000
+
+health:
+  port: 3000

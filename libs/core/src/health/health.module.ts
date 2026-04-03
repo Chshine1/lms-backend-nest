@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
 import { DatabaseHealthIndicator } from './indicators/database.health';
 import { RabbitMQHealthIndicator } from './indicators/rabbitmq.health';
-import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { TerminusModule } from '@nestjs/terminus';
+import { TypedClientCoreModule } from '@app/typed-client/typed-client.core.module';
 
 @Module({
-  imports: [TypeOrmModule, RabbitMQModule, TerminusModule],
+  imports: [TypeOrmModule, TypedClientCoreModule, TerminusModule],
   controllers: [HealthController],
   providers: [DatabaseHealthIndicator, RabbitMQHealthIndicator],
 })
