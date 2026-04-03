@@ -13,3 +13,6 @@ dist
 docs
 node_modules
 .yarn/install-state.gz
+test
+**/*.spec.ts
+**/*.test.ts

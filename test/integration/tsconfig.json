@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolvePackageJsonExports": false,
+    "outDir": "../../dist/test"
+  },
+  "include": ["**/*.ts", "../../apps/**/*.ts", "../../libs/**/*.ts"],
+  "exclude": ["../../migrations/**/*.ts"]
+}
