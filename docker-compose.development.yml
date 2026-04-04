@@ -1,4 +1,8 @@
 #file: noinspection SpellCheckingInspection
+networks:
+  loki-net:
+    driver: bridge
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -61,7 +65,11 @@ services:
       - '3100:3100'
     volumes:
       - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+    tmpfs:
+      - /tmp/loki:rw,noexec,nosuid,size=256M
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki-net
     healthcheck:
       test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3100/ready']
       interval: 10s
@@ -71,10 +79,17 @@ services:
   promtail:
     image: grafana/promtail:3.2.1
     container_name: promtail
+    ports:
+      - '9080:9080'
     volumes:
       - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    tmpfs:
+      - /tmp/promtail:rw,noexec,nosuid,size=64M
     command: -config.file=/etc/promtail/promtail-config.yaml
+    networks:
+      - loki-net
     depends_on:
       loki:
         condition: service_healthy
@@ -91,6 +106,8 @@ services:
     volumes:
       - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - loki-net
     depends_on:
       loki:
         condition: service_healthy

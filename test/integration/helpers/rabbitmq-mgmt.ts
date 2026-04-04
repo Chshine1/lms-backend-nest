@@ -33,8 +33,19 @@ export interface RabbitMQExchange {
 }
 
 export class RabbitMQMgmtClient {
-  /** mgmtUrl should include credentials, e.g. http://lms:lms@localhost:15672 */
-  constructor(private readonly mgmtUrl: string) {}
+  private readonly baseUrl: string;
+  private readonly authHeader?: string;
+
+  constructor(mgmtUrl: string) {
+    const url = new URL(mgmtUrl);
+    const username = url.username;
+    const password = url.password;
+    if (username && password) {
+      const credentials = Buffer.from(`${username}:${password}`).toString('base64');
+      this.authHeader = `Basic ${credentials}`;
+    }
+    this.baseUrl = `${url.protocol}//${url.host}`;
+  }
 
   async getQueues(vhost: string = '%2F'): Promise<RabbitMQQueue[]> {
     return this.get<RabbitMQQueue[]>(`/api/queues/${vhost}`);
@@ -55,10 +66,12 @@ export class RabbitMQMgmtClient {
   }
 
   private async get<T>(path: string): Promise<T> {
-    const url = `${this.mgmtUrl}${path}`;
-    const response = await fetch(url, {
-      headers: { Accept: 'application/json' },
-    });
+    const url = `${this.baseUrl}${path}`;
+    const headers: HeadersInit = { Accept: 'application/json' };
+    if (this.authHeader) {
+      headers['Authorization'] = this.authHeader;
+    }
+    const response = await fetch(url, { headers });
     if (!response.ok) {
       throw new Error(
         `RabbitMQ management API error ${String(response.status)} for ${url}: ${await response.text()}`,
