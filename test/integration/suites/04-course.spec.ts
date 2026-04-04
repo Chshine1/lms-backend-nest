@@ -29,20 +29,12 @@ import { HttpClient } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
-import { globalSetup } from '../setup/global-setup';
-import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
 const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
 
 describe('04 — Course Management', () => {
-  beforeAll(async () => {
-    await globalSetup();
-  });
-
-  afterAll(globalTeardown);
-
   describe('GET /courses/:id — course with units (happy path)', () => {
     interface CourseResponse {
       course: {

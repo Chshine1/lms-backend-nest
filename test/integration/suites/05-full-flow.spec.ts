@@ -34,8 +34,6 @@ import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { LokiClient } from '../helpers/loki';
 import { loadState, sleep } from '../helpers/state';
-import { globalSetup } from '../setup/global-setup';
-import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
@@ -43,12 +41,6 @@ const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
 const loki = new LokiClient(state.lokiUrl);
 
 describe('05 — Full End-to-End Flow', () => {
-  beforeAll(async () => {
-    await globalSetup();
-  });
-
-  afterAll(globalTeardown);
-
   describe('Scenario A — Read-path: login → get course → DB + MQ + log verification', () => {
     let accessToken: string;
     let loginDeliverBefore: number;

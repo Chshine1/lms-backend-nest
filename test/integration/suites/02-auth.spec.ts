@@ -20,8 +20,6 @@ import { HttpClient, decodeJwtPayload } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
-import { globalSetup } from '../setup/global-setup';
-import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
@@ -32,12 +30,6 @@ interface LoginResponse {
 }
 
 describe('02 — Authentication', () => {
-  beforeAll(async () => {
-    await globalSetup();
-  });
-
-  afterAll(globalTeardown);
-
   describe('POST /login — happy path', () => {
     let token: string;
 

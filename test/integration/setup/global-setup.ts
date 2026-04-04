@@ -60,13 +60,9 @@ declare global {
     | undefined;
 }
 
-export async function globalSetup(): Promise<void> {
+export default async function globalSetup(): Promise<void> {
   console.log('\n[integration] Starting docker-compose stack…');
   console.log(`[integration] Project root: ${PROJECT_ROOT}`);
-  console.log(
-    '[integration] TIP: Pre-build images with ' +
-      '`docker compose -f docker-compose.development.yml build` to skip the build step.\n',
-  );
 
   // ---------------------------------------------------------------------------
   // 1.  Start the full compose stack.
@@ -191,8 +187,8 @@ async function seedReferenceData(
   // USER MANAGE permission (resource=1, action=4)
   await pg.query(
     `INSERT INTO user_permissions
-       (user_id, resource, action, created_at, updated_at, version)
-     VALUES ($1, 1, 4, NOW(), NOW(), 1)`,
+       (user_id, resource, action, created_at)
+     VALUES ($1, 1, 4, NOW())`,
     [adminUserId],
   );
 

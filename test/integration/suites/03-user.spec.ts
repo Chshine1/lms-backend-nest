@@ -39,8 +39,6 @@ import { HttpClient } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
-import { globalSetup } from '../setup/global-setup';
-import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
@@ -58,12 +56,6 @@ const VALID_USER_PAYLOAD = {
 };
 
 describe('03 — User Management', () => {
-  beforeAll(async () => {
-    await globalSetup();
-  });
-
-  afterAll(globalTeardown);
-
   describe('POST /users — Bug 1: userId context never propagated to user-service', () => {
     it('fails even without a Bearer token because the permission guard throws', async () => {
       const res = await gateway.post('/users', VALID_USER_PAYLOAD);

@@ -2,6 +2,7 @@
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: postgres
     environment:
       POSTGRES_USER: lms
       POSTGRES_PASSWORD: lms
@@ -17,6 +18,7 @@ services:
 
   migrations:
     image: node:24.14.0-alpine
+    container_name: migrations
     working_dir: /app
     environment:
       - DB_HOST=postgres
@@ -37,6 +39,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: lms
       RABBITMQ_DEFAULT_PASS: lms
@@ -53,6 +56,7 @@ services:
 
   loki:
     image: grafana/loki:3.2.1
+    container_name: loki
     ports:
       - '3100:3100'
     volumes:
@@ -66,6 +70,7 @@ services:
 
   promtail:
     image: grafana/promtail:3.2.1
+    container_name: promtail
     volumes:
       - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -76,6 +81,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.5.2
+    container_name: grafana
     ports:
       - '3030:3000'
     environment:
@@ -93,6 +99,7 @@ services:
     build:
       context: .
       dockerfile: apps/gateway/Dockerfile
+    container_name: gateway
     ports:
       - '3000:3000'
     volumes:
@@ -119,6 +126,7 @@ services:
     build:
       context: .
       dockerfile: apps/user-service/Dockerfile
+    container_name: user-service
     ports:
       - '3001:3001'
     volumes:
@@ -143,6 +151,7 @@ services:
     build:
       context: .
       dockerfile: apps/course-service/Dockerfile
+    container_name: course-service
     ports:
       - '3002:3002'
     volumes:
@@ -167,6 +176,7 @@ services:
     build:
       context: .
       dockerfile: apps/assignment-service/Dockerfile
+    container_name: assignment-service
     ports:
       - '3003:3003'
     volumes:
@@ -191,6 +201,7 @@ services:
     build:
       context: .
       dockerfile: apps/course-enrollment-service/Dockerfile
+    container_name: course-enrollment-service
     ports:
       - '3004:3004'
     volumes:
@@ -215,6 +226,7 @@ services:
     build:
       context: .
       dockerfile: apps/course-scheduling-service/Dockerfile
+    container_name: course-scheduling-service
     ports:
       - '3005:3005'
     volumes:
@@ -239,6 +251,7 @@ services:
     build:
       context: .
       dockerfile: apps/file-service/Dockerfile
+    container_name: file-service
     ports:
       - '3006:3006'
     volumes:

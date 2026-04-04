@@ -19,7 +19,7 @@ export enum UserServiceAction {
 
 @Entity('user_permissions')
 export class UserPermission implements Permission {
-  @PrimaryColumn()
+  @PrimaryColumn({ name: 'user_id' })
   userId!: number;
 
   @PrimaryColumn({

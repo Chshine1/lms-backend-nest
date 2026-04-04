@@ -1,10 +1,11 @@
 import type { Config } from 'jest';
 import * as path from 'path';
+import { fileURLToPath } from 'node:url';
 
 const config: Config = {
   displayName: 'integration',
   moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: path.resolve(__dirname, '../..'),
+  rootDir: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
   testMatch: ['<rootDir>/test/integration/suites/**/*.spec.ts'],
   transform: {
     '^.+\\.ts$': [

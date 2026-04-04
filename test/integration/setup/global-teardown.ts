@@ -12,7 +12,7 @@ declare global {
     | undefined;
 }
 
-export async function globalTeardown(): Promise<void> {
+export default async function globalTeardown(): Promise<void> {
   console.log('\n[integration] Tearing down docker-compose stack…');
 
   if (global.__COMPOSE_ENV__ !== undefined) {
