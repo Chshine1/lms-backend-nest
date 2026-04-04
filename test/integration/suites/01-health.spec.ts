@@ -15,9 +15,18 @@
 import { HttpClient } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { LokiClient } from '../helpers/loki';
-import { IntegrationState, loadState } from '../helpers/state';
-import { globalSetup } from '../setup/global-setup';
-import { globalTeardown } from '../setup/global-teardown';
+import { loadState } from '../helpers/state';
+
+const state = loadState();
+const gateway = new HttpClient(state.gatewayUrl);
+const userSvc = new HttpClient(state.userServiceUrl);
+const courseSvc = new HttpClient(state.courseServiceUrl);
+const assignmentSvc = new HttpClient(state.assignmentServiceUrl);
+const enrollmentSvc = new HttpClient(state.enrollmentServiceUrl);
+const schedulingSvc = new HttpClient(state.schedulingServiceUrl);
+const fileSvc = new HttpClient(state.fileServiceUrl);
+const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
+const loki = new LokiClient(state.lokiUrl);
 
 interface HealthBody {
   status: string;
@@ -49,33 +58,6 @@ async function assertHealthy(client: HttpClient, label: string): Promise<void> {
 }
 
 describe('01 — Health Checks', () => {
-  let state: IntegrationState;
-  let gateway: HttpClient;
-  let userSvc: HttpClient;
-  let courseSvc: HttpClient;
-  let assignmentSvc: HttpClient;
-  let enrollmentSvc: HttpClient;
-  let schedulingSvc: HttpClient;
-  let fileSvc: HttpClient;
-  let rabbitmq: RabbitMQMgmtClient;
-  let loki: LokiClient;
-
-  beforeAll(async () => {
-    await globalSetup();
-    state = loadState();
-    gateway = new HttpClient(state.gatewayUrl);
-    userSvc = new HttpClient(state.userServiceUrl);
-    courseSvc = new HttpClient(state.courseServiceUrl);
-    assignmentSvc = new HttpClient(state.assignmentServiceUrl);
-    enrollmentSvc = new HttpClient(state.enrollmentServiceUrl);
-    schedulingSvc = new HttpClient(state.schedulingServiceUrl);
-    fileSvc = new HttpClient(state.fileServiceUrl);
-    rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
-    loki = new LokiClient(state.lokiUrl);
-  });
-
-  afterAll(globalTeardown);
-
   describe('HTTP /health endpoints', () => {
     it('gateway /health → 200, database up, rabbitmq up', async () => {
       await assertHealthy(gateway, 'gateway');

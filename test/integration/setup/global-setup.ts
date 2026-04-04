@@ -21,7 +21,33 @@ import * as path from 'path';
 import { DockerComposeEnvironment, Wait } from 'testcontainers';
 import { Client as PgClient } from 'pg';
 import { hash as bcryptHash } from 'bcrypt';
-import { IntegrationState } from '../helpers/state';
+
+/** Shape persisted to the state file. */
+export interface IntegrationState {
+  gatewayUrl: string;
+  userServiceUrl: string;
+  courseServiceUrl: string;
+  assignmentServiceUrl: string;
+  enrollmentServiceUrl: string;
+  schedulingServiceUrl: string;
+  fileServiceUrl: string;
+  pgHost: string;
+  pgPort: number;
+  pgUser: string;
+  pgPassword: string;
+  pgDatabase: string;
+  rabbitmqMgmtUrl: string;
+  lokiUrl: string;
+  seed: {
+    adminUserId: number;
+    adminUsername: string;
+    adminPassword: string;
+    tenantId: number;
+    courseId: number;
+    courseUnitId: number;
+    assignmentId: number;
+  };
+}
 
 const STATE_FILE = path.join(os.tmpdir(), 'lms-integration-state.json');
 const PROJECT_ROOT = path.resolve(__dirname, '../../..');
