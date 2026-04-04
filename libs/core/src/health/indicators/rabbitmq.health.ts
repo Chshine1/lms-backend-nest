@@ -5,6 +5,8 @@ import {
   HealthIndicatorService,
 } from '@nestjs/terminus';
 import type { Channel } from 'amqplib';
+import { v4 as uuid } from 'uuid';
+
 
 @Injectable()
 export class RabbitMQHealthIndicator {
@@ -20,7 +22,7 @@ export class RabbitMQHealthIndicator {
     }
 
     try {
-      const testQueue = 'health-check-queue';
+      const testQueue = `health-check-queue-${uuid()}`;
       const testMessage = { timestamp: Date.now() };
 
       const channel: Channel = this.amqpConnection.channel;
