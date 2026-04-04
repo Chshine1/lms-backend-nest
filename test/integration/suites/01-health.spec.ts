@@ -17,7 +17,6 @@ import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { LokiClient } from '../helpers/loki';
 import { loadState } from '../helpers/state';
 
-// ------------------------------------------------------------------ fixtures
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
 const userSvc = new HttpClient(state.userServiceUrl);
@@ -28,8 +27,6 @@ const schedulingSvc = new HttpClient(state.schedulingServiceUrl);
 const fileSvc = new HttpClient(state.fileServiceUrl);
 const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
 const loki = new LokiClient(state.lokiUrl);
-
-// ------------------------------------------------------------------ helpers
 
 interface HealthBody {
   status: string;
@@ -60,9 +57,7 @@ async function assertHealthy(client: HttpClient, label: string): Promise<void> {
   }
 }
 
-// ===========================================================================
 describe('01 — Health Checks', () => {
-  // -----------------------------------------------------------------------
   describe('HTTP /health endpoints', () => {
     it('gateway /health → 200, database up, rabbitmq up', async () => {
       await assertHealthy(gateway, 'gateway');
@@ -93,7 +88,6 @@ describe('01 — Health Checks', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ exchanges', () => {
     it('all expected topic exchanges exist', async () => {
       const exchanges = await rabbitmq.getExchanges();
@@ -131,7 +125,6 @@ describe('01 — Health Checks', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ queues', () => {
     const expectedQueues = [
       // user-service
@@ -205,7 +198,6 @@ describe('01 — Health Checks', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ bindings', () => {
     it('user-service queues are bound with the correct routing keys', async () => {
       const bindings = await rabbitmq.getBindings();
@@ -254,7 +246,6 @@ describe('01 — Health Checks', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('Observability stack', () => {
     it('Loki is ready and accepting queries', async () => {
       const ready = await loki.isReady();

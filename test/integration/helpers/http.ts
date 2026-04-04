@@ -23,21 +23,6 @@ export class HttpClient {
     return this.request<T>('POST', path, body, options);
   }
 
-  async put<T = unknown>(
-    path: string,
-    body: unknown,
-    options: { token?: string } = {},
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>('PUT', path, body, options);
-  }
-
-  async delete<T = unknown>(
-    path: string,
-    options: { token?: string } = {},
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>('DELETE', path, undefined, options);
-  }
-
   private async request<T>(
     method: string,
     urlPath: string,
@@ -80,12 +65,12 @@ export class HttpClient {
   }
 }
 
-/** Decode a JWT payload without verification (test-only, for asserting claims). */
+// TODO: Does this really work?
 export function decodeJwtPayload(token: string): Record<string, unknown> {
   const parts = token.split('.');
   if (parts.length !== 3) {
     throw new Error(
-      `Invalid JWT structure: expected 3 parts, got ${parts.length}`,
+      `Invalid JWT structure: expected 3 parts, got ${String(parts.length)}`,
     );
   }
   // base64url → base64 → Buffer → JSON

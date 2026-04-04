@@ -1,3 +1,5 @@
+// noinspection SqlNoDataSourceInspection
+
 /**
  * Suite 03 — User Management
  *
@@ -37,6 +39,8 @@ import { HttpClient } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
+import { globalSetup } from '../setup/global-setup';
+import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
@@ -53,9 +57,13 @@ const VALID_USER_PAYLOAD = {
   // NOTE: tenantId intentionally omitted — it is not in CreateUserDto (Bug 2)
 };
 
-// ===========================================================================
 describe('03 — User Management', () => {
-  // -----------------------------------------------------------------------
+  beforeAll(async () => {
+    await globalSetup();
+  });
+
+  afterAll(globalTeardown);
+
   describe('POST /users — Bug 1: userId context never propagated to user-service', () => {
     it('fails even without a Bearer token because the permission guard throws', async () => {
       const res = await gateway.post('/users', VALID_USER_PAYLOAD);
@@ -92,7 +100,6 @@ describe('03 — User Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('POST /users — Bug 2: CreateUserDto is missing tenantId', () => {
     it('CreateUserDto has no tenantId field — a user could not be assigned a tenant', () => {
       // This is a structural documentation test.
@@ -108,7 +115,6 @@ describe('03 — User Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ — user.create queue behaviour on error', () => {
     it('after a failed POST /users the queue has no lingering ready messages', async () => {
       await gateway.post('/users', VALID_USER_PAYLOAD);
@@ -134,7 +140,6 @@ describe('03 — User Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('Baseline: seeded users are visible in the DB', () => {
     it('admin_test user exists with identity_type ADMIN (4)', async () => {
       const row = await withDb(state, (db) =>

@@ -6,13 +6,13 @@ import type { DockerComposeEnvironment } from 'testcontainers';
 const STATE_FILE = path.join(os.tmpdir(), 'lms-integration-state.json');
 
 declare global {
-  // eslint-disable-next-line no-var
+  // noinspection ES6ConvertVarToLetConst,JSUnusedGlobalSymbols
   var __COMPOSE_ENV__:
     | Awaited<ReturnType<DockerComposeEnvironment['up']>>
     | undefined;
 }
 
-export default async function globalTeardown(): Promise<void> {
+export async function globalTeardown(): Promise<void> {
   console.log('\n[integration] Tearing down docker-compose stack…');
 
   if (global.__COMPOSE_ENV__ !== undefined) {

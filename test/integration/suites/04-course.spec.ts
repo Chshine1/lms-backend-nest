@@ -1,3 +1,5 @@
+// noinspection SqlNoDataSourceInspection
+
 /**
  * Suite 04 — Course Management
  *
@@ -27,14 +29,20 @@ import { HttpClient } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
+import { globalSetup } from '../setup/global-setup';
+import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
 const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
 
-// ===========================================================================
 describe('04 — Course Management', () => {
-  // -----------------------------------------------------------------------
+  beforeAll(async () => {
+    await globalSetup();
+  });
+
+  afterAll(globalTeardown);
+
   describe('GET /courses/:id — course with units (happy path)', () => {
     interface CourseResponse {
       course: {
@@ -61,7 +69,7 @@ describe('04 — Course Management', () => {
 
     beforeAll(async () => {
       res = await gateway.get<CourseResponse>(
-        `/courses/${state.seed.courseId}`,
+        `/courses/${String(state.seed.courseId)}`,
       );
     });
 
@@ -130,7 +138,6 @@ describe('04 — Course Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('GET /courses/:id/units/:unitId — unit detail (happy path)', () => {
     interface UnitDetailResponse {
       assignments: Array<{
@@ -153,7 +160,7 @@ describe('04 — Course Management', () => {
 
     beforeAll(async () => {
       res = await gateway.get<UnitDetailResponse>(
-        `/courses/${state.seed.courseId}/units/${state.seed.courseUnitId}`,
+        `/courses/${String(state.seed.courseId)}/units/${String(state.seed.courseUnitId)}`,
       );
     });
 
@@ -198,7 +205,6 @@ describe('04 — Course Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('GET /courses/:id — not found', () => {
     it('returns a non-2xx status for a non-existent courseId', async () => {
       const res = await gateway.get('/courses/999999');
@@ -208,7 +214,6 @@ describe('04 — Course Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('POST /courses — Bug: userId not propagated from HTTP context to course-service', () => {
     it('POST /courses without token fails because CourseWriteService calls getRequiredUserId()', async () => {
       // Root cause: gateway's UserContextModule.forRoot('http') registers
@@ -270,7 +275,6 @@ describe('04 — Course Management', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ message flow — read queues', () => {
     it('GET /courses/:id increments deliver count on course.find-course-with-units queue', async () => {
       const qBefore = await rabbitmq.getQueue(
@@ -278,7 +282,7 @@ describe('04 — Course Management', () => {
       );
       const deliverBefore = qBefore.message_stats?.deliver_get ?? 0;
 
-      await gateway.get(`/courses/${state.seed.courseId}`);
+      await gateway.get(`/courses/${String(state.seed.courseId)}`);
 
       await sleep(300);
 
@@ -296,7 +300,7 @@ describe('04 — Course Management', () => {
       const deliverBefore = qBefore.message_stats?.deliver_get ?? 0;
 
       await gateway.get(
-        `/courses/${state.seed.courseId}/units/${state.seed.courseUnitId}`,
+        `/courses/${String(state.seed.courseId)}/units/${String(state.seed.courseUnitId)}`,
       );
 
       await sleep(300);
@@ -309,7 +313,7 @@ describe('04 — Course Management', () => {
     });
 
     it('no messages linger on find-course-with-units after RPC completes', async () => {
-      await gateway.get(`/courses/${state.seed.courseId}`);
+      await gateway.get(`/courses/${String(state.seed.courseId)}`);
       await sleep(200);
       const q = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',

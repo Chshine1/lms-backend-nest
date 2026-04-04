@@ -54,18 +54,6 @@ export class RabbitMQMgmtClient {
     return this.get<RabbitMQExchange[]>(`/api/exchanges/${vhost}`);
   }
 
-  /** Returns the total number of messages published to a queue since the broker started. */
-  async getQueuePublishCount(queueName: string): Promise<number> {
-    const q = await this.getQueue(queueName);
-    return q.message_stats?.publish ?? 0;
-  }
-
-  /** Returns the total number of messages delivered from a queue since the broker started. */
-  async getQueueDeliverCount(queueName: string): Promise<number> {
-    const q = await this.getQueue(queueName);
-    return q.message_stats?.deliver_get ?? 0;
-  }
-
   private async get<T>(path: string): Promise<T> {
     const url = `${this.mgmtUrl}${path}`;
     const response = await fetch(url, {
@@ -73,9 +61,9 @@ export class RabbitMQMgmtClient {
     });
     if (!response.ok) {
       throw new Error(
-        `RabbitMQ management API error ${response.status} for ${url}: ${await response.text()}`,
+        `RabbitMQ management API error ${String(response.status)} for ${url}: ${await response.text()}`,
       );
     }
-    return await response.json() as Promise<T>;
+    return (await response.json()) as Promise<T>;
   }
 }

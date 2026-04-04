@@ -1,3 +1,5 @@
+// noinspection SqlNoDataSourceInspection
+
 /**
  * Suite 05 — Full End-to-End Flow
  *
@@ -32,15 +34,21 @@ import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { LokiClient } from '../helpers/loki';
 import { loadState, sleep } from '../helpers/state';
+import { globalSetup } from '../setup/global-setup';
+import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
 const rabbitmq = new RabbitMQMgmtClient(state.rabbitmqMgmtUrl);
 const loki = new LokiClient(state.lokiUrl);
 
-// ===========================================================================
 describe('05 — Full End-to-End Flow', () => {
-  // =========================================================================
+  beforeAll(async () => {
+    await globalSetup();
+  });
+
+  afterAll(globalTeardown);
+
   describe('Scenario A — Read-path: login → get course → DB + MQ + log verification', () => {
     let accessToken: string;
     let loginDeliverBefore: number;
@@ -85,7 +93,7 @@ describe('05 — Full End-to-End Flow', () => {
       const res = await gateway.get<{
         course: { id: number; name: string; tenantId: number };
         courseUnits: unknown[];
-      }>(`/courses/${state.seed.courseId}`);
+      }>(`/courses/${String(state.seed.courseId)}`);
 
       expect(res.status).toBe(200);
       expect(res.body.course.id).toBe(state.seed.courseId);
@@ -101,7 +109,7 @@ describe('05 — Full End-to-End Flow', () => {
           createdBy: number;
         };
         courseUnits: Array<{ id: number; title: string }>;
-      }>(`/courses/${state.seed.courseId}`);
+      }>(`/courses/${String(state.seed.courseId)}`);
 
       const [dbCourse, dbUnits] = await withDb(state, async (db) => {
         const c = await db.queryOne<{
@@ -185,7 +193,6 @@ describe('05 — Full End-to-End Flow', () => {
     });
   });
 
-  // =========================================================================
   describe('Scenario B — Write-path failure: DB and queue integrity preserved', () => {
     let courseCountBefore: number;
     let createQueueDeliverBefore: number;
@@ -224,7 +231,6 @@ describe('05 — Full End-to-End Flow', () => {
     });
   });
 
-  // =========================================================================
   describe('Scenario C — Concurrent reads: 10 parallel GET /courses/:id', () => {
     it('all 10 requests return HTTP 200 with consistent data', async () => {
       const results = await Promise.all(
@@ -232,7 +238,7 @@ describe('05 — Full End-to-End Flow', () => {
           gateway.get<{
             course: { id: number; name: string };
             courseUnits: unknown[];
-          }>(`/courses/${state.seed.courseId}`),
+          }>(`/courses/${String(state.seed.courseId)}`),
         ),
       );
 
@@ -256,7 +262,7 @@ describe('05 — Full End-to-End Flow', () => {
 
       await Promise.all(
         Array.from({ length: 10 }, () =>
-          gateway.get(`/courses/${state.seed.courseId}`),
+          gateway.get(`/courses/${String(state.seed.courseId)}`),
         ),
       );
 
@@ -272,7 +278,7 @@ describe('05 — Full End-to-End Flow', () => {
     it('database courses table is not mutated by read operations', async () => {
       await Promise.all(
         Array.from({ length: 5 }, () =>
-          gateway.get(`/courses/${state.seed.courseId}`),
+          gateway.get(`/courses/${String(state.seed.courseId)}`),
         ),
       );
       const count = await withDb(state, (db) => db.count('courses'));
@@ -280,13 +286,14 @@ describe('05 — Full End-to-End Flow', () => {
     });
   });
 
-  // =========================================================================
   describe('Scenario D — Unit detail journey: read unit + verify full object graph', () => {
     it('GET /courses/:id/units/:unitId returns assignments matching DB', async () => {
       const res = await gateway.get<{
         assignments: Array<{ id: number; title: string; dueDate: string }>;
         courseMaterials: unknown[];
-      }>(`/courses/${state.seed.courseId}/units/${state.seed.courseUnitId}`);
+      }>(
+        `/courses/${String(state.seed.courseId)}/units/${String(state.seed.courseUnitId)}`,
+      );
 
       expect(res.status).toBe(200);
 
@@ -310,7 +317,9 @@ describe('05 — Full End-to-End Flow', () => {
       const res = await gateway.get<{
         assignments: Array<{ id: number; dueDate: string }>;
         courseMaterials: unknown[];
-      }>(`/courses/${state.seed.courseId}/units/${state.seed.courseUnitId}`);
+      }>(
+        `/courses/${String(state.seed.courseId)}/units/${String(state.seed.courseUnitId)}`,
+      );
 
       const seededAssignment = res.body.assignments.find(
         (a) => a.id === state.seed.assignmentId,
@@ -322,7 +331,6 @@ describe('05 — Full End-to-End Flow', () => {
     });
   });
 
-  // =========================================================================
   describe('Scenario E — Observability: trace IDs in logs', () => {
     /**
      * The TraceService generates an x-trace-id for each RabbitMQ RPC call.
@@ -332,7 +340,7 @@ describe('05 — Full End-to-End Flow', () => {
      */
     it('gateway log lines are structured JSON', async () => {
       // Trigger a fresh request to generate logs
-      await gateway.get(`/courses/${state.seed.courseId}`);
+      await gateway.get(`/courses/${String(state.seed.courseId)}`);
       await sleep(10_000); // allow promtail ingestion
 
       const logs = await loki.queryService('gateway', 3);

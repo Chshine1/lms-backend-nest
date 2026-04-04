@@ -57,10 +57,6 @@ export class DbClient {
     return row[firstKey] as V;
   }
 
-  /**
-   * Returns the count from `SELECT COUNT(*) …` as a plain number.
-   * Postgres returns counts as strings, so we coerce.
-   */
   async count(
     table: string,
     where: string = '1=1',
@@ -74,7 +70,6 @@ export class DbClient {
   }
 }
 
-/** Runs fn with a fresh DbClient that is automatically disconnected afterward. */
 export async function withDb<T>(
   state: IntegrationState,
   fn: (db: DbClient) => Promise<T>,

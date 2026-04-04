@@ -4,7 +4,7 @@ import { HealthController } from './health.controller';
 import { DatabaseHealthIndicator } from './indicators/database.health';
 import { RabbitMQHealthIndicator } from './indicators/rabbitmq.health';
 import { TerminusModule } from '@nestjs/terminus';
-import { TypedClientCoreModule } from '@app/typed-client/typed-client.core.module';
+import { TypedClientCoreModule } from '@app/typed-client';
 
 @Module({
   imports: [TypeOrmModule, TypedClientCoreModule, TerminusModule],

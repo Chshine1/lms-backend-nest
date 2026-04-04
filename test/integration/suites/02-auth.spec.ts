@@ -1,3 +1,5 @@
+// noinspection SqlNoDataSourceInspection
+
 /**
  * Suite 02 — Authentication
  *
@@ -18,6 +20,8 @@ import { HttpClient, decodeJwtPayload } from '../helpers/http';
 import { RabbitMQMgmtClient } from '../helpers/rabbitmq-mgmt';
 import { withDb } from '../helpers/db';
 import { loadState, sleep } from '../helpers/state';
+import { globalSetup } from '../setup/global-setup';
+import { globalTeardown } from '../setup/global-teardown';
 
 const state = loadState();
 const gateway = new HttpClient(state.gatewayUrl);
@@ -27,8 +31,13 @@ interface LoginResponse {
   accessToken: string;
 }
 
-// ===========================================================================
 describe('02 — Authentication', () => {
+  beforeAll(async () => {
+    await globalSetup();
+  });
+
+  afterAll(globalTeardown);
+
   describe('POST /login — happy path', () => {
     let token: string;
 
@@ -83,7 +92,6 @@ describe('02 — Authentication', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('POST /login — error paths', () => {
     it('wrong password returns a non-2xx status', async () => {
       const res = await gateway.post('/login', {
@@ -113,7 +121,6 @@ describe('02 — Authentication', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('RabbitMQ message flow — user.login queue', () => {
     it('each login attempt increments the deliver count on the user-service-user-login queue', async () => {
       // Capture baseline
@@ -155,7 +162,6 @@ describe('02 — Authentication', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   describe('JWT can be used as a Bearer token', () => {
     it('authenticated GET /health succeeds with Bearer token in Authorization header', async () => {
       // Although /health doesn't require auth, this verifies that including a

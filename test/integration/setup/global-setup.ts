@@ -53,15 +53,14 @@ const STATE_FILE = path.join(os.tmpdir(), 'lms-integration-state.json');
 const PROJECT_ROOT = path.resolve(__dirname, '../../..');
 const COMPOSE_FILE = 'docker-compose.development.yml';
 
-// Stored on global so that global-teardown (same process) can call .down()
 declare global {
-  // eslint-disable-next-line no-var
+  // noinspection ES6ConvertVarToLetConst,JSUnusedGlobalSymbols
   var __COMPOSE_ENV__:
     | Awaited<ReturnType<DockerComposeEnvironment['up']>>
     | undefined;
 }
 
-export default async function globalSetup(): Promise<void> {
+export async function globalSetup(): Promise<void> {
   console.log('\n[integration] Starting docker-compose stack…');
   console.log(`[integration] Project root: ${PROJECT_ROOT}`);
   console.log(
@@ -71,15 +70,10 @@ export default async function globalSetup(): Promise<void> {
 
   // ---------------------------------------------------------------------------
   // 1.  Start the full compose stack.
-  //     withBuild() rebuilds images if the Dockerfile or context changed.
   //     We wait for the gateway health check because it transitively depends on
   //     postgres (via TypeORM), rabbitmq (via @golevelup), and all migrations.
   // ---------------------------------------------------------------------------
   const env = await new DockerComposeEnvironment(PROJECT_ROOT, COMPOSE_FILE)
-    .withBuild()
-    // Gateway healthcheck: `wget -q --spider http://localhost:3000/health`
-    // We replicate that as an HTTP wait strategy so TestContainers knows when
-    // the gateway is fully ready.
     .withWaitStrategy('gateway', Wait.forHealthCheck())
     .withWaitStrategy('user-service', Wait.forHealthCheck())
     .withWaitStrategy('course-service', Wait.forHealthCheck())
@@ -115,19 +109,17 @@ export default async function globalSetup(): Promise<void> {
   const rabbitmqMgmtPort = env.getContainer('rabbitmq').getMappedPort(15672);
   const lokiPort = env.getContainer('loki').getMappedPort(3100);
 
-  console.log(`[integration] Gateway:     http://localhost:${gatewayPort}`);
-  console.log(`[integration] PostgreSQL:  localhost:${pgPort}`);
   console.log(
-    `[integration] RabbitMQ mgmt: http://localhost:${rabbitmqMgmtPort}`,
+    `[integration] Gateway:     http://localhost:${String(gatewayPort)}`,
   );
-  console.log(`[integration] Loki:        http://localhost:${lokiPort}`);
+  console.log(`[integration] PostgreSQL:  localhost:${String(pgPort)}`);
+  console.log(
+    `[integration] RabbitMQ mgmt: http://localhost:${String(rabbitmqMgmtPort)}`,
+  );
+  console.log(
+    `[integration] Loki:        http://localhost:${String(lokiPort)}`,
+  );
 
-  // ---------------------------------------------------------------------------
-  // 3.  Seed reference data via direct pg connection.
-  //     We bypass the broken write-path APIs intentionally so that read-path
-  //     and authentication tests have stable, known data to work with.
-  //     See test suite 03-user.spec.ts for tests that document the write-path bugs.
-  // ---------------------------------------------------------------------------
   const pgClient = new PgClient({
     host: 'localhost',
     port: pgPort,
@@ -141,29 +133,25 @@ export default async function globalSetup(): Promise<void> {
   await pgClient.end();
 
   console.log(
-    `[integration] Seed data: adminUserId=${seed.adminUserId}, ` +
-      `courseId=${seed.courseId}, unitId=${seed.courseUnitId}`,
+    `[integration] Seed data: adminUserId=${String(seed.adminUserId)}, ` +
+      `courseId=${String(seed.courseId)}, unitId=${String(seed.courseUnitId)}`,
   );
 
-  // ---------------------------------------------------------------------------
-  // 4.  Persist state so test worker processes can read it.
-  //     The INTEGRATION_STATE_FILE env var is propagated to workers by Jest.
-  // ---------------------------------------------------------------------------
   const state: IntegrationState = {
-    gatewayUrl: `http://localhost:${gatewayPort}`,
-    userServiceUrl: `http://localhost:${userSvcPort}`,
-    courseServiceUrl: `http://localhost:${courseSvcPort}`,
-    assignmentServiceUrl: `http://localhost:${assignmentSvcPort}`,
-    enrollmentServiceUrl: `http://localhost:${enrollmentSvcPort}`,
-    schedulingServiceUrl: `http://localhost:${schedulingSvcPort}`,
-    fileServiceUrl: `http://localhost:${fileSvcPort}`,
+    gatewayUrl: `http://localhost:${String(gatewayPort)}`,
+    userServiceUrl: `http://localhost:${String(userSvcPort)}`,
+    courseServiceUrl: `http://localhost:${String(courseSvcPort)}`,
+    assignmentServiceUrl: `http://localhost:${String(assignmentSvcPort)}`,
+    enrollmentServiceUrl: `http://localhost:${String(enrollmentSvcPort)}`,
+    schedulingServiceUrl: `http://localhost:${String(schedulingSvcPort)}`,
+    fileServiceUrl: `http://localhost:${String(fileSvcPort)}`,
     pgHost: 'localhost',
     pgPort,
     pgUser: 'lms',
     pgPassword: 'lms',
     pgDatabase: 'lms',
-    rabbitmqMgmtUrl: `http://lms:lms@localhost:${rabbitmqMgmtPort}`,
-    lokiUrl: `http://localhost:${lokiPort}`,
+    rabbitmqMgmtUrl: `http://lms:lms@localhost:${String(rabbitmqMgmtPort)}`,
+    lokiUrl: `http://localhost:${String(lokiPort)}`,
     seed,
   };
 
@@ -174,19 +162,12 @@ export default async function globalSetup(): Promise<void> {
   console.log('[integration] Stack ready — running tests.\n');
 }
 
-// -----------------------------------------------------------------------------
-// Seed helpers
-// -----------------------------------------------------------------------------
-
 async function seedReferenceData(
   pg: PgClient,
 ): Promise<IntegrationState['seed']> {
-  // Password hash for the well-known test credential 'Integration@Test123'
   const adminPassword = 'Integration@Test123';
   const passwordHash = await bcryptHash(adminPassword, 10);
 
-  // tenant_id is just an integer column with no FK constraint (ADR-0004),
-  // so we use a stable value of 1 without inserting into a tenants table.
   const tenantId = 1;
   const adminUsername = 'admin_test';
 
@@ -207,8 +188,7 @@ async function seedReferenceData(
   );
   const adminUserId = userResult.rows[0]!.id;
 
-  // USER MANAGE permission (resource=1, action=4) so the user can call
-  // user.create via the RabbitMQ permission guard when auth is fixed.
+  // USER MANAGE permission (resource=1, action=4)
   await pg.query(
     `INSERT INTO user_permissions
        (user_id, resource, action, created_at, updated_at, version)
@@ -216,7 +196,7 @@ async function seedReferenceData(
     [adminUserId],
   );
 
-  // A teacher user (identityType=2) for course teacher-assignment tests
+  // A teacher user (identityType=2 TEACHER, status=1 ACTIVE)
   const teacherResult = await pg.query<{ id: number }>(
     `INSERT INTO users
        (tenant_id, username, email, phone, password_hash, status, identity_type,
@@ -243,7 +223,7 @@ async function seedReferenceData(
       'Integration Test Course',
       'A course seeded by the integration test setup',
       tenantId,
-      `{${teacherUserId}}`,
+      `{${String(teacherUserId)}}`,
       teacherUserId,
     ],
   );

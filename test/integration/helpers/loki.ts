@@ -43,7 +43,7 @@ export class LokiClient {
     if (!response.ok) {
       const text = await response.text();
       throw new Error(
-        `Loki query failed (${response.status}) for "${logqlExpr}": ${text}`,
+        `Loki query failed (${String(response.status)}) for "${logqlExpr}": ${text}`,
       );
     }
 
