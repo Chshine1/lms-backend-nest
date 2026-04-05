@@ -25,6 +25,7 @@ export class TypedClientCoreModule {
               })),
               uri: `amqp://${section.username}:${section.password}@${section.host}:${section.port.toString()}`,
               connectionInitOptions: { wait: true },
+              enableControllerDiscovery: true,
             };
           },
           inject: [ConfigurationService],

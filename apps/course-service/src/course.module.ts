@@ -14,7 +14,10 @@ import { CoreModule } from '@app/core';
     CoreModule.forRoot({
       endpointsProtocol: 'rabbitmq',
       entities: [Course, CourseUnit, Assignment, CourseMaterial],
-      exchanges: [{ name: 'user-service', type: 'topic' }],
+      exchanges: [
+        { name: 'course-service', type: 'topic' },
+        { name: 'user-service', type: 'topic' },
+      ],
     }),
     TypedClientModule.forFeature([
       {

@@ -30,6 +30,10 @@ import { CoreModule } from '@app/core';
           name: 'user-service',
           type: 'topic',
         },
+        {
+          name: 'course-service',
+          type: 'topic',
+        },
       ],
     }),
     PassportModule,

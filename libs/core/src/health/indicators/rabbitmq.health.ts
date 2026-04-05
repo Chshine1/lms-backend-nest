@@ -7,7 +7,6 @@ import {
 import type { Channel } from 'amqplib';
 import { v4 as uuid } from 'uuid';
 
-
 @Injectable()
 export class RabbitMQHealthIndicator {
   constructor(

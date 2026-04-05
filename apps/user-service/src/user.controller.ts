@@ -22,6 +22,10 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.create',
     queue: 'user-service-user-create',
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   createUser(createUserDto: CreateUserDto): Promise<UserContract> {
     return this.userWriteService.create(createUserDto);
@@ -31,6 +35,10 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.login',
     queue: 'user-service-user-login',
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   userLogin(userLoginDto: UserLoginDto): Promise<string> {
     return this.userReadService.userLogin(userLoginDto);
@@ -40,6 +48,10 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.get',
     queue: 'user-service-user-get',
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   getUsers(ids: number[]): Promise<(UserContract | undefined)[]> {
     return this.userReadService.getUsers(ids);
