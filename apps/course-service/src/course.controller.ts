@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseTypedClient, ExtractController } from '@app/typed-client';
 import { CourseReadService, CourseWriteService } from './services/index';
 import {
@@ -22,6 +22,11 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.create',
     queue: 'course-service-course-create',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   createCourse(data: CreateCourseDto): Promise<CourseContract> {
     return this.courseWriteService.createCourse(data);
@@ -31,6 +36,11 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.batch-update',
     queue: 'course-service-course-batch-update',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   batchUpdateCourse(data: {
     courseId: number;
@@ -43,6 +53,11 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.find-course-with-units',
     queue: 'course-service-course-find-course-with-units',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   async findCourseWithUnits(data: { courseId: number }): Promise<{
     course: CourseContract;
@@ -55,6 +70,11 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.find-unit-detail',
     queue: 'course-service-course-find-unit-detail',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
   })
   async findUnitDetail(data: {
     courseId: number;

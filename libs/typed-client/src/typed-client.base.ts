@@ -34,6 +34,7 @@ export abstract class TypedClientBase<
         'x-trace-id': traceId,
       },
       payload: data,
+      timeout: 10000,
     });
   }
 }
