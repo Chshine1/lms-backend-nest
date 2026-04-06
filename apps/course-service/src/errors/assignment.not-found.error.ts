@@ -1,6 +1,9 @@
 ﻿import { BaseError, ErrorCode } from '@app/contracts';
 
-export class AssignmentNotFoundError extends BaseError {
+export class AssignmentNotFoundError extends BaseError<{
+  courseUnitId: number;
+  assignmentId: number;
+}> {
   constructor(courseUnitId: number, assignmentId: number) {
     super(
       `Assignment ${String(assignmentId)} not found, for course unit ${String(courseUnitId)}`,
