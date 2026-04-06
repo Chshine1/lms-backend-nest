@@ -2,6 +2,7 @@
 import { CourseUnitBatchDto } from '@app/contracts';
 import { BadRequestException } from '@nestjs/common';
 import { Course } from '@/course-service/src/entities/course.entity';
+import { CourseUnitNotFoundError } from '@/course-service/src/errors';
 
 export class CourseUnitCollection {
   private constructor(
@@ -27,7 +28,9 @@ export class CourseUnitCollection {
   private updateExistingCourseUnit(id: number, dto: CourseUnitBatchDto): void {
     const courseUnit = this.courseUnits.find((c) => c.id === id);
     if (courseUnit === undefined) {
-      throw new BadRequestException(`Unit with id ${String(dto.id)} not found`);
+      // Because this can only be called when dto is an update dto, where id !== undefined
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      throw new CourseUnitNotFoundError(this.course.id, dto.id!);
     }
 
     if (dto.title !== undefined) courseUnit.title = dto.title;

@@ -8,6 +8,7 @@ export class UserContextService {
   getRequiredUserId(): number {
     const userId = this.cls.get<number | undefined>('userId');
     if (userId === undefined) {
+      // TODO: Error handling here
       throw new UnauthorizedException('No user ID in current context.');
     }
     return userId;

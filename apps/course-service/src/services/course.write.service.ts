@@ -1,10 +1,6 @@
-﻿import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Course } from '@/course-service/src/entities/course.entity';
+import { Course } from '../entities/index';
 import { Repository } from 'typeorm';
 import { UserTypedClient } from '@app/typed-client';
 import {
@@ -15,6 +11,7 @@ import {
 } from '@app/contracts';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { UserContextService } from '@app/authentication';
+import { CourseNotFoundError, InvalidTeachersError } from '../errors/index';
 
 @Injectable()
 export class CourseWriteService {
@@ -27,13 +24,14 @@ export class CourseWriteService {
 
   async createCourse(dto: CreateCourseDto): Promise<CourseContract> {
     const userId = this.userContextService.getRequiredUserId();
+
     if (dto.teachers !== undefined && dto.teachers.length > 0) {
       const users = await this.userClient.getUsers(dto.teachers);
       const invalid = users.some(
         (u) => u === undefined || u.identityType !== IdentityType.TEACHER,
       );
       if (invalid) {
-        throw new BadRequestException('Invalid teachers');
+        throw new InvalidTeachersError(dto.teachers, users);
       }
     }
 
@@ -57,7 +55,7 @@ export class CourseWriteService {
       where: { id: courseId },
       relations: ['courseUnits', 'courseUnits.assignments'],
     });
-    if (course === null) throw new NotFoundException('Course not found');
+    if (course === null) throw new CourseNotFoundError(courseId);
 
     if (dto.name !== undefined) course.name = dto.name;
     if (dto.description !== undefined) course.description = dto.description;

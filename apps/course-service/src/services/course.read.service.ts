@@ -1,8 +1,12 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Course } from '@/course-service/src/entities/course.entity';
+import {
+  Assignment,
+  Course,
+  CourseMaterial,
+  CourseUnit,
+} from '../entities/index';
 import { Repository } from 'typeorm';
-import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
 import {
   AssignmentContract,
   CourseContract,
@@ -10,8 +14,7 @@ import {
   CourseUnitContract,
 } from '@app/contracts';
 import { plainToInstance } from 'class-transformer';
-import { Assignment } from '@/course-service/src/entities/assignment.entity';
-import { CourseMaterial } from '@/course-service/src/entities/course-material.entity';
+import { CourseNotFoundError, CourseUnitNotFoundError } from '../errors/index';
 
 @Injectable()
 export class CourseReadService {
@@ -34,7 +37,7 @@ export class CourseReadService {
       where: { id: courseId },
       relations: ['courseUnits'],
     });
-    if (course === null) throw new NotFoundException('Course not found');
+    if (course === null) throw new CourseNotFoundError(courseId);
     return {
       course: plainToInstance(CourseContract, course, {
         excludeExtraneousValues: true,
@@ -56,7 +59,7 @@ export class CourseReadService {
       where: { id: courseUnitId, courseId: courseId },
     });
     if (!exists) {
-      throw new NotFoundException('Unit not found');
+      throw new CourseUnitNotFoundError(courseId, courseUnitId);
     }
 
     const assignments = await this.assignmentRepository.find({

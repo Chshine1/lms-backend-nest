@@ -42,6 +42,7 @@ export default tseslint.config(
     },
     rules: {
       'custom/no-directory-import': 'error',
+      'custom/no-cross-service-import': 'error',
       
       'import/no-extraneous-dependencies': [
         'error',
