@@ -71,12 +71,12 @@ export class LokiClient {
    *
    * Promtail's Docker SD uses the label `compose_service` for the service name.
    */
-  async queryService(
-    serviceName: string,
+  async queryContainer(
+    containerName: string,
     lookbackMinutes: number = 5,
   ): Promise<LokiLogLine[]> {
     return this.queryLogs(
-      `{compose_service="${serviceName}"}`,
+      `{container="${containerName}"}`,
       lookbackMinutes,
     );
   }

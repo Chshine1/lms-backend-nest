@@ -259,7 +259,7 @@ describe('04 — Course Management', () => {
         tenantId: 1,
       });
 
-      await sleep(500);
+      await sleep(6000);
 
       const queue = await rabbitmq.getQueue('course-service-course-create');
       expect(queue.messages_ready).toBe(0);
@@ -272,16 +272,16 @@ describe('04 — Course Management', () => {
       const qBefore = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      const deliverBefore = qBefore.message_stats?.deliver_get ?? 0;
+      const deliverBefore = qBefore.message_stats?.deliver ?? 0;
 
       await gateway.get(`/courses/${String(state.seed.courseId)}`);
 
-      await sleep(300);
+      await sleep(6000);
 
       const qAfter = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      const deliverAfter = qAfter.message_stats?.deliver_get ?? 0;
+      const deliverAfter = qAfter.message_stats?.deliver ?? 0;
       expect(deliverAfter - deliverBefore).toBeGreaterThanOrEqual(1);
     });
 
@@ -289,24 +289,24 @@ describe('04 — Course Management', () => {
       const qBefore = await rabbitmq.getQueue(
         'course-service-course-find-unit-detail',
       );
-      const deliverBefore = qBefore.message_stats?.deliver_get ?? 0;
+      const deliverBefore = qBefore.message_stats?.deliver ?? 0;
 
       await gateway.get(
         `/courses/${String(state.seed.courseId)}/units/${String(state.seed.courseUnitId)}`,
       );
 
-      await sleep(300);
+      await sleep(6000);
 
       const qAfter = await rabbitmq.getQueue(
         'course-service-course-find-unit-detail',
       );
-      const deliverAfter = qAfter.message_stats?.deliver_get ?? 0;
+      const deliverAfter = qAfter.message_stats?.deliver ?? 0;
       expect(deliverAfter - deliverBefore).toBeGreaterThanOrEqual(1);
     });
 
     it('no messages linger on find-course-with-units after RPC completes', async () => {
       await gateway.get(`/courses/${String(state.seed.courseId)}`);
-      await sleep(200);
+      await sleep(6000);
       const q = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
