@@ -1,5 +1,9 @@
 ﻿import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
-import { AssignmentBatchDto } from '@app/contracts';
+import {
+  AssignmentBatchCreatePayload,
+  AssignmentBatchDto,
+  AssignmentBatchUpdatePayload,
+} from '@app/contracts';
 import { BadRequestException } from '@nestjs/common';
 import { Assignment } from '@/course-service/src/entities/assignment.entity';
 
@@ -18,16 +22,16 @@ export class AssignmentCollection {
 
   updateAssignments(assignmentDtos: AssignmentBatchDto[]): void {
     for (const dto of assignmentDtos) {
-      if (dto.id !== undefined) {
-        this.updateExistingAssignment(dto.id, dto);
+      if (dto.payload.mode === 'update') {
+        this.updateExistingAssignment(dto.payload);
       } else {
-        this.createNewAssignment(dto);
+        this.createNewAssignment(dto.payload);
       }
     }
   }
 
-  private updateExistingAssignment(id: number, dto: AssignmentBatchDto): void {
-    const assignment = this.assignments.find((a) => a.id === id);
+  private updateExistingAssignment(dto: AssignmentBatchUpdatePayload): void {
+    const assignment = this.assignments.find((a) => a.id === dto.id);
     if (assignment === undefined) {
       throw new BadRequestException(
         `Assignment with id ${String(dto.id)} not found`,
@@ -39,17 +43,7 @@ export class AssignmentCollection {
     if (dto.dueDate !== undefined) assignment.dueDate = dto.dueDate;
   }
 
-  private createNewAssignment(dto: AssignmentBatchDto): Assignment {
-    if (
-      dto.title === undefined ||
-      dto.description === undefined ||
-      dto.dueDate === undefined
-    ) {
-      throw new BadRequestException(
-        'Missing required fields for new assignment',
-      );
-    }
-
+  private createNewAssignment(dto: AssignmentBatchCreatePayload): Assignment {
     const assignment = new Assignment();
 
     assignment.title = dto.title;

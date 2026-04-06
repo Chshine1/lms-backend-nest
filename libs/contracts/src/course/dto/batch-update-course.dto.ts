@@ -1,43 +1,78 @@
-﻿import { ApiProperty } from '@nestjs/swagger';
+﻿import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class AssignmentBatchDto {
-  @ApiProperty({ required: false })
-  id?: number;
+const AssignmentCreateSchema = z.object({
+  mode: z.literal('create'),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  dueDate: z.coerce.date(),
+});
 
-  @ApiProperty({ required: false })
-  title?: string;
+export type AssignmentBatchCreatePayload = z.infer<
+  typeof AssignmentCreateSchema
+>;
 
-  @ApiProperty({ required: false })
-  description?: string;
+const AssignmentUpdateSchema = z.object({
+  mode: z.literal('update'),
+  id: z.number().int().positive(),
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  dueDate: z.coerce.date().optional(),
+});
 
-  @ApiProperty({ required: false })
-  dueDate?: Date;
-}
+export type AssignmentBatchUpdatePayload = z.infer<
+  typeof AssignmentUpdateSchema
+>;
 
-export class CourseUnitBatchDto {
-  @ApiProperty({ required: false })
-  id?: number;
+const AssignmentBatchSchema = z.object({
+  payload: z.discriminatedUnion('mode', [
+    AssignmentCreateSchema,
+    AssignmentUpdateSchema,
+  ]),
+});
 
-  @ApiProperty({ required: false })
-  title?: string;
+export class AssignmentBatchDto extends createZodDto(AssignmentBatchSchema) {}
 
-  @ApiProperty({ required: false })
-  description?: string;
+const CourseUnitCreateSchema = z.object({
+  mode: z.literal('create'),
+  title: z.string().min(1),
+  description: z.string(),
+  position: z.number().int().min(0),
+  assignments: z.array(AssignmentBatchSchema).optional(),
+});
 
-  @ApiProperty({ required: false })
-  position?: number;
+export type CourseUnitBatchCreatePayload = z.infer<
+  typeof CourseUnitCreateSchema
+>;
 
-  @ApiProperty({ type: [AssignmentBatchDto], required: false })
-  assignments?: AssignmentBatchDto[];
-}
+const CourseUnitUpdateSchema = z.object({
+  mode: z.literal('update'),
+  id: z.number().int().positive(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  position: z.number().int().min(0).optional(),
+  assignments: z.array(AssignmentBatchSchema).optional(),
+});
 
-export class BatchUpdateCourseDto {
-  @ApiProperty({ required: false })
-  name?: string;
+export type CourseUnitBatchUpdatePayload = z.infer<
+  typeof CourseUnitUpdateSchema
+>;
 
-  @ApiProperty({ required: false })
-  description?: string;
+const CourseUnitBatchSchema = z.object({
+  payload: z.discriminatedUnion('mode', [
+    CourseUnitCreateSchema,
+    CourseUnitUpdateSchema,
+  ]),
+});
 
-  @ApiProperty({ type: [CourseUnitBatchDto], required: false })
-  units?: CourseUnitBatchDto[];
-}
+export class CourseUnitBatchDto extends createZodDto(CourseUnitBatchSchema) {}
+
+const BatchUpdateCourseSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  units: z.array(CourseUnitBatchSchema).optional(),
+});
+
+export class BatchUpdateCourseDto extends createZodDto(
+  BatchUpdateCourseSchema,
+) {}

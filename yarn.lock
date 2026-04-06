@@ -124,9 +124,11 @@ __metadata:
     "@nestjs/swagger": "npm:^11.2.6"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
+    nestjs-zod: "npm:^5.3.0"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
     typeorm: "npm:^0.3.28"
+    zod: "npm:^4.3.6"
   languageName: unknown
   linkType: soft
 
@@ -8717,6 +8719,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nestjs-zod@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "nestjs-zod@npm:5.3.0"
+  dependencies:
+    deepmerge: "npm:^4.3.1"
+  peerDependencies:
+    "@nestjs/common": ^10.0.0 || ^11.0.0
+    "@nestjs/swagger": ^7.4.2 || ^8.0.0 || ^11.0.0
+    rxjs: ^7.0.0
+    zod: ^3.25.0 || ^4.0.0
+  peerDependenciesMeta:
+    "@nestjs/swagger":
+      optional: true
+  checksum: 10c0/4672f2f929abe88a5d3177f7c816d18ee8cf7b69c0ad90eb949155928bbb89d9218811c9ad6815ee02c10313cd504df03de5ecf77e78015669fc715592385dfd
+  languageName: node
+  linkType: hard
+
 "node-abort-controller@npm:^3.0.1":
   version: 3.1.1
   resolution: "node-abort-controller@npm:3.1.1"
@@ -11489,5 +11508,12 @@ __metadata:
     compress-commons: "npm:^6.0.2"
     readable-stream: "npm:^4.0.0"
   checksum: 10c0/50f2fb30327fb9d09879abf7ae2493705313adf403e794b030151aaae00009162419d60d0519e807673ec04d442e140c8879ca14314df0a0192de3b233e8f28b
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "zod@npm:4.3.6"
+  checksum: 10c0/860d25a81ab41d33aa25f8d0d07b091a04acb426e605f396227a796e9e800c44723ed96d0f53a512b57be3d1520f45bf69c0cb3b378a232a00787a2609625307
   languageName: node
   linkType: hard

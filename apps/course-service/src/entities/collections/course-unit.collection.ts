@@ -1,6 +1,9 @@
 ﻿import { CourseUnit } from '../course-unit.entity';
-import { CourseUnitBatchDto } from '@app/contracts';
-import { BadRequestException } from '@nestjs/common';
+import {
+  CourseUnitBatchCreatePayload,
+  CourseUnitBatchDto,
+  CourseUnitBatchUpdatePayload,
+} from '@app/contracts';
 import { Course } from '@/course-service/src/entities/course.entity';
 import { CourseUnitNotFoundError } from '@/course-service/src/errors';
 
@@ -17,20 +20,18 @@ export class CourseUnitCollection {
   updateCourseUnits(courseUnitDtos: CourseUnitBatchDto[]): void {
     // TODO: This uses float ordering, precision boundary conditions need extra handling
     for (const dto of courseUnitDtos) {
-      if (dto.id !== undefined) {
-        this.updateExistingCourseUnit(dto.id, dto);
+      if (dto.payload.mode === 'update') {
+        this.updateExistingCourseUnit(dto.payload);
       } else {
-        this.createNewCourseUnit(dto);
+        this.createNewCourseUnit(dto.payload);
       }
     }
   }
 
-  private updateExistingCourseUnit(id: number, dto: CourseUnitBatchDto): void {
-    const courseUnit = this.courseUnits.find((c) => c.id === id);
+  private updateExistingCourseUnit(dto: CourseUnitBatchUpdatePayload): void {
+    const courseUnit = this.courseUnits.find((c) => c.id === dto.id);
     if (courseUnit === undefined) {
-      // Because this can only be called when dto is an update dto, where id !== undefined
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      throw new CourseUnitNotFoundError(this.course.id, dto.id!);
+      throw new CourseUnitNotFoundError(this.course.id, dto.id);
     }
 
     if (dto.title !== undefined) courseUnit.title = dto.title;
@@ -42,17 +43,7 @@ export class CourseUnitCollection {
     }
   }
 
-  createNewCourseUnit(dto: CourseUnitBatchDto): CourseUnit {
-    if (
-      dto.title === undefined ||
-      dto.description === undefined ||
-      dto.position === undefined
-    ) {
-      throw new BadRequestException(
-        'Missing required fields for new course unit',
-      );
-    }
-
+  createNewCourseUnit(dto: CourseUnitBatchCreatePayload): CourseUnit {
     const courseUnit = new CourseUnit();
 
     courseUnit.title = dto.title;
