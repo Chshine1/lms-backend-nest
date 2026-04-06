@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { Course } from './entities/index';
-import { CourseUnit } from './entities/index';
-import { Assignment } from './entities/index';
-import { CourseMaterial } from './entities/index';
+import {
+  Assignment,
+  Course,
+  CourseMaterial,
+  CourseUnit,
+} from './entities/index';
 import { CourseController } from './course.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CourseReadService, CourseWriteService } from './services/index';

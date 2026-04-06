@@ -40,7 +40,12 @@ export class LoggingInterceptor implements NestInterceptor {
       ),
       catchError((err: unknown) =>
         from(
-          this.logAndFlush(LogLevel.ERROR, 'handler error', {error: err, ...ctx}, start),
+          this.logAndFlush(
+            LogLevel.ERROR,
+            'handler error',
+            { error: err, ...ctx },
+            start,
+          ),
         ).pipe(switchMap(() => throwError(() => err))),
       ),
     );

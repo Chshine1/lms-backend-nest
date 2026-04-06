@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Course } from './course.entity';
 import { Assignment } from './assignment.entity';
 import { CourseMaterial } from './course-material.entity';
@@ -7,7 +7,7 @@ import {
   BaseEntity,
   CourseUnitContract,
 } from '@app/contracts';
-import { AssignmentCollection } from '@/course-service/src/entities/collections/assignment.collection';
+import { AssignmentCollection } from './collections/assignment.collection';
 
 @Entity('course_units')
 export class CourseUnit extends BaseEntity implements CourseUnitContract {
@@ -33,15 +33,14 @@ export class CourseUnit extends BaseEntity implements CourseUnitContract {
     cascade: true,
   })
   assignments!: Assignment[];
+  @OneToMany(() => CourseMaterial, (material) => material.courseUnit, {
+    cascade: true,
+  })
+  courseMaterials!: CourseMaterial[];
 
   updateAssignments(assignmentDtos: AssignmentBatchDto[]): void {
     AssignmentCollection.create(this, this.assignments).updateAssignments(
       assignmentDtos,
     );
   }
-
-  @OneToMany(() => CourseMaterial, (material) => material.courseUnit, {
-    cascade: true,
-  })
-  courseMaterials!: CourseMaterial[];
 }

@@ -4,8 +4,8 @@ import {
   CourseUnitBatchDto,
   CourseUnitBatchUpdatePayload,
 } from '@app/contracts';
-import { Course } from '@/course-service/src/entities/course.entity';
-import { CourseUnitNotFoundError } from '@/course-service/src/errors';
+import { Course } from '../course.entity';
+import { CourseUnitNotFoundError } from '../../errors/index';
 
 export class CourseUnitCollection {
   private constructor(
@@ -28,21 +28,6 @@ export class CourseUnitCollection {
     }
   }
 
-  private updateExistingCourseUnit(dto: CourseUnitBatchUpdatePayload): void {
-    const courseUnit = this.courseUnits.find((c) => c.id === dto.id);
-    if (courseUnit === undefined) {
-      throw new CourseUnitNotFoundError(this.course.id, dto.id);
-    }
-
-    if (dto.title !== undefined) courseUnit.title = dto.title;
-    if (dto.description !== undefined) courseUnit.description = dto.description;
-    if (dto.position !== undefined) courseUnit.position = dto.position;
-
-    if (dto.assignments !== undefined) {
-      courseUnit.updateAssignments(dto.assignments);
-    }
-  }
-
   createNewCourseUnit(dto: CourseUnitBatchCreatePayload): CourseUnit {
     const courseUnit = new CourseUnit();
 
@@ -57,5 +42,20 @@ export class CourseUnitCollection {
     courseUnit.course = this.course;
     this.courseUnits.push(courseUnit);
     return courseUnit;
+  }
+
+  private updateExistingCourseUnit(dto: CourseUnitBatchUpdatePayload): void {
+    const courseUnit = this.courseUnits.find((c) => c.id === dto.id);
+    if (courseUnit === undefined) {
+      throw new CourseUnitNotFoundError(this.course.id, dto.id);
+    }
+
+    if (dto.title !== undefined) courseUnit.title = dto.title;
+    if (dto.description !== undefined) courseUnit.description = dto.description;
+    if (dto.position !== undefined) courseUnit.position = dto.position;
+
+    if (dto.assignments !== undefined) {
+      courseUnit.updateAssignments(dto.assignments);
+    }
   }
 }

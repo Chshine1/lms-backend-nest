@@ -1,11 +1,11 @@
-﻿import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
+﻿import { CourseUnit } from '../course-unit.entity';
 import {
   AssignmentBatchCreatePayload,
   AssignmentBatchDto,
   AssignmentBatchUpdatePayload,
 } from '@app/contracts';
-import { BadRequestException } from '@nestjs/common';
-import { Assignment } from '@/course-service/src/entities/assignment.entity';
+import { Assignment } from '../assignment.entity';
+import { AssignmentNotFoundError } from '../../errors/index';
 
 export class AssignmentCollection {
   private constructor(
@@ -33,9 +33,7 @@ export class AssignmentCollection {
   private updateExistingAssignment(dto: AssignmentBatchUpdatePayload): void {
     const assignment = this.assignments.find((a) => a.id === dto.id);
     if (assignment === undefined) {
-      throw new BadRequestException(
-        `Assignment with id ${String(dto.id)} not found`,
-      );
+      throw new AssignmentNotFoundError(this.courseUnit.id, dto.id);
     }
 
     if (dto.title !== undefined) assignment.title = dto.title;

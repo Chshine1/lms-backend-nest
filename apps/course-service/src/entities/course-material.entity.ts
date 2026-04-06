@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity, CourseMaterialContract } from '@app/contracts';
-import { CourseUnit } from '@/course-service/src/entities/course-unit.entity';
+import { CourseUnit } from './course-unit.entity';
 
 @Entity('course_materials')
 export class CourseMaterial

@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CourseUnit } from './course-unit.entity';
 import { BaseEntity, CourseContract, CourseUnitBatchDto } from '@app/contracts';
 import { CourseUnitCollection } from '@/course-service/src/entities/collections/course-unit.collection';
