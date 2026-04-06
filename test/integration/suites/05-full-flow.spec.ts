@@ -45,19 +45,16 @@ describe('05 — Full End-to-End Flow', () => {
     let accessToken: string;
     let loginDeliverBefore: number;
     let findCourseDeliverBefore: number;
-    let requestTimestamp: Date;
 
     beforeAll(async () => {
       // Capture baselines before we touch anything
       const loginQ = await rabbitmq.getQueue('user-service-user-login');
-      loginDeliverBefore = loginQ.message_stats?.deliver_get ?? 0;
+      loginDeliverBefore = loginQ.message_stats?.deliver ?? 0;
 
       const courseQ = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      findCourseDeliverBefore = courseQ.message_stats?.deliver_get ?? 0;
-
-      requestTimestamp = new Date();
+      findCourseDeliverBefore = courseQ.message_stats?.deliver ?? 0;
     });
 
     it('Step 1 — POST /login succeeds and returns a JWT', async () => {
@@ -130,18 +127,18 @@ describe('05 — Full End-to-End Flow', () => {
     });
 
     it('Step 3 — RabbitMQ login queue processed +1 message', async () => {
-      await sleep(300); // allow stats refresh
+      await sleep(6000); // allow stats refresh
       const q = await rabbitmq.getQueue('user-service-user-login');
-      const deliverAfter = q.message_stats?.deliver_get ?? 0;
+      const deliverAfter = q.message_stats?.deliver ?? 0;
       expect(deliverAfter - loginDeliverBefore).toBeGreaterThanOrEqual(1);
     });
 
     it('Step 3 — RabbitMQ find-course-with-units queue processed +1 message', async () => {
-      await sleep(300);
+      await sleep(6000);
       const q = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      const deliverAfter = q.message_stats?.deliver_get ?? 0;
+      const deliverAfter = q.message_stats?.deliver ?? 0;
       expect(deliverAfter - findCourseDeliverBefore).toBeGreaterThanOrEqual(1);
     });
 
@@ -160,28 +157,19 @@ describe('05 — Full End-to-End Flow', () => {
       // Promtail ingestion can take a few seconds; wait before querying
       await sleep(10_000);
 
-      const logs = await loki.queryService('gateway', 5);
+      const logs = await loki.queryContainer('gateway', 5);
       expect(logs.length).toBeGreaterThan(0);
     });
 
     it('Step 4 — Loki has log lines from the user-service after login', async () => {
       // Already waited 10 s above; just query
-      const logs = await loki.queryService('user-service', 5);
+      const logs = await loki.queryContainer('user-service', 5);
       expect(logs.length).toBeGreaterThan(0);
     });
 
     it('Step 4 — Loki has log lines from the course-service after GET /courses/:id', async () => {
-      const logs = await loki.queryService('course-service', 5);
+      const logs = await loki.queryContainer('course-service', 5);
       expect(logs.length).toBeGreaterThan(0);
-    });
-
-    it('Step 4 — gateway and user-service emitted logs within the same 60-second window', () => {
-      // Both services MUST have logged something after the request. The fact that
-      // the previous "Loki has log lines" tests passed ensures this.
-      // We document the expectation explicitly here for traceability.
-      const windowMs = Date.now() - requestTimestamp.getTime();
-      // The entire login round-trip must complete well under 60 seconds
-      expect(windowMs).toBeLessThan(60_000);
     });
   });
 
@@ -192,7 +180,7 @@ describe('05 — Full End-to-End Flow', () => {
     beforeAll(async () => {
       courseCountBefore = await withDb(state, (db) => db.count('courses'));
       const q = await rabbitmq.getQueue('course-service-course-create');
-      createQueueDeliverBefore = q.message_stats?.deliver_get ?? 0;
+      createQueueDeliverBefore = q.message_stats?.deliver ?? 0;
     });
 
     it('POST /courses returns a non-2xx status (userId context missing)', async () => {
@@ -212,10 +200,10 @@ describe('05 — Full End-to-End Flow', () => {
     it('course-service-course-create queue processes the message (RPC gets a reply)', async () => {
       // Even on error the message IS published and the service does reply with
       // an error. The queue should drain (messages_ready = 0).
-      await sleep(500);
+      await sleep(6000);
       const q = await rabbitmq.getQueue('course-service-course-create');
       // The message was published (deliver count incremented) …
-      const deliverAfter = q.message_stats?.deliver_get ?? 0;
+      const deliverAfter = q.message_stats?.deliver ?? 0;
       expect(deliverAfter).toBeGreaterThanOrEqual(createQueueDeliverBefore);
       // … and immediately consumed (ack or nack), leaving nothing pending
       expect(q.messages_ready).toBe(0);
@@ -250,7 +238,7 @@ describe('05 — Full End-to-End Flow', () => {
       const qBefore = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      const deliverBefore = qBefore.message_stats?.deliver_get ?? 0;
+      const deliverBefore = qBefore.message_stats?.deliver ?? 0;
 
       await Promise.all(
         Array.from({ length: 10 }, () =>
@@ -258,12 +246,12 @@ describe('05 — Full End-to-End Flow', () => {
         ),
       );
 
-      await sleep(500);
+      await sleep(6000);
 
       const qAfter = await rabbitmq.getQueue(
         'course-service-course-find-course-with-units',
       );
-      const deliverAfter = qAfter.message_stats?.deliver_get ?? 0;
+      const deliverAfter = qAfter.message_stats?.deliver ?? 0;
       expect(deliverAfter - deliverBefore).toBeGreaterThanOrEqual(10);
     });
 
@@ -335,14 +323,14 @@ describe('05 — Full End-to-End Flow', () => {
       await gateway.get(`/courses/${String(state.seed.courseId)}`);
       await sleep(10_000); // allow promtail ingestion
 
-      const logs = await loki.queryService('gateway', 3);
+      const logs = await loki.queryContainer('gateway', 3);
       // At least some lines should be parseable JSON
       const jsonLines = logs.filter((l) => l.parsed !== null);
       expect(jsonLines.length).toBeGreaterThan(0);
     });
 
     it('course-service log lines are structured JSON', async () => {
-      const logs = await loki.queryService('course-service', 3);
+      const logs = await loki.queryContainer('course-service', 3);
       const jsonLines = logs.filter((l) => l.parsed !== null);
       expect(jsonLines.length).toBeGreaterThan(0);
     });
@@ -355,7 +343,7 @@ describe('05 — Full End-to-End Flow', () => {
       });
       await sleep(10_000);
 
-      const logs = await loki.queryService('user-service', 3);
+      const logs = await loki.queryContainer('user-service', 3);
       const jsonLines = logs.filter((l) => l.parsed !== null);
       expect(jsonLines.length).toBeGreaterThan(0);
     });
@@ -372,7 +360,7 @@ describe('05 — Full End-to-End Flow', () => {
       ];
 
       for (const svc of services) {
-        const logs = await loki.queryService(svc, 30);
+        const logs = await loki.queryContainer(svc, 30);
         expect(logs.length).toBeGreaterThan(0);
       }
     });

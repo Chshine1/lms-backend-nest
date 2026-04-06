@@ -117,7 +117,7 @@ describe('02 — Authentication', () => {
     it('each login attempt increments the deliver count on the user-service-user-login queue', async () => {
       // Capture baseline
       const queueBefore = await rabbitmq.getQueue('user-service-user-login');
-      const deliverBefore = queueBefore.message_stats?.deliver_get ?? 0;
+      const deliverBefore = queueBefore.message_stats?.deliver ?? 0;
 
       // Trigger two logins
       await gateway.post('/login', {
@@ -129,11 +129,11 @@ describe('02 — Authentication', () => {
         password: state.seed.adminPassword,
       });
 
-      // Small delay to allow RabbitMQ stats to update (usually near-instant)
-      await sleep(300);
+      // Delay to allow RabbitMQ stats to update
+      await sleep(6000);
 
       const queueAfter = await rabbitmq.getQueue('user-service-user-login');
-      const deliverAfter = queueAfter.message_stats?.deliver_get ?? 0;
+      const deliverAfter = queueAfter.message_stats?.deliver ?? 0;
 
       expect(deliverAfter - deliverBefore).toBeGreaterThanOrEqual(2);
     });
@@ -144,7 +144,7 @@ describe('02 — Authentication', () => {
         password: state.seed.adminPassword,
       });
 
-      await sleep(200);
+      await sleep(6000);
 
       const queue = await rabbitmq.getQueue('user-service-user-login');
       // RPC: gateway waits for reply, so by the time HTTP returns the message is

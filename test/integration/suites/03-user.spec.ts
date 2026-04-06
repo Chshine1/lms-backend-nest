@@ -111,8 +111,7 @@ describe('03 — User Management', () => {
     it('after a failed POST /users the queue has no lingering ready messages', async () => {
       await gateway.post('/users', VALID_USER_PAYLOAD);
 
-      // Allow a small window for any async ack/nack to complete
-      await sleep(500);
+      await sleep(6000);
 
       const queue = await rabbitmq.getQueue('user-service-user-create');
       expect(queue.messages_ready).toBe(0);

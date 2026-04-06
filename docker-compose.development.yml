@@ -57,6 +57,14 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    command: >
+      sh -c "
+        rabbitmq-server &
+        RABBIT_PID=$$!
+        rabbitmqctl wait --timeout 60 /var/lib/rabbitmq/mnesia/rabbit@$${HOSTNAME}.pid
+        rabbitmqctl set_user_tags lms administrator
+        wait $$RABBIT_PID
+      "
 
   loki:
     image: grafana/loki:3.2.1

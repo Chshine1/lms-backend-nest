@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { LoggerService } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
 import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
 import { TraceModule } from '@app/trace';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
   imports: [TraceModule, ConfigurationModule],
@@ -20,6 +22,11 @@ import { TraceModule } from '@app/trace';
         );
       },
       inject: [LogEnrichmentService],
+    },
+    LoggingInterceptor,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
   exports: [LoggerService],

@@ -9,7 +9,7 @@ export interface RabbitMQQueue {
   consumers: number;
   message_stats?: {
     publish?: number;
-    deliver_get?: number;
+    deliver?: number;
     deliver_no_ack?: number;
     ack?: number;
   };
