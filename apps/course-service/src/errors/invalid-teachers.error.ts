@@ -1,9 +1,5 @@
-﻿import {
-  BaseError,
-  ErrorCode,
-  IdentityType,
-  UserContract,
-} from '@app/contracts';
+﻿import { BaseError, IdentityType, UserContract } from '@app/contracts';
+import { CourseErrorCode } from '@/course-service/src/course-error.code';
 
 type ValidateTeacherError = {
   id: number;
@@ -43,7 +39,7 @@ export class InvalidTeachersError extends BaseError<{
       message += ` [${notTeacherIds.substring(0, notTeacherIds.length - 2)}] are not teachers.`;
     }
 
-    super(message, ErrorCode.COURSE_INVALID_TEACHERS, {
+    super(message, CourseErrorCode.COURSE_INVALID_TEACHERS, {
       teacherIds,
       validateTeacherErrors,
     });

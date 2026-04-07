@@ -1,3 +1,4 @@
-﻿export * from './base-error';
+﻿export { BadRequestError } from './bad-request.error';
+export { type ErrorResponse, BaseError } from './base-error';
 export * from './error.codes';
-export * from './to-error.util';
+export { UnknownError } from './unknown-error';

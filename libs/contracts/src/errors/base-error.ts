@@ -1,11 +1,16 @@
-﻿import { ErrorCode } from './error.codes';
+﻿export type ErrorResponse = {
+  statusCode: number;
+  domainCode: string;
+  message: string;
+  timestamp: Date;
+} & Record<string, unknown>;
 
 export abstract class BaseError<
   TContext extends Record<string, unknown> = Record<string, unknown>,
 > extends Error {
   protected constructor(
     message: string,
-    public readonly code: ErrorCode,
+    public readonly code: string,
     public readonly context: TContext,
     cause?: unknown,
   ) {
@@ -15,5 +20,15 @@ export abstract class BaseError<
       this.cause = cause;
     }
     Error.captureStackTrace(this, this.constructor);
+  }
+
+  toErrorResponse(): ErrorResponse {
+    return {
+      statusCode: 500,
+      domainCode: this.code,
+      message: this.message,
+      timestamp: new Date(),
+      ...this.context,
+    };
   }
 }

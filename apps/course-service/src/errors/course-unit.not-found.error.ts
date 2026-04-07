@@ -1,4 +1,5 @@
-﻿import { BaseError, ErrorCode } from '@app/contracts';
+﻿import { BaseError } from '@app/contracts';
+import { CourseErrorCode } from '@/course-service/src/course-error.code';
 
 export class CourseUnitNotFoundError extends BaseError<{
   courseId: number;
@@ -7,7 +8,7 @@ export class CourseUnitNotFoundError extends BaseError<{
   constructor(courseId: number, courseUnitId: number) {
     super(
       `Course unit ${String(courseUnitId)} for course ${String(courseId)} not found`,
-      ErrorCode.COURSE_UNIT_NOT_FOUND,
+      CourseErrorCode.COURSE_UNIT_NOT_FOUND,
       {
         courseId,
         courseUnitId,
