@@ -2,6 +2,7 @@
   // Common (00)
   UNKNOWN = '0000',
   BAD_REQUEST = '0001',
+  MICROSERVICE = '0002',
 
   // Bootstrap (01)
   CONFIG_LOAD_PIPELINE_MIDDLEWARE_ERROR = '0100',

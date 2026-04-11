@@ -17,15 +17,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly errorToLogLevelMap: Record<string, LogLevel>,
   ) {}
 
-  async catch(error: unknown, host: ArgumentsHost): Promise<void> {
-    let normalizedError: BaseError;
-
-    if (error instanceof BaseError) normalizedError = error as BaseError;
-    else if (error instanceof ZodError) {
-      normalizedError = this.normalizeZodError(error);
-    } else {
-      normalizedError = new UnknownError(error);
-    }
+  async catch(error: unknown, host: ArgumentsHost): Promise<unknown> {
+    const normalizedError = this.normalizeError(error);
 
     const errorCode = normalizedError.code;
     const logLevel = this.errorToLogLevelMap[errorCode] || LogLevel.ERROR;
@@ -42,19 +35,29 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const errorResponse: ErrorResponse = normalizedError.toErrorResponse();
     if (host.getType() === 'http') {
-      host
-        .switchToHttp()
-        .getResponse<Response>()
-        .status(errorResponse.statusCode)
-        .json(errorResponse);
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse<Response>();
+      return response.status(errorResponse.statusCode).json(errorResponse);
     }
+    if (host.getType() === 'rpc') {
+      return {
+        success: false,
+        error: errorResponse,
+      };
+    }
+
+    return errorResponse;
   }
 
-  private normalizeZodError(zodError: ZodError): BadRequestError {
-    const issues = zodError.issues.map((issue) => ({
-      path: issue.path.join('.'),
-      message: issue.message,
-    }));
-    return new BadRequestError(issues);
+  private normalizeError(error: unknown): BaseError {
+    if (error instanceof BaseError) return error as BaseError;
+    if (error instanceof ZodError) {
+      const issues = error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return new BadRequestError(issues);
+    }
+    return new UnknownError(error);
   }
 }

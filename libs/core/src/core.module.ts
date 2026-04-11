@@ -4,12 +4,14 @@ import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
-import { DatabaseConfig } from '@app/contracts';
+import { DatabaseConfig, RpcResponseInterceptor } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientModule } from '@app/typed-client';
 import { AuthenticationModule } from '@app/authentication';
 import { TraceModule } from '@app/trace';
 import { HealthModule } from './health/health.module';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { GlobalExceptionFilter } from '@app/infrastructure/modules/error/global-error.filter';
 
 export interface CoreModuleOptions {
   permissionEntity?: ClassConstructor<object>;
@@ -55,6 +57,16 @@ export class CoreModule {
           inject: [ConfigurationService],
         }),
         HealthModule,
+      ],
+      providers: [
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: RpcResponseInterceptor,
+        },
+        {
+          provide: APP_FILTER,
+          useClass: GlobalExceptionFilter,
+        },
       ],
       exports: [
         InfrastructureModule,

@@ -5,5 +5,6 @@ export * from './course-enrollment/index';
 export * from './course-scheduling/index';
 export * from './errors/index';
 export * from './file/index';
+export * from './rpc/index';
 export * from './user/index';
 export * from './base-entity';
