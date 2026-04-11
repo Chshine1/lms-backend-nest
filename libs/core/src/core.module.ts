@@ -11,7 +11,7 @@ import { AuthenticationModule } from '@app/authentication';
 import { TraceModule } from '@app/trace';
 import { HealthModule } from './health/health.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { GlobalExceptionFilter } from '@app/infrastructure/modules/error/global-error.filter';
+import { GlobalExceptionFilter } from '@app/infrastructure';
 
 export interface CoreModuleOptions {
   permissionEntity?: ClassConstructor<object>;

@@ -12,3 +12,5 @@ export { LoggerService } from './modules/logger/logger.service';
 export { type LogEntry } from './modules/logger/contracts/log.entry';
 
 export { Log } from './modules/logger/decorators/log.decorator';
+
+export * from './modules/error/index';
