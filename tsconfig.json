@@ -40,12 +40,6 @@
       "@app/infrastructure/*": [
         "libs/infrastructure/src/*"
       ],
-      "@app/trace": [
-        "libs/trace/src"
-      ],
-      "@app/trace/*": [
-        "libs/trace/src/*"
-      ],
       "@app/typed-client": [
         "libs/typed-client/src"
       ],

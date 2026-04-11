@@ -5,11 +5,10 @@ import { LoggerService } from './logger.service';
 import { LogEnrichmentService } from './services/log-enrichment.service';
 import { ConsoleSink } from '../../configs/logger/sinks/console.sink';
 import { MemoryBuffer } from '../../configs/logger/buffers/memory.buffer';
-import { TraceModule } from '@app/trace';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
-  imports: [TraceModule, ConfigurationModule],
+  imports: [ConfigurationModule],
   providers: [
     LogEnrichmentService,
     {

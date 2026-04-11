@@ -1,7 +1,6 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientBase } from './typed-client.base';
-import { TraceModule, TraceService } from '@app/trace';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { TypedClientCoreModule } from './typed-client.core.module';
 import { AuthenticationModule, UserContextService } from '@app/authentication';
@@ -30,17 +29,15 @@ export class TypedClientModule {
         // Pay attention to constructor here, not strong-typed, so no compiling checks
         useFactory: (
           amqpConnection: AmqpConnection,
-          traceService: TraceService,
           userContextService: UserContextService,
         ): TypedClientBase => {
           return new config.client(
             amqpConnection,
-            traceService,
             userContextService,
             config.mqOptions,
           );
         },
-        inject: [AmqpConnection, TraceService, UserContextService],
+        inject: [AmqpConnection, UserContextService],
       },
     ]);
 
@@ -48,7 +45,7 @@ export class TypedClientModule {
 
     return {
       module: TypedClientModule,
-      imports: [AuthenticationModule, TraceModule],
+      imports: [AuthenticationModule],
       providers,
       exports,
     };

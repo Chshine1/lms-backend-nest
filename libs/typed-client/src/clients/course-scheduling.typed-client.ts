@@ -7,14 +7,12 @@ import {
 } from '@app/contracts';
 import { CourseSchedulingPatterns } from '../patterns/course-scheduling.patterns';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 
 @Injectable()
 export class CourseSchedulingTypedClient extends TypedClientBase<CourseSchedulingPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
-    traceService: TraceService,
     userContextService: UserContextService,
     options: {
       exchange: string;
@@ -23,7 +21,6 @@ export class CourseSchedulingTypedClient extends TypedClientBase<CourseSchedulin
     super(
       'course-scheduling-service',
       amqpConnection,
-      traceService,
       userContextService,
       options,
     );

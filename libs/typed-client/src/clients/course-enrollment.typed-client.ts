@@ -3,14 +3,12 @@ import { TypedClientBase } from '../typed-client.base';
 import { EnrollmentContract, CreateEnrollmentDto } from '@app/contracts';
 import { CourseEnrollmentPatterns } from '../patterns/course-enrollment.patterns';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 
 @Injectable()
 export class CourseEnrollmentTypedClient extends TypedClientBase<CourseEnrollmentPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
-    traceService: TraceService,
     userContextService: UserContextService,
     options: {
       exchange: string;
@@ -19,7 +17,6 @@ export class CourseEnrollmentTypedClient extends TypedClientBase<CourseEnrollmen
     super(
       'course-enrollment-service',
       amqpConnection,
-      traceService,
       userContextService,
       options,
     );

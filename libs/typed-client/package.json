@@ -7,7 +7,6 @@
     "@app/authentication": "workspace:*",
     "@app/contracts": "workspace:*",
     "@app/infrastructure": "workspace:*",
-    "@app/trace": "workspace:*",
     "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",

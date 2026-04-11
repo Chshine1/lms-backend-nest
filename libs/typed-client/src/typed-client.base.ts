@@ -1,5 +1,4 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 import { RpcResult } from '@app/contracts';
 import { MicroserviceError } from '@app/contracts';
@@ -13,7 +12,6 @@ export abstract class TypedClientBase<
   protected constructor(
     private readonly serviceName: string,
     private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService,
     private readonly userContextService: UserContextService,
     options: {
       exchange: string;
@@ -26,7 +24,6 @@ export abstract class TypedClientBase<
     pattern: T,
     data: TPatterns[T]['request'],
   ): Promise<TPatterns[T]['response']> {
-    const traceId = this.traceService.getTraceId();
     const userId = this.userContextService.getUserId();
 
     const result = await this.amqpConnection.request<
@@ -36,7 +33,6 @@ export abstract class TypedClientBase<
       routingKey: pattern,
       headers: {
         'x-user-id': userId,
-        'x-trace-id': traceId,
       },
       payload: data,
       timeout: 10000,

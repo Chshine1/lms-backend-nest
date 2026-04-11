@@ -139,7 +139,6 @@ __metadata:
     "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/infrastructure": "workspace:*"
-    "@app/trace": "workspace:*"
     "@app/typed-client": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/common": "npm:^11.0.1"
@@ -162,7 +161,6 @@ __metadata:
   resolution: "@app/infrastructure@workspace:libs/infrastructure"
   dependencies:
     "@app/contracts": "workspace:*"
-    "@app/trace": "workspace:*"
     "@nestjs/common": "npm:^11.0.1"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.17.24"
@@ -176,18 +174,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/trace@workspace:*, @app/trace@workspace:libs/trace":
-  version: 0.0.0-use.local
-  resolution: "@app/trace@workspace:libs/trace"
-  dependencies:
-    "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
-    "@nestjs/common": "npm:^11.0.1"
-    "@nestjs/core": "npm:^11.0.1"
-    reflect-metadata: "npm:^0.2.2"
-    rxjs: "npm:^7.8.1"
-  languageName: unknown
-  linkType: soft
-
 "@app/typed-client@workspace:*, @app/typed-client@workspace:libs/typed-client":
   version: 0.0.0-use.local
   resolution: "@app/typed-client@workspace:libs/typed-client"
@@ -195,7 +181,6 @@ __metadata:
     "@app/authentication": "workspace:*"
     "@app/contracts": "workspace:*"
     "@app/infrastructure": "workspace:*"
-    "@app/trace": "workspace:*"
     "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"

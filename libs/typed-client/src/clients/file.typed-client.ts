@@ -2,26 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { TypedClientBase } from '../typed-client.base';
 import { FilePatterns } from '../patterns/file.patterns';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 
 @Injectable()
 export class FileTypedClient extends TypedClientBase<FilePatterns> {
   constructor(
     amqpConnection: AmqpConnection,
-    traceService: TraceService,
     userContextService: UserContextService,
     options: {
       exchange: string;
     },
   ) {
-    super(
-      'file-service',
-      amqpConnection,
-      traceService,
-      userContextService,
-      options,
-    );
+    super('file-service', amqpConnection, userContextService, options);
   }
 
   validateFileExists(ids: number[]): Promise<boolean[]> {

@@ -1,6 +1,5 @@
 ﻿import { LogEntry } from '../contracts/log.entry';
 import { LogParams } from '../logger.service';
-import { TraceService } from '@app/trace';
 import { ConfigurationService } from '../../configuration/configuration.service';
 import { EnvSchema } from '../../../configs/configuration/schemas/env.schema';
 import { Injectable } from '@nestjs/common';
@@ -9,10 +8,7 @@ import { Injectable } from '@nestjs/common';
 export class LogEnrichmentService {
   private readonly serviceName: string;
 
-  constructor(
-    private readonly traceService: TraceService,
-    configurationService: ConfigurationService,
-  ) {
+  constructor(configurationService: ConfigurationService) {
     const section = configurationService.get(EnvSchema);
     this.serviceName = section.serviceName;
   }
@@ -22,7 +18,6 @@ export class LogEnrichmentService {
       ...target,
       serviceName: this.serviceName,
       timestamp: new Date(),
-      traceId: this.traceService.getTraceId(),
     };
     return Promise.resolve(result);
   }

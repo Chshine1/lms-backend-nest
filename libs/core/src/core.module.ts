@@ -8,7 +8,6 @@ import { DatabaseConfig, RpcResponseInterceptor } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientModule } from '@app/typed-client';
 import { AuthenticationModule } from '@app/authentication';
-import { TraceModule } from '@app/trace';
 import { HealthModule } from './health/health.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { GlobalExceptionFilter } from '@app/infrastructure';
@@ -33,7 +32,6 @@ export class CoreModule {
       module: CoreModule,
       imports: [
         InfrastructureModule,
-        TraceModule,
         AuthenticationModule.forRoot({
           ...(permissionEntity === undefined ? {} : { permissionEntity }),
           endpointsProtocol,
@@ -70,7 +68,6 @@ export class CoreModule {
       ],
       exports: [
         InfrastructureModule,
-        TraceModule,
         AuthenticationModule,
         TypedClientModule,
         TypeOrmModule,

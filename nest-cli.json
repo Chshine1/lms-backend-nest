@@ -107,15 +107,6 @@
         "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
       }
     },
-    "trace": {
-      "type": "library",
-      "root": "libs/trace",
-      "entryFile": "index",
-      "sourceRoot": "libs/trace/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/trace/tsconfig.lib.json"
-      }
-    },
     "typed-client": {
       "type": "library",
       "root": "libs/typed-client",

@@ -10,26 +10,18 @@ import {
 } from '@app/contracts';
 import { AssignmentPatterns } from '../patterns/assignment.patterns';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { TraceService } from '@app/trace';
 import { UserContextService } from '@app/authentication';
 
 @Injectable()
 export class AssignmentTypedClient extends TypedClientBase<AssignmentPatterns> {
   constructor(
     amqpConnection: AmqpConnection,
-    traceService: TraceService,
     userContextService: UserContextService,
     options: {
       exchange: string;
     },
   ) {
-    super(
-      'assignment-service',
-      amqpConnection,
-      traceService,
-      userContextService,
-      options,
-    );
+    super('assignment-service', amqpConnection, userContextService, options);
   }
 
   createSubmission(data: CreateSubmissionDto): Promise<SubmissionContract> {

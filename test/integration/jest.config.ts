@@ -31,7 +31,6 @@ const config: Config = {
     '^@app/contracts(|/.*)$': '<rootDir>/libs/contracts/src/$1',
     '^@app/core(|/.*)$': '<rootDir>/libs/core/src/$1',
     '^@app/infrastructure(|/.*)$': '<rootDir>/libs/infrastructure/src/$1',
-    '^@app/trace(|/.*)$': '<rootDir>/libs/trace/src/$1',
     '^@app/typed-client(|/.*)$': '<rootDir>/libs/typed-client/src/$1',
     '^@/(.*)$': '<rootDir>/apps/$1',
   },
