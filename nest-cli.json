@@ -8,15 +8,6 @@
     "webpack": false
   },
   "projects": {
-    "assignment-service": {
-      "type": "application",
-      "root": "apps/assignment-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/assignment-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/assignment-service/tsconfig.app.json"
-      }
-    },
     "audit": {
       "type": "library",
       "root": "libs/audit",
@@ -53,24 +44,6 @@
         "tsConfigPath": "libs/core/tsconfig.lib.json"
       }
     },
-    "course-enrollment-service": {
-      "type": "application",
-      "root": "apps/course-enrollment-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/course-enrollment-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/course-enrollment-service/tsconfig.app.json"
-      }
-    },
-    "course-scheduling-service": {
-      "type": "application",
-      "root": "apps/course-scheduling-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/course-scheduling-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/course-scheduling-service/tsconfig.app.json"
-      }
-    },
     "course-service": {
       "type": "application",
       "root": "apps/course-service",
@@ -78,15 +51,6 @@
       "sourceRoot": "apps/course-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/course-service/tsconfig.app.json"
-      }
-    },
-    "file-service": {
-      "type": "application",
-      "root": "apps/file-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/file-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/file-service/tsconfig.app.json"
       }
     },
     "gateway": {
