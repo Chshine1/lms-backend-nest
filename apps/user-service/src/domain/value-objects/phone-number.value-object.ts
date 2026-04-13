@@ -31,6 +31,6 @@ export class PhoneNumber {
   getCountryCode(): string {
     // Extract country code (1-3 digits after +)
     const match = this.value.match(/^\+(\d{1,3})/);
-    return match ? match[1] : '';
+    return match ? (match[1] ?? '') : '';
   }
 }

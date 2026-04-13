@@ -1,38 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRepository } from '../repositories/user.repository.interface';
-import { IRoleRepository } from '../repositories/role.repository.interface';
+import type { IUserRepository } from '../repositories/index';
 import { ParentStudentLink } from '../entities/parent-student-link.entity';
 import {
-  DifferentTenantException,
-  InvalidRoleLinkingException,
-  UserNotFoundException,
-} from '../exceptions/domain.exceptions';
+  DifferentTenantError,
+  InvalidRoleLinkingError,
+  UserNotFoundError,
+} from '../errors/index';
 
 @Injectable()
 export class ParentStudentLinkingService {
-  constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly roleRepository: IRoleRepository,
-  ) {}
+  constructor(private readonly userRepository: IUserRepository) {}
 
   async validateAndLink(
-    parentUserId: number,
-    studentUserId: number,
+    parentUserId: bigint,
+    studentUserId: bigint,
   ): Promise<ParentStudentLink> {
     // Fetch both users
     const parentUser = await this.userRepository.findById(parentUserId);
     if (!parentUser) {
-      throw new UserNotFoundException(parentUserId);
+      throw new UserNotFoundError(parentUserId);
     }
 
     const studentUser = await this.userRepository.findById(studentUserId);
     if (!studentUser) {
-      throw new UserNotFoundException(studentUserId);
+      throw new UserNotFoundError(studentUserId);
     }
 
     // Check same tenant
     if (parentUser.tenantId !== studentUser.tenantId) {
-      throw new DifferentTenantException();
+      throw new DifferentTenantError();
     }
 
     // Check roles
@@ -47,13 +43,13 @@ export class ParentStudentLinkingService {
     );
 
     if (!hasParentRole) {
-      throw new InvalidRoleLinkingException(
+      throw new InvalidRoleLinkingError(
         'Parent user does not have Parent role',
       );
     }
 
     if (!hasStudentRole) {
-      throw new InvalidRoleLinkingException(
+      throw new InvalidRoleLinkingError(
         'Student user does not have Student role',
       );
     }

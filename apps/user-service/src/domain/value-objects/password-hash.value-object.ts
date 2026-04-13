@@ -29,14 +29,14 @@ export class PasswordHash {
   // Here we just define the interface
   async matchesPlaintext(
     plaintext: string,
-    hasher: PasswordHasher,
+    hasher: IPasswordHasher,
   ): Promise<boolean> {
     return hasher.compare(plaintext, this.value);
   }
 }
 
 // Interface for password hasher service
-export interface PasswordHasher {
+export interface IPasswordHasher {
   hash(plaintext: string): Promise<string>;
   compare(plaintext: string, hash: string): Promise<boolean>;
 }

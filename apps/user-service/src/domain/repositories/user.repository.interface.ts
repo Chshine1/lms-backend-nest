@@ -5,8 +5,8 @@ import { Role } from '../entities/role.entity';
 
 export interface IUserRepository {
   save(user: User): Promise<void>;
-  findById(id: number): Promise<User | null>;
+  findById(id: bigint): Promise<User | null>;
   findByEmail(email: Email): Promise<User | null>;
   existsByPhone(phone: PhoneNumber): Promise<boolean>;
-  getRoles(userId: number): Promise<Role[]>;
+  getRoles(userId: bigint): Promise<Role[]>;
 }

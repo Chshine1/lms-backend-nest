@@ -5,8 +5,7 @@ import { UserApplicationService } from './application/services/user-application.
 import { OnboardingApplicationService } from './application/services/onboarding-application.service';
 import { RoleApplicationService } from './application/services/role-application.service';
 import { LinkingApplicationService } from './application/services/linking-application.service';
-import { RegisterUserDto } from './application/dtos/register-user.dto';
-import { UserDto } from './application/dtos/user.dto';
+import { RegisterUserDto, UserDto } from '@app/contracts';
 
 @Controller()
 export class UserController implements ExtractController<UserTypedClient> {
@@ -41,7 +40,7 @@ export class UserController implements ExtractController<UserTypedClient> {
       autoDelete: false,
     },
   })
-  findUserById(data: { userId: number }): Promise<UserDto | null> {
+  findUserById(data: { userId: bigint }): Promise<UserDto | null> {
     return this.userApplicationService.findById(data.userId);
   }
 
@@ -56,9 +55,9 @@ export class UserController implements ExtractController<UserTypedClient> {
     },
   })
   assignRole(data: {
-    adminUserId: number;
-    targetUserId: number;
-    roleId: number;
+    adminUserId: bigint;
+    targetUserId: bigint;
+    roleId: bigint;
   }): Promise<void> {
     return this.roleApplicationService.assignRoleToUser(data.adminUserId, {
       targetUserId: data.targetUserId,
@@ -77,8 +76,8 @@ export class UserController implements ExtractController<UserTypedClient> {
     },
   })
   linkParentStudent(data: {
-    parentUserId: number;
-    studentUserId: number;
+    parentUserId: bigint;
+    studentUserId: bigint;
   }): Promise<void> {
     return this.linkingApplicationService.linkParentToStudent(data);
   }
@@ -94,7 +93,7 @@ export class UserController implements ExtractController<UserTypedClient> {
     },
   })
   completeOnboarding(data: {
-    studentUserId: number;
+    studentUserId: bigint;
     signatureData?: Record<string, unknown>;
   }): Promise<void> {
     return this.onboardingApplicationService.confirmStudentOnboarding(data);

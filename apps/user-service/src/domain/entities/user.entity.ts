@@ -3,11 +3,8 @@ import { Email } from '../value-objects/email.value-object';
 import { PhoneNumber } from '../value-objects/phone-number.value-object';
 import { PasswordHash } from '../value-objects/password-hash.value-object';
 import { UserStatus } from '../enums/user-status.enum';
-import {
-  InvalidPhoneNumberException,
-  WeakPasswordException,
-} from '../exceptions/domain.exceptions';
 import { AggregateRootSchema } from '@app/contracts';
+import { InvalidPhoneNumberError, WeakPasswordError } from '../errors/index';
 
 const UserSchema = defineEntity({
   name: 'User',
@@ -56,7 +53,7 @@ export class User extends UserSchema.class {
     try {
       this.phoneNumber = phoneNumber.getValue();
     } catch {
-      throw new InvalidPhoneNumberException(phoneNumber.getValue());
+      throw new InvalidPhoneNumberError(phoneNumber.getValue());
     }
   }
 
@@ -65,7 +62,7 @@ export class User extends UserSchema.class {
       this.passwordHash = newPasswordHash.getValue();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new WeakPasswordException(message);
+      throw new WeakPasswordError(message);
     }
   }
 

@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRepository } from '@/user-service/src/domain/repositories/user.repository.interface';
+import type { IUserRepository } from '../../domain/repositories/index';
 import { RegistrationDomainService } from '@/user-service/src/domain/services/registration-domain.service';
-import { RegisterUserDto } from '../dtos/register-user.dto';
-import { UserDto } from '../dtos/user.dto';
-import { AccountCreated } from '@/user-service/src/domain/events/domain.events';
+import { AccountCreated } from '../../domain/events/domain.events';
+import { RegisterUserDto, UserDto } from '@app/contracts';
 
 @Injectable()
 export class UserApplicationService {
@@ -38,7 +37,7 @@ export class UserApplicationService {
     return this.mapToDto(user);
   }
 
-  async findById(userId: number): Promise<UserDto | null> {
+  async findById(userId: bigint): Promise<UserDto | null> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       return null;
@@ -47,8 +46,8 @@ export class UserApplicationService {
   }
 
   private mapToDto(user: {
-    id: number;
-    tenantId: number;
+    id: bigint;
+    tenantId: bigint;
     getEmail: () => { getValue: () => string };
     getPhoneNumber: () => { getValue: () => string } | undefined;
     status: string;

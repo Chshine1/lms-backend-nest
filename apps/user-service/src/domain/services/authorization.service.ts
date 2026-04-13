@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRepository } from '../repositories/user.repository.interface';
-import { IParentStudentLinkRepository } from '../repositories/parent-student-link.repository.interface';
+import type {
+  IParentStudentLinkRepository,
+  IUserRepository,
+} from '../repositories/index';
 
 @Injectable()
 export class AuthorizationService {
@@ -10,9 +12,9 @@ export class AuthorizationService {
   ) {}
 
   async can(
-    userId: number,
+    userId: bigint,
     action: string,
-    resourceId?: number,
+    resourceId?: bigint,
   ): Promise<boolean> {
     const roles = await this.userRepository.getRoles(userId);
 

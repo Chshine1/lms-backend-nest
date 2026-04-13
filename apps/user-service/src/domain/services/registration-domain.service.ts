@@ -1,27 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { ITenantRepository } from '../repositories/tenant.repository.interface';
-import { IUserRepository } from '../repositories/user.repository.interface';
+import type { ITenantRepository, IUserRepository } from '../repositories/index';
 import { User } from '../entities/user.entity';
 import { Email } from '../value-objects/email.value-object';
 import { PhoneNumber } from '../value-objects/phone-number.value-object';
 import {
+  type IPasswordHasher,
   PasswordHash,
-  PasswordHasher,
 } from '../value-objects/password-hash.value-object';
 import { InvitationCode } from '../value-objects/invitation-code.value-object';
 import {
-  EmailAlreadyExistsException,
-  InvalidInvitationCodeException,
-  PhoneNumberAlreadyExistsException,
-  TenantNotFoundException,
-} from '../exceptions/domain.exceptions';
+  EmailAlreadyExistsError,
+  InvalidInvitationCodeError,
+  PhoneNumberAlreadyExistsError,
+} from '../errors/index';
 
 @Injectable()
 export class RegistrationDomainService {
   constructor(
     private readonly tenantRepository: ITenantRepository,
     private readonly userRepository: IUserRepository,
-    private readonly passwordHasher: PasswordHasher,
+    private readonly passwordHasher: IPasswordHasher,
   ) {}
 
   async registerUser(
@@ -38,30 +36,30 @@ export class RegistrationDomainService {
     // Check email uniqueness
     const existingUserByEmail = await this.userRepository.findByEmail(email);
     if (existingUserByEmail) {
-      throw new EmailAlreadyExistsException(emailString);
+      throw new EmailAlreadyExistsError(emailString);
     }
 
     // Check phone number uniqueness
     if (phoneNumber) {
       const phoneExists = await this.userRepository.existsByPhone(phoneNumber);
       if (phoneExists) {
-        throw new PhoneNumberAlreadyExistsException(phoneNumberString ?? '');
+        throw new PhoneNumberAlreadyExistsError(phoneNumberString ?? '');
       }
     }
 
     // Validate invitation code and get tenant
-    let tenantId: number;
+    let tenantId: bigint;
     if (invitationCodeString) {
       const invitationCode = InvitationCode.create(invitationCodeString);
       const tenant =
         await this.tenantRepository.findByInvitationCode(invitationCode);
       if (!tenant || !tenant.isInvitationValid(invitationCodeString)) {
-        throw new InvalidInvitationCodeException();
+        throw new InvalidInvitationCodeError();
       }
       tenantId = tenant.id;
     } else {
       // For now, require invitation code. Adjust if needed.
-      throw new InvalidInvitationCodeException();
+      throw new InvalidInvitationCodeError();
     }
 
     // Hash password
@@ -69,8 +67,6 @@ export class RegistrationDomainService {
     const hashedPassword = PasswordHash.create(hashedPasswordString);
 
     // Create user
-    const user = new User(tenantId, email, hashedPassword, phoneNumber);
-
-    return user;
+    return new User(tenantId, email, hashedPassword, phoneNumber);
   }
 }

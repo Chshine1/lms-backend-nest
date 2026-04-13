@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRoleAssignmentRepository } from '@/user-service/src/domain/repositories/user-role-assignment.repository.interface';
+import type { IUserRoleAssignmentRepository } from '../../domain/repositories/index';
 import { AuthorizationService } from '@/user-service/src/domain/services/authorization.service';
 import { UserRoleAssignment } from '@/user-service/src/domain/entities/user-role-link.entity';
-import { AssignRoleDto } from '../dtos/assign-role.dto';
-import { UnauthorizedActionException } from '@/user-service/src/domain/exceptions/domain.exceptions';
 import { RoleAssignedToUser } from '@/user-service/src/domain/events/domain.events';
+import { UnauthorizedActionError } from '@/user-service/src/domain/errors';
+import { AssignRoleDto } from '@app/contracts';
 
 @Injectable()
 export class RoleApplicationService {
@@ -14,7 +14,7 @@ export class RoleApplicationService {
   ) {}
 
   async assignRoleToUser(
-    adminUserId: number,
+    adminUserId: bigint,
     dto: AssignRoleDto,
   ): Promise<void> {
     // Verify admin has permission to assign roles
@@ -23,7 +23,7 @@ export class RoleApplicationService {
       'role:assign',
     );
     if (!canAssign) {
-      throw new UnauthorizedActionException('role:assign');
+      throw new UnauthorizedActionError('role:assign');
     }
 
     // Create assignment

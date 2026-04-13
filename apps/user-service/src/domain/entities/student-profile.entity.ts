@@ -1,8 +1,8 @@
 import { defineEntity, p } from '@mikro-orm/core';
 import { OnboardingStatus } from '../enums/onboarding-status.enum';
-import { OnboardingAlreadyCompletedException } from '../exceptions/domain.exceptions';
 import { StudentOnboardingCompleted } from '../events/domain.events';
 import { BaseEntitySchema } from '@app/contracts';
+import { OnboardingAlreadyCompletedError } from '../errors/index';
 
 const StudentProfileSchema = defineEntity({
   name: 'StudentProfile',
@@ -30,7 +30,7 @@ export class StudentProfile extends StudentProfileSchema.class {
 
   completeOnboarding(): StudentOnboardingCompleted {
     if (this.onboardingStatus === OnboardingStatus.COMPLETED) {
-      throw new OnboardingAlreadyCompletedException(this.userId);
+      throw new OnboardingAlreadyCompletedError(this.userId);
     }
 
     this.onboardingStatus = OnboardingStatus.COMPLETED;

@@ -1,15 +1,15 @@
 export class AccountCreated {
   constructor(
-    public readonly userId: number,
+    public readonly userId: bigint,
     public readonly email: string,
-    public readonly tenantId: number,
+    public readonly tenantId: bigint,
     public readonly createdAt: Date,
   ) {}
 }
 
 export class EmailVerificationRequested {
   constructor(
-    public readonly userId: number,
+    public readonly userId: bigint,
     public readonly email: string,
     public readonly expiresAt: Date,
   ) {}
@@ -17,7 +17,7 @@ export class EmailVerificationRequested {
 
 export class EmailVerified {
   constructor(
-    public readonly userId: number,
+    public readonly userId: bigint,
     public readonly verifiedAt: Date,
   ) {}
 }
@@ -31,17 +31,17 @@ export class StudentOnboardingCompleted {
 
 export class ParentLinkedToStudent {
   constructor(
-    public readonly parentUserId: number,
-    public readonly studentUserId: number,
+    public readonly parentUserId: bigint,
+    public readonly studentUserId: bigint,
     public readonly linkedAt: Date,
   ) {}
 }
 
 export class RoleAssignedToUser {
   constructor(
-    public readonly userId: number,
-    public readonly roleId: number,
-    public readonly assignedBy: number,
+    public readonly userId: bigint,
+    public readonly roleId: bigint,
+    public readonly assignedBy: bigint,
   ) {}
 }
 

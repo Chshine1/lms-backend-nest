@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IParentStudentLinkRepository } from '@/user-service/src/domain/repositories/parent-student-link.repository.interface';
+import type { IParentStudentLinkRepository } from '../../domain/repositories/index';
 import { ParentStudentLinkingService } from '@/user-service/src/domain/services/parent-student-linking.service';
-import { LinkParentStudentDto } from '../dtos/link-parent-student.dto';
-import { ParentLinkedToStudent } from '@/user-service/src/domain/events/domain.events';
+import { ParentLinkedToStudent } from '../../domain/events/domain.events';
+import { LinkParentStudentDto } from '@app/contracts';
 
 @Injectable()
 export class LinkingApplicationService {

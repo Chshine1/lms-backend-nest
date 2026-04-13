@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { IStudentProfileRepository } from '@/user-service/src/domain/repositories/student-profile.repository.interface';
-import { CompleteOnboardingDto } from '../dtos/complete-onboarding.dto';
-import { UserNotFoundException } from '@/user-service/src/domain/exceptions/domain.exceptions';
+import type { IStudentProfileRepository } from '../../domain/repositories/index';
+import { UserNotFoundError } from '../../domain/errors/index';
+import { CompleteOnboardingDto } from '@app/contracts';
 
 @Injectable()
 export class OnboardingApplicationService {
@@ -15,7 +15,7 @@ export class OnboardingApplicationService {
       dto.studentUserId,
     );
     if (!profile) {
-      throw new UserNotFoundException(dto.studentUserId);
+      throw new UserNotFoundError(dto.studentUserId);
     }
 
     // TODO: Verify signature if needed using SignatureVerificationService
