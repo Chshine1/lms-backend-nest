@@ -1,28 +1,26 @@
-import { Entity, Property } from '@mikro-orm/core';
-import { BaseEntityV2 } from '../shared/base-entity-v2';
+import { defineEntity, p } from '@mikro-orm/core';
 import { InvitationCode } from '../value-objects/invitation-code.value-object';
+import { AggregateRootSchema } from '@app/contracts';
 
-@Entity({ tableName: 'tenants' })
-export class Tenant extends BaseEntityV2 {
-  @Property({ type: 'varchar', length: 255 })
-  name!: string;
+const TenantSchema = defineEntity({
+  name: 'Tenant',
+  extends: AggregateRootSchema,
+  tableName: 'tenants',
+  properties: {
+    name: p.string().length(255),
+    invitationCode: p.string().length(32).unique(),
+  },
+});
 
-  @Property({
-    fieldName: 'invitation_code',
-    type: 'varchar',
-    length: 32,
-    unique: true,
-  })
-  private invitationCodeValue!: string;
-
+export class Tenant extends TenantSchema.class {
   constructor(name: string, invitationCode: InvitationCode) {
     super();
     this.name = name;
-    this.invitationCodeValue = invitationCode.getValue();
+    this.invitationCode = invitationCode.getValue();
   }
 
   getInvitationCode(): InvitationCode {
-    return InvitationCode.create(this.invitationCodeValue);
+    return InvitationCode.create(this.invitationCode);
   }
 
   isInvitationValid(code: string): boolean {
@@ -30,3 +28,5 @@ export class Tenant extends BaseEntityV2 {
     return invitationCode.matches(code);
   }
 }
+
+TenantSchema.setClass(Tenant);

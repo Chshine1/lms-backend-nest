@@ -1,19 +1,22 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { defineEntity, p } from '@mikro-orm/core';
+import { LinkEntitySchema } from '@app/contracts';
 
-@Entity({ tableName: 'parent_student_links' })
-export class ParentStudentLink {
-  @PrimaryKey({ fieldName: 'parent_user_id', type: 'bigint' })
-  parentUserId!: number;
+const ParentStudentLinkSchema = defineEntity({
+  name: 'ParentStudentLink',
+  extends: LinkEntitySchema,
+  tableName: 'lnk_parent_student',
+  properties: {
+    parentUserId: p.bigint().primary(),
+    studentUserId: p.bigint().primary(),
+  },
+});
 
-  @PrimaryKey({ fieldName: 'student_user_id', type: 'bigint' })
-  studentUserId!: number;
-
-  @Property({ fieldName: 'created_at' })
-  createdAt: Date = new Date();
-
-  constructor(parentUserId: number, studentUserId: number) {
+export class ParentStudentLink extends ParentStudentLinkSchema.class {
+  constructor(parentUserId: bigint, studentUserId: bigint) {
+    super();
     this.parentUserId = parentUserId;
     this.studentUserId = studentUserId;
-    this.createdAt = new Date();
   }
 }
+
+ParentStudentLinkSchema.setClass(ParentStudentLink);

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IUserRoleAssignmentRepository } from '@/user-service/src/domain/repositories/user-role-assignment.repository.interface';
 import { AuthorizationService } from '@/user-service/src/domain/services/authorization.service';
-import { UserRoleAssignment } from '@/user-service/src/domain/entities/user-role-assignment.entity';
+import { UserRoleAssignment } from '@/user-service/src/domain/entities/user-role-link.entity';
 import { AssignRoleDto } from '../dtos/assign-role.dto';
 import { UnauthorizedActionException } from '@/user-service/src/domain/exceptions/domain.exceptions';
 import { RoleAssignedToUser } from '@/user-service/src/domain/events/domain.events';

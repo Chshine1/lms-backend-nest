@@ -1,5 +1,4 @@
-import { Entity, Enum, Property } from '@mikro-orm/core';
-import { BaseEntityV2 } from '../shared/base-entity-v2';
+import { defineEntity, p } from '@mikro-orm/core';
 import { Email } from '../value-objects/email.value-object';
 import { PhoneNumber } from '../value-objects/phone-number.value-object';
 import { PasswordHash } from '../value-objects/password-hash.value-object';
@@ -8,67 +7,54 @@ import {
   InvalidPhoneNumberException,
   WeakPasswordException,
 } from '../exceptions/domain.exceptions';
+import { AggregateRootSchema } from '@app/contracts';
 
-@Entity({ tableName: 'users' })
-export class User extends BaseEntityV2 {
-  @Property({ fieldName: 'tenant_id', type: 'bigint' })
-  tenantId!: number;
+const UserSchema = defineEntity({
+  name: 'User',
+  extends: AggregateRootSchema,
+  tableName: 'users',
+  properties: {
+    tenantId: p.bigint(),
+    email: p.string().length(255).unique(),
+    phoneNumber: p.string().length(20).nullable().unique(),
+    passwordHash: p.string().length(255),
+    status: p.enum(() => UserStatus).nativeEnumName('user_status'),
+  },
+});
 
-  @Property({ fieldName: 'email', type: 'varchar', length: 255, unique: true })
-  private emailValue!: string;
-
-  @Property({
-    fieldName: 'phone_number',
-    type: 'varchar',
-    length: 20,
-    unique: true,
-    nullable: true,
-  })
-  private phoneNumberValue?: string;
-
-  @Property({ fieldName: 'hashed_password', type: 'varchar', length: 255 })
-  private hashedPasswordValue!: string;
-
-  @Enum({
-    fieldName: 'status',
-    items: () => UserStatus,
-    type: 'varchar',
-    length: 30,
-  })
-  status!: UserStatus;
-
+export class User extends UserSchema.class {
   constructor(
-    tenantId: number,
+    tenantId: bigint,
     email: Email,
     hashedPassword: PasswordHash,
     phoneNumber?: PhoneNumber,
   ) {
     super();
     this.tenantId = tenantId;
-    this.emailValue = email.getValue();
-    this.hashedPasswordValue = hashedPassword.getValue();
-    this.phoneNumberValue = phoneNumber?.getValue();
+    this.email = email.getValue();
+    this.phoneNumber = phoneNumber?.getValue();
+    this.passwordHash = hashedPassword.getValue();
     this.status = UserStatus.ACTIVE;
   }
 
   getEmail(): Email {
-    return Email.create(this.emailValue);
+    return Email.create(this.email);
   }
 
   getPhoneNumber(): PhoneNumber | undefined {
-    if (!this.phoneNumberValue) {
+    if (!this.phoneNumber) {
       return undefined;
     }
-    return PhoneNumber.create(this.phoneNumberValue);
+    return PhoneNumber.create(this.phoneNumber);
   }
 
   getPasswordHash(): PasswordHash {
-    return PasswordHash.create(this.hashedPasswordValue);
+    return PasswordHash.create(this.passwordHash);
   }
 
   updatePhoneNumber(phoneNumber: PhoneNumber): void {
     try {
-      this.phoneNumberValue = phoneNumber.getValue();
+      this.phoneNumber = phoneNumber.getValue();
     } catch {
       throw new InvalidPhoneNumberException(phoneNumber.getValue());
     }
@@ -76,7 +62,7 @@ export class User extends BaseEntityV2 {
 
   updatePassword(newPasswordHash: PasswordHash): void {
     try {
-      this.hashedPasswordValue = newPasswordHash.getValue();
+      this.passwordHash = newPasswordHash.getValue();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new WeakPasswordException(message);

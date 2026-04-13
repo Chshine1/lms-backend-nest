@@ -1,17 +1,22 @@
-import { Entity, Property } from '@mikro-orm/core';
-import { BaseEntityV2 } from '../shared/base-entity-v2';
+import { defineEntity, p } from '@mikro-orm/core';
+import { AggregateRootSchema } from '@app/contracts';
 
-@Entity({ tableName: 'roles' })
-export class Role extends BaseEntityV2 {
-  @Property({ type: 'varchar', length: 50, unique: true })
-  name!: string;
+const RoleSchema = defineEntity({
+  name: 'Role',
+  extends: AggregateRootSchema,
+  tableName: 'roles',
+  properties: {
+    name: p.string().length(50).unique(),
+    permissions: p.array(),
+  },
+});
 
-  @Property({ type: 'jsonb' })
-  permissions!: string[];
-
+export class Role extends RoleSchema.class {
   constructor(name: string, permissions: string[]) {
     super();
     this.name = name;
     this.permissions = permissions;
   }
 }
+
+RoleSchema.setClass(Role);

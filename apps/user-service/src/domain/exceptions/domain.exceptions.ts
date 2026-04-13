@@ -19,7 +19,7 @@ export class WeakPasswordException extends BaseError {
 }
 
 export class OnboardingAlreadyCompletedException extends BaseError {
-  constructor(studentUserId: number) {
+  constructor(studentUserId: bigint) {
     super(
       'ONBOARDING_ALREADY_COMPLETED',
       `Onboarding already completed for student user ID: ${studentUserId}`,

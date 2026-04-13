@@ -1,4 +1,4 @@
-import { UserRoleAssignment } from '../entities/user-role-assignment.entity';
+import { UserRoleAssignment } from '../entities/user-role-link.entity';
 
 export interface IUserRoleAssignmentRepository {
   save(assignment: UserRoleAssignment): Promise<void>;

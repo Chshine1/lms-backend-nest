@@ -24,7 +24,7 @@ export class EmailVerified {
 
 export class StudentOnboardingCompleted {
   constructor(
-    public readonly studentUserId: number,
+    public readonly studentUserId: bigint,
     public readonly completedAt: Date,
   ) {}
 }
