@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypedClientBase } from '../typed-client.base';
 import { UserPatterns } from '../patterns/user.patterns';
-import { CreateUserDto, UserContract, UserLoginDto } from '@app/contracts';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { UserContextService } from '@app/authentication';
 
@@ -15,17 +14,5 @@ export class UserTypedClient extends TypedClientBase<UserPatterns> {
     },
   ) {
     super('user-service', amqpConnection, userContextService, options);
-  }
-
-  createUser(createUserDto: CreateUserDto): Promise<UserContract> {
-    return this.rpc('user.create', createUserDto);
-  }
-
-  userLogin(userLoginDto: UserLoginDto): Promise<string> {
-    return this.rpc('user.login', userLoginDto);
-  }
-
-  getUsers(ids: number[]): Promise<(UserContract | undefined)[]> {
-    return this.rpc('user.get', ids);
   }
 }
