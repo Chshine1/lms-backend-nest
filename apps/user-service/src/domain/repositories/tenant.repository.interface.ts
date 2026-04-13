@@ -1,7 +1,7 @@
 import { Tenant } from '../entities/tenant.entity';
-import { InvitationCode } from '../value-objects/invitation-code.value-object';
+import { InvitationCodeVo } from '@app/contracts';
 
 export interface ITenantRepository {
   findById(id: number): Promise<Tenant | null>;
-  findByInvitationCode(code: InvitationCode): Promise<Tenant | null>;
+  findByInvitationCode(code: InvitationCodeVo): Promise<Tenant | null>;
 }

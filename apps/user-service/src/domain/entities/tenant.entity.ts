@@ -1,6 +1,9 @@
 import { defineEntity, p } from '@mikro-orm/core';
-import { InvitationCode } from '../value-objects/invitation-code.value-object';
-import { AggregateRootSchema } from '@app/contracts';
+import {
+  AggregateRootSchema,
+  InvitationCodeType,
+  InvitationCodeVo,
+} from '@app/contracts';
 
 const TenantSchema = defineEntity({
   name: 'Tenant',
@@ -8,19 +11,19 @@ const TenantSchema = defineEntity({
   tableName: 'tenants',
   properties: {
     name: p.string().length(255),
-    invitationCode: p.string().length(32).unique(),
+    invitationCode: p.type(InvitationCodeType).length(32).unique(),
   },
 });
 
 export class Tenant extends TenantSchema.class {
-  constructor(name: string, invitationCode: InvitationCode) {
+  constructor(name: string, invitationCode: InvitationCodeVo) {
     super();
     this.name = name;
-    this.invitationCode = invitationCode.getValue();
+    this.invitationCode = invitationCode;
   }
 
-  getInvitationCode(): InvitationCode {
-    return InvitationCode.create(this.invitationCode);
+  getInvitationCode(): InvitationCodeVo {
+    return this.invitationCode;
   }
 
   isInvitationValid(code: string): boolean {

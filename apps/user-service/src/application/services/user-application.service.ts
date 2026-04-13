@@ -26,7 +26,7 @@ export class UserApplicationService {
     // Publish event (in a real implementation, use an event bus)
     const event = new AccountCreated(
       user.id,
-      user.getEmail().getValue(),
+      user.email.value,
       user.tenantId,
       user.createdAt,
     );

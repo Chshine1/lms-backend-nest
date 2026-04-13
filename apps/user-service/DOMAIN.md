@@ -89,12 +89,12 @@
 
 These are immutable types that encapsulate validation and behavior for core concepts.
 
-| Value Object     | Internal Representation | Invariants / Validation                                                                                             | Behavior                            |
-| :--------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------ | :---------------------------------- |
-| `Email`          | `string`                | Must conform to RFC 5322 format. Normalized to lowercase. (PRD Mapping: Sign-up Information - Email format)         | `equals(other)`, `getDomain()`      |
-| `PhoneNumber`    | `string`                | Must conform to E.164 format (or tenant‑specific pattern). (PRD Mapping: Sign-up Information - Phone number format) | `equals(other)`, `getCountryCode()` |
-| `PasswordHash`   | `string`                | Must be a valid bcrypt/argon2 hash string. (PRD Mapping: Sign-up Information - Password)                            | `matchesPlaintext(plain, hasher)`   |
-| `InvitationCode` | `string`                | Alphanumeric, exactly 8 characters, case‑insensitive. (PRD Mapping: Sign-up Information - Invitation Code)          | `matches(input)`                    |
+| Value Object     | Internal Representation | Invariants / Validation                                                                                             | Behavior         |
+| :--------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------ | :--------------- |
+| `Email`          | `string`                | Must conform to RFC 5322 format. Normalized to lowercase. (PRD Mapping: Sign-up Information - Email format)         |                  |
+| `PhoneNumber`    | `string`                | Must conform to E.164 format (or tenant‑specific pattern). (PRD Mapping: Sign-up Information - Phone number format) |                  |
+| `PasswordHash`   | `string`                | Must be a valid bcrypt/argon2 hash string. (PRD Mapping: Sign-up Information - Password)                            |                  |
+| `InvitationCode` | `string`                | Alphanumeric, exactly 8 characters, case‑insensitive. (PRD Mapping: Sign-up Information - Invitation Code)          | `matches(input)` |
 
 ---
 

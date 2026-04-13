@@ -1,9 +1,14 @@
 import { defineEntity, p } from '@mikro-orm/core';
-import { Email } from '../value-objects/email.value-object';
-import { PhoneNumber } from '../value-objects/phone-number.value-object';
-import { PasswordHash } from '../value-objects/password-hash.value-object';
 import { UserStatus } from '../enums/user-status.enum';
-import { AggregateRootSchema } from '@app/contracts';
+import {
+  AggregateRootSchema,
+  EmailType,
+  EmailVo,
+  PasswordHashType,
+  PasswordHashVo,
+  PhoneNumberType,
+  PhoneNumberVo,
+} from '@app/contracts';
 import { InvalidPhoneNumberError, WeakPasswordError } from '../errors/index';
 
 const UserSchema = defineEntity({
@@ -12,69 +17,44 @@ const UserSchema = defineEntity({
   tableName: 'users',
   properties: {
     tenantId: p.bigint(),
-    email: p.string().length(255).unique(),
-    phoneNumber: p.string().length(20).nullable().unique(),
-    passwordHash: p.string().length(255),
+    email: p.type(EmailType).length(255).unique(),
+    phoneNumber: p.type(PhoneNumberType).length(20).nullable().unique(),
+    passwordHash: p.type(PasswordHashType).length(255),
     status: p.enum(() => UserStatus).nativeEnumName('user_status'),
   },
 });
 
 export class User extends UserSchema.class {
+  declare phoneNumber: PhoneNumberVo | null;
+
   constructor(
     tenantId: bigint,
-    email: Email,
-    hashedPassword: PasswordHash,
-    phoneNumber?: PhoneNumber,
+    email: EmailVo,
+    hashedPassword: PasswordHashVo,
+    phoneNumber?: PhoneNumberVo | null,
   ) {
     super();
     this.tenantId = tenantId;
-    this.email = email.getValue();
-    this.phoneNumber = phoneNumber?.getValue();
-    this.passwordHash = hashedPassword.getValue();
-    this.status = UserStatus.ACTIVE;
+    this.email = email;
+    this.phoneNumber = phoneNumber ?? null;
+    this.passwordHash = hashedPassword;
+    this.status = UserStatus.INACTIVE;
   }
 
-  getEmail(): Email {
-    return Email.create(this.email);
-  }
-
-  getPhoneNumber(): PhoneNumber | undefined {
-    if (!this.phoneNumber) {
-      return undefined;
-    }
-    return PhoneNumber.create(this.phoneNumber);
-  }
-
-  getPasswordHash(): PasswordHash {
-    return PasswordHash.create(this.passwordHash);
-  }
-
-  updatePhoneNumber(phoneNumber: PhoneNumber): void {
+  updatePhoneNumber(phoneNumber: PhoneNumberVo): void {
     try {
-      this.phoneNumber = phoneNumber.getValue();
+      this.phoneNumber = phoneNumber;
     } catch {
-      throw new InvalidPhoneNumberError(phoneNumber.getValue());
+      throw new InvalidPhoneNumberError(phoneNumber.value);
     }
   }
 
-  updatePassword(newPasswordHash: PasswordHash): void {
+  updatePassword(newPasswordHash: PasswordHashVo): void {
     try {
-      this.passwordHash = newPasswordHash.getValue();
+      this.passwordHash = newPasswordHash;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new WeakPasswordError(message);
     }
-  }
-
-  lock(): void {
-    this.status = UserStatus.LOCKED;
-  }
-
-  activate(): void {
-    this.status = UserStatus.ACTIVE;
-  }
-
-  deactivate(): void {
-    this.status = UserStatus.INACTIVE;
   }
 }

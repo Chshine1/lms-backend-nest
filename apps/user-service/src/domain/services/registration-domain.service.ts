@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import type { ITenantRepository, IUserRepository } from '../repositories/index';
 import { User } from '../entities/user.entity';
-import { Email } from '../value-objects/email.value-object';
-import { PhoneNumber } from '../value-objects/phone-number.value-object';
-import {
-  type IPasswordHasher,
-  PasswordHash,
-} from '../value-objects/password-hash.value-object';
-import { InvitationCode } from '../value-objects/invitation-code.value-object';
 import {
   EmailAlreadyExistsError,
   InvalidInvitationCodeError,
   PhoneNumberAlreadyExistsError,
 } from '../errors/index';
+import {
+  EmailVo,
+  InvitationCodeVo,
+  PasswordHashVo,
+  PhoneNumberVo,
+} from '@app/contracts';
+
+interface IPasswordHasher {
+  hash(plaintext: string): Promise<string>;
+  compare(plaintext: string, hash: string): Promise<boolean>;
+}
 
 @Injectable()
 export class RegistrationDomainService {
@@ -28,9 +32,9 @@ export class RegistrationDomainService {
     phoneNumberString?: string,
     invitationCodeString?: string,
   ): Promise<User> {
-    const email = Email.create(emailString);
+    const email = EmailVo.create(emailString);
     const phoneNumber = phoneNumberString
-      ? PhoneNumber.create(phoneNumberString)
+      ? PhoneNumberVo.create(phoneNumberString)
       : undefined;
 
     // Check email uniqueness
@@ -50,7 +54,7 @@ export class RegistrationDomainService {
     // Validate invitation code and get tenant
     let tenantId: bigint;
     if (invitationCodeString) {
-      const invitationCode = InvitationCode.create(invitationCodeString);
+      const invitationCode = InvitationCodeVo.create(invitationCodeString);
       const tenant =
         await this.tenantRepository.findByInvitationCode(invitationCode);
       if (!tenant || !tenant.isInvitationValid(invitationCodeString)) {
@@ -64,7 +68,7 @@ export class RegistrationDomainService {
 
     // Hash password
     const hashedPasswordString = await this.passwordHasher.hash(plainPassword);
-    const hashedPassword = PasswordHash.create(hashedPasswordString);
+    const hashedPassword = PasswordHashVo.create(hashedPasswordString);
 
     // Create user
     return new User(tenantId, email, hashedPassword, phoneNumber);
