@@ -1,9 +1,61 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { AssessmentTypedClient, ExtractController } from '@app/typed-client';
+import { SubmissionDto, GradeDto, ReviewDto } from '@app/contracts';
+import { SubmissionApplicationService } from './application/services/submission.application-service';
+import { ReviewApplicationService } from './application/services/review.application-service';
 
 @Controller()
-export class AssessmentController {
-  @Get()
-  getHello(): string {
-    return 'Hello';
+export class AssessmentController implements ExtractController<AssessmentTypedClient> {
+  constructor(
+    private readonly submissionApplicationService: SubmissionApplicationService,
+    private readonly reviewApplicationService: ReviewApplicationService,
+  ) {}
+
+  @RabbitRPC({
+    exchange: 'assessment-service',
+    routingKey: 'submission.submit',
+    queue: 'assessment-service-submission-submit',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
+  })
+  async submit(data: {
+    studentId: bigint;
+    assignmentId: bigint;
+    data: {
+      content: string;
+      files: { fileKey: string; fileName: string }[];
+    };
+  }): Promise<SubmissionDto> {
+    return this.submissionApplicationService.submit(
+      data.studentId,
+      data.assignmentId,
+      data.data,
+    );
+  }
+
+  @RabbitRPC({
+    exchange: 'assessment-service',
+    routingKey: 'submission.grade',
+    queue: 'assessment-service-submission-grade',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
+  })
+  async gradeSubmission(data: {
+    submissionId: bigint;
+    reviewerId: bigint;
+    data: GradeDto;
+  }): Promise<ReviewDto> {
+    return this.reviewApplicationService.gradeSubmission(
+      data.submissionId,
+      data.reviewerId,
+      data.data,
+    );
   }
 }

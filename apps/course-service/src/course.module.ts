@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { CourseController } from './course.controller';
 import { TypedClientModule, UserTypedClient } from '@app/typed-client';
 import { CoreModule } from '@app/core';
+import { EnrollmentDomainService } from './domain/services/enrollment.service';
+import { CourseApplicationService } from './application/services/course.application-service';
+import { EnrollmentApplicationService } from './application/services/enrollment.application-service';
 
 @Module({
   imports: [
@@ -23,6 +26,11 @@ import { CoreModule } from '@app/core';
     ]),
   ],
   controllers: [CourseController],
+  providers: [
+    EnrollmentDomainService,
+    CourseApplicationService,
+    EnrollmentApplicationService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CourseModule {}

@@ -15,4 +15,16 @@ export class CourseTypedClient extends TypedClientBase<CoursePatterns> {
   ) {
     super('course-service', amqpConnection, userContextService, options);
   }
+
+  createCourse(
+    data: CoursePatterns['course.create']['request'],
+  ): Promise<CoursePatterns['course.create']['response']> {
+    return this.rpc('course.create', data);
+  }
+
+  findCourseById(
+    data: CoursePatterns['course.find-by-id']['request'],
+  ): Promise<CoursePatterns['course.find-by-id']['response']> {
+    return this.rpc('course.find-by-id', data);
+  }
 }
