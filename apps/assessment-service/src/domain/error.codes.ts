@@ -1,0 +1,5 @@
+export const enum AssessmentErrorCode {
+  INVALID_GRADE = '1200',
+  SUBMISSION_WINDOW_CLOSED = '1201',
+  RESUBMISSION_LIMIT_EXCEEDED = '1202',
+}

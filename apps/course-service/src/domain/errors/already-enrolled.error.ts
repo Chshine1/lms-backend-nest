@@ -1,5 +1,5 @@
 import { BaseError } from '@app/contracts';
-import { ErrorCode } from '@app/contracts';
+import { CourseErrorCode } from '@/course-service/src/domain/error.codes';
 
 export class AlreadyEnrolledError extends BaseError<{
   studentId: bigint;
@@ -8,7 +8,7 @@ export class AlreadyEnrolledError extends BaseError<{
   constructor(studentId: bigint, courseId: bigint) {
     super(
       `Student ${String(studentId)} is already enrolled in course ${String(courseId)}`,
-      ErrorCode.ALREADY_ENROLLED,
+      CourseErrorCode.ALREADY_ENROLLED,
       { studentId, courseId },
     );
   }

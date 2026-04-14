@@ -52,7 +52,7 @@ export class UserApplicationService {
     dto.tenantId = user.tenantId;
     dto.email = user.email.value;
     dto.phoneNumber = user.phoneNumber?.value;
-    dto.status = user.status as UserDto['status'];
+    dto.status = user.status;
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;
     return dto;

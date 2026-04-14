@@ -1,4 +1,4 @@
-﻿export enum UserErrorCode {
+﻿export const enum UserErrorCode {
   INVALID_PHONE_NUMBER = '1000',
   WEAK_PASSWORD = '1001',
   ONBOARDING_ALREADY_COMPLETED = '1002',
