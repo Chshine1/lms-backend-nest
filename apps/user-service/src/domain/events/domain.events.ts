@@ -44,11 +44,3 @@ export class RoleAssignedToUser {
     public readonly assignedBy: bigint,
   ) {}
 }
-
-export type DomainEvent =
-  | AccountCreated
-  | EmailVerificationRequested
-  | EmailVerified
-  | StudentOnboardingCompleted
-  | ParentLinkedToStudent
-  | RoleAssignedToUser;

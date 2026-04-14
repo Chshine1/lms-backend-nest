@@ -1,9 +1,9 @@
 import { defineEntity, p } from '@mikro-orm/core';
+import { AggregateRootSchema } from '@app/contracts';
 import {
-  AggregateRootSchema,
   InvitationCodeType,
   InvitationCodeVo,
-} from '@app/contracts';
+} from '@/user-service/src/domain/value-objects';
 
 const TenantSchema = defineEntity({
   name: 'Tenant',

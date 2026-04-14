@@ -29,8 +29,8 @@ export class SubmissionApplicationService {
       assignmentId,
     );
 
-    const isNew = !submission;
-    if (isNew) {
+    const isNew = submission === null;
+    if (submission === null) {
       submission = new Submission();
       submission.studentId = studentId;
       submission.assignmentId = assignmentId;

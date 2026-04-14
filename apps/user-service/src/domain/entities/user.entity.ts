@@ -1,12 +1,14 @@
 import { defineEntity, p } from '@mikro-orm/core';
 import { UserStatus } from '../enums/user-status.enum';
+import { AggregateRootSchema } from '@app/contracts';
 import {
-  AggregateRootSchema,
   EmailType,
+  EmailVo,
   PasswordHashType,
+  PasswordHashVo,
   PhoneNumberType,
-} from '@app/contracts';
-import { EmailVo, PasswordHashVo, PhoneNumberVo } from '../value-objects/index';
+  PhoneNumberVo,
+} from '../value-objects/index';
 import { InvalidPhoneNumberError, WeakPasswordError } from '../errors/index';
 
 const UserSchema = defineEntity({
