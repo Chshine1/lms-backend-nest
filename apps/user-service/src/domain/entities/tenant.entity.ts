@@ -10,24 +10,18 @@ const TenantSchema = defineEntity({
   extends: AggregateRootSchema,
   tableName: 'tenants',
   properties: {
-    name: p.string().length(255),
     invitationCode: p.type(InvitationCodeType).length(32).unique(),
   },
 });
 
 export class Tenant extends TenantSchema.class {
-  constructor(name: string, invitationCode: InvitationCodeVo) {
+  constructor(invitationCode: InvitationCodeVo) {
     super();
-    this.name = name;
     this.invitationCode = invitationCode;
   }
 
-  getInvitationCode(): InvitationCodeVo {
-    return this.invitationCode;
-  }
-
   isInvitationValid(code: string): boolean {
-    const invitationCode = this.getInvitationCode();
+    const invitationCode = this.invitationCode;
     return invitationCode.matches(code);
   }
 }

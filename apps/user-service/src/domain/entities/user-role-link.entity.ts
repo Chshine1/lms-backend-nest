@@ -12,7 +12,7 @@ const UserRoleLinkSchema = defineEntity({
   },
 });
 
-export class UserRoleAssignment extends UserRoleLinkSchema.class {
+export class UserRoleLink extends UserRoleLinkSchema.class {
   constructor(userId: bigint, roleId: bigint, assignedBy: bigint) {
     super();
     this.userId = userId;
@@ -21,4 +21,4 @@ export class UserRoleAssignment extends UserRoleLinkSchema.class {
   }
 }
 
-UserRoleLinkSchema.setClass(UserRoleAssignment);
+UserRoleLinkSchema.setClass(UserRoleLink);

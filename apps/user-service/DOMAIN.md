@@ -38,12 +38,12 @@
 
 **Core Responsibility**: Defines a named set of static permission **tags**. The actual authorization logic for relationship-based permissions resides in `AuthorizationService`.
 
-| Member Type        | Member Name   | PostgreSQL Type | Description                                                                                                                              | Domain Constraints / Rules                                     |
-| :----------------- | :------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
-| **Aggregate Root** | **Role**      | -               | A template of permissions. (PRD Mapping: User Roles & Permissions)                                                                       | -                                                              |
-| Field              | `id`          | `BIGINT`        | Unique identifier.                                                                                                                       | `PRIMARY KEY`                                                  |
-| Field              | `name`        | `VARCHAR(50)`   | e.g., "Student", "Parent", "Teacher". (PRD Mapping: 1.2 User Roles Definition)                                                           | `UNIQUE`, `NOT NULL`                                           |
-| Field              | `permissions` | `JSONB`         | Array of permission tags (e.g., `["student:read:linked_parent", "finance:view:linked_student"]`). (PRD Mapping: 1.4 Data Access Control) | Each string follows the pattern `<resource>:<action>:<scope>`. |
+| Member Type        | Member Name   | PostgreSQL Type  | Description                                                                                                                              | Domain Constraints / Rules                                     |
+| :----------------- | :------------ | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
+| **Aggregate Root** | **Role**      | -                | A template of permissions. (PRD Mapping: User Roles & Permissions)                                                                       | -                                                              |
+| Field              | `id`          | `BIGINT`         | Unique identifier.                                                                                                                       | `PRIMARY KEY`                                                  |
+| Field              | `name`        | `VARCHAR(50)`    | e.g., "Student", "Parent", "Teacher". (PRD Mapping: 1.2 User Roles Definition)                                                           | `UNIQUE`, `NOT NULL`                                           |
+| Field              | `permissions` | `VARCHAR(100)[]` | Array of permission tags (e.g., `["student:read:linked_parent", "finance:view:linked_student"]`). (PRD Mapping: 1.4 Data Access Control) | Each string follows the pattern `<resource>:<action>:<scope>`. |
 
 ---
 
@@ -72,16 +72,16 @@
 
 ---
 
-#### 1.6 UserRoleAssignment (Relationship Entity)
+#### 1.6 UserRoleLink (Relationship Entity)
 
 **Core Responsibility**: Persists the many‑to‑many relationship between users and roles. Implements the rule that each user must have at least one role.
 
-| Member Type | Member Name            | PostgreSQL Type | Description                                                                                                                    | Domain Constraints / Rules                                                  |
-| :---------- | :--------------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
-| Entity      | **UserRoleAssignment** | -               | Associates a user with a specific role. (PRD Mapping: 1.3 Role Assignment Rules - Users can have multiple roles, at least one) | Existence of both `User` and `Role` is enforced by foreign keys.            |
-| Field       | `userId`               | `BIGINT`        | References the `User.id`. (PRD Mapping: User)                                                                                  | `FOREIGN KEY (userId) REFERENCES User(id)`, part of composite `PRIMARY KEY` |
-| Field       | `roleId`               | `BIGINT`        | References the `Role.id`. (PRD Mapping: Role)                                                                                  | `FOREIGN KEY (roleId) REFERENCES Role(id)`, part of composite `PRIMARY KEY` |
-| Field       | `assignedBy`           | `BIGINT`        | References the `User.id` of the administrator who made the assignment. (PRD Mapping: 1.3 Admin assigns roles)                  | `FOREIGN KEY (assignedBy) REFERENCES User(id)`                              |
+| Member Type | Member Name      | PostgreSQL Type | Description                                                                                                                    | Domain Constraints / Rules                                                  |
+| :---------- | :--------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| Entity      | **UserRoleLink** | -               | Associates a user with a specific role. (PRD Mapping: 1.3 Role Assignment Rules - Users can have multiple roles, at least one) | Existence of both `User` and `Role` is enforced by foreign keys.            |
+| Field       | `userId`         | `BIGINT`        | References the `User.id`. (PRD Mapping: User)                                                                                  | `FOREIGN KEY (userId) REFERENCES User(id)`, part of composite `PRIMARY KEY` |
+| Field       | `roleId`         | `BIGINT`        | References the `Role.id`. (PRD Mapping: Role)                                                                                  | `FOREIGN KEY (roleId) REFERENCES Role(id)`, part of composite `PRIMARY KEY` |
+| Field       | `assignedBy`     | `BIGINT`        | References the `User.id` of the administrator who made the assignment. (PRD Mapping: 1.3 Admin assigns roles)                  | `FOREIGN KEY (assignedBy) REFERENCES User(id)`                              |
 
 ---
 
@@ -91,10 +91,10 @@ These are immutable types that encapsulate validation and behavior for core conc
 
 | Value Object     | Internal Representation | Invariants / Validation                                                                                             | Behavior         |
 | :--------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------ | :--------------- |
-| `Email`          | `string`                | Must conform to RFC 5322 format. Normalized to lowercase. (PRD Mapping: Sign-up Information - Email format)         |                  |
-| `PhoneNumber`    | `string`                | Must conform to E.164 format (or tenant‑specific pattern). (PRD Mapping: Sign-up Information - Phone number format) |                  |
-| `PasswordHash`   | `string`                | Must be a valid bcrypt/argon2 hash string. (PRD Mapping: Sign-up Information - Password)                            |                  |
-| `InvitationCode` | `string`                | Alphanumeric, exactly 8 characters, case‑insensitive. (PRD Mapping: Sign-up Information - Invitation Code)          | `matches(input)` |
+| `Email`          | `VARCHAR`               | Must conform to RFC 5322 format. Normalized to lowercase. (PRD Mapping: Sign-up Information - Email format)         |                  |
+| `PhoneNumber`    | `VARCHAR`               | Must conform to E.164 format (or tenant‑specific pattern). (PRD Mapping: Sign-up Information - Phone number format) |                  |
+| `PasswordHash`   | `VARCHAR`               | Must be a valid bcrypt/argon2 hash string. (PRD Mapping: Sign-up Information - Password)                            |                  |
+| `InvitationCode` | `VARCHAR`               | Alphanumeric, exactly 8 characters, case‑insensitive. (PRD Mapping: Sign-up Information - Invitation Code)          | `matches(input)` |
 
 ---
 

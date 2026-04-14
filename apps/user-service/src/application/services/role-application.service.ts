@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { IUserRoleAssignmentRepository } from '../../domain/repositories/index';
 import { AuthorizationService } from '@/user-service/src/domain/services/authorization.service';
-import { UserRoleAssignment } from '@/user-service/src/domain/entities/user-role-link.entity';
+import { UserRoleLink } from '@/user-service/src/domain/entities/user-role-link.entity';
 import { RoleAssignedToUser } from '@/user-service/src/domain/events/domain.events';
 import { UnauthorizedActionError } from '@/user-service/src/domain/errors';
 import { AssignRoleDto } from '@app/contracts';
@@ -27,7 +27,7 @@ export class RoleApplicationService {
     }
 
     // Create assignment
-    const assignment = new UserRoleAssignment(
+    const assignment = new UserRoleLink(
       dto.targetUserId,
       dto.roleId,
       adminUserId,

@@ -1,5 +1,5 @@
 import { defineEntity, p } from '@mikro-orm/core';
-import { AggregateRootSchema } from '@app/contracts';
+import { AggregateRootSchema, VarcharArrayType } from '@app/contracts';
 
 const RoleSchema = defineEntity({
   name: 'Role',
@@ -7,7 +7,7 @@ const RoleSchema = defineEntity({
   tableName: 'roles',
   properties: {
     name: p.string().length(50).unique(),
-    permissions: p.array(),
+    permissions: p.type(new VarcharArrayType(100)),
   },
 });
 
@@ -15,7 +15,7 @@ export class Role extends RoleSchema.class {
   constructor(name: string, permissions: string[]) {
     super();
     this.name = name;
-    this.permissions = permissions;
+    this.permissions = [...permissions];
   }
 }
 
