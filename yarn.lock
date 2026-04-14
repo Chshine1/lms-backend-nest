@@ -1473,6 +1473,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lms/assessment-service@workspace:apps/assessment-service":
+  version: 0.0.0-use.local
+  resolution: "@lms/assessment-service@workspace:apps/assessment-service"
+  dependencies:
+    "@app/authentication": "workspace:*"
+    "@app/contracts": "workspace:*"
+    "@app/core": "workspace:*"
+    "@app/infrastructure": "workspace:*"
+    "@app/typed-client": "workspace:*"
+    "@golevelup/nestjs-rabbitmq": "npm:^9.0.0"
+    "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/platform-express": "npm:^11.0.1"
+    class-transformer: "npm:^0.5.1"
+    class-validator: "npm:^0.14.3"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.1"
+  languageName: unknown
+  linkType: soft
+
 "@lms/course-service@workspace:apps/course-service":
   version: 0.0.0-use.local
   resolution: "@lms/course-service@workspace:apps/course-service"
@@ -1486,12 +1506,10 @@ __metadata:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
     "@nestjs/platform-express": "npm:^11.0.1"
-    "@nestjs/typeorm": "npm:^11.0.0"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
-    typeorm: "npm:^0.3.28"
   languageName: unknown
   linkType: soft
 
@@ -1534,14 +1552,12 @@ __metadata:
     "@nestjs/core": "npm:^11.0.1"
     "@nestjs/jwt": "npm:^11.0.2"
     "@nestjs/platform-express": "npm:^11.0.1"
-    "@nestjs/typeorm": "npm:^11.0.0"
     "@types/bcrypt": "npm:^6"
     bcrypt: "npm:^6.0.0"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.3"
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
-    typeorm: "npm:^0.3.28"
   languageName: unknown
   linkType: soft
 
