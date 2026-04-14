@@ -1,11 +1,9 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class AssignRoleDto {
-  @IsNumber()
-  @IsNotEmpty()
-  targetUserId!: bigint;
+export const AssignRoleSchema = z.object({
+  targetUserId: z.bigint(),
+  roleId: z.bigint(),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  roleId!: bigint;
-}
+export class AssignRoleDto extends createZodDto(AssignRoleSchema) {}

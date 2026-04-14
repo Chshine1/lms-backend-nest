@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class CompleteOnboardingDto {
-  @IsNumber()
-  @IsNotEmpty()
-  studentUserId!: bigint;
+export const CompleteOnboardingSchema = z.object({
+  studentUserId: z.bigint(),
+  signatureData: z.record(z.unknown()).optional(),
+});
 
-  @IsObject()
-  @IsOptional()
-  signatureData?: Record<string, unknown>;
-}
+export class CompleteOnboardingDto extends createZodDto(
+  CompleteOnboardingSchema,
+) {}

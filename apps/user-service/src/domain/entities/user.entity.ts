@@ -3,12 +3,10 @@ import { UserStatus } from '../enums/user-status.enum';
 import {
   AggregateRootSchema,
   EmailType,
-  EmailVo,
   PasswordHashType,
-  PasswordHashVo,
   PhoneNumberType,
-  PhoneNumberVo,
 } from '@app/contracts';
+import { EmailVo, PasswordHashVo, PhoneNumberVo } from '../value-objects/index';
 import { InvalidPhoneNumberError, WeakPasswordError } from '../errors/index';
 
 const UserSchema = defineEntity({

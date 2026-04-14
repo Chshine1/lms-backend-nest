@@ -1,2 +1,2 @@
-export * from './create-course.dto';
-export * from './course.dto';
+export { CreateCourseDto, CreateCourseSchema } from './create-course.dto';
+export { CourseDto, CourseSchema } from './course.dto';

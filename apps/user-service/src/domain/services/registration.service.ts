@@ -11,7 +11,7 @@ import {
   InvitationCodeVo,
   PasswordHashVo,
   PhoneNumberVo,
-} from '@app/contracts';
+} from '../value-objects/index';
 
 interface IPasswordHasher {
   hash(plaintext: string): Promise<string>;

@@ -4,7 +4,9 @@
 
 #### 1.1 Assignment Aggregate
 
-**Core Responsibility**: Manages the definition of a graded or non-graded task, including its flexible content structure (Text vs. Quiz Problems). It encapsulates the rules for submission windows and resubmission limits. It **does not** know about the specific answers a student gives; that is managed by the `Submission` aggregate.
+**Core Responsibility**: Manages the definition of a graded or non-graded task, including its flexible content
+structure (Text vs. Quiz Problems). It encapsulates the rules for submission windows and resubmission limits. It **does
+not** know about the specific answers a student gives; that is managed by the `Submission` aggregate.
 
 | Member Type        | Member Name            | PostgreSQL Type  | Description / Domain Behavior                                                                                                         | Domain Constraints / Rules               |
 | :----------------- | :--------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------- |
@@ -24,7 +26,8 @@
 
 #### 1.2 AssignmentFile (Entity, Child of Assignment)
 
-**Core Responsibility**: Represents an attachment/file associated with an assignment (e.g., assignment description files, reference materials). Files are stored as separate entities with 1-N relationship to Assignment.
+**Core Responsibility**: Represents an attachment/file associated with an assignment (e.g., assignment description
+files, reference materials). Files are stored as separate entities with 1-N relationship to Assignment.
 
 | Member Type       | Member Name        | PostgreSQL Type | Description / Domain Behavior                                                                                                                 | Domain Constraints / Rules                    |
 | :---------------- | :----------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------- |
@@ -43,7 +46,10 @@
 
 #### 1.3 Submission Aggregate
 
-**Core Responsibility**: Represents a **single attempt** by a student for an assignment. Since history is not tracked (only the last submission matters), this aggregate is **mutable**. It enforces the resubmission count limit and due date on `update`. It manages the submission content but **does not** own files directly; file attachments are managed by separate `SubmissionFile` entities.
+**Core Responsibility**: Represents a **single attempt** by a student for an assignment. Since history is not tracked (
+only the last submission matters), this aggregate is **mutable**. It enforces the resubmission count limit and due date
+on `update`. It manages the submission content but **does not** own files directly; file attachments are managed by
+separate `SubmissionFile` entities.
 
 | Member Type        | Member Name       | PostgreSQL Type | Description / Domain Behavior                                                                                                                                                                               | Domain Constraints / Rules                                                |
 | :----------------- | :---------------- | :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------ |
@@ -60,7 +66,9 @@
 
 #### 1.4 SubmissionFile (Entity, Child of Submission)
 
-**Core Responsibility**: Represents a file attachment for a submission. Files are stored as separate entities with 1-N relationship to Submission. This allows for detailed metadata, easier testing, and flexible storage backend configuration (local or OSS).
+**Core Responsibility**: Represents a file attachment for a submission. Files are stored as separate entities with 1-N
+relationship to Submission. This allows for detailed metadata, easier testing, and flexible storage backend
+configuration (local or OSS).
 
 | Member Type       | Member Name        | PostgreSQL Type | Description / Domain Behavior                                                                                                                 | Domain Constraints / Rules                    |
 | :---------------- | :----------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------- |
@@ -79,10 +87,11 @@
 
 #### 1.5 Review (Entity, Child of Submission)
 
-**Core Responsibility**: A teacher's evaluation attached to a specific `Submission`. Exists only if a submission has been graded or commented on.
+**Core Responsibility**: A teacher's evaluation attached to a specific `Submission`. Exists only if a submission has
+been graded or commented on.
 
 | Member Type       | Member Name    | PostgreSQL Type | Description                                                                      | Domain Constraints / Rules                          |
-| :---------------- | :------------- |:----------------| :------------------------------------------------------------------------------- | :-------------------------------------------------- |
+| :---------------- | :------------- | :-------------- | :------------------------------------------------------------------------------- | :-------------------------------------------------- |
 | Entity            | **Review**     | -               | Feedback provided by a teacher. (PRD Mapping: Teachers can review submissions)   | One-to-One relationship with `Submission`.          |
 | Field             | `id`           | `BIGINT`        | Unique identifier.                                                               | `PRIMARY KEY`                                       |
 | Field             | `submissionId` | `BIGINT`        | References `Submission.id`.                                                      | `FOREIGN KEY`, `UNIQUE` (One review per submission) |
@@ -122,20 +131,31 @@
 
 ### 5. Storage Services (File Storage Strategy)
 
-**Strategy Pattern** for flexible file storage backends. Files can be stored locally or on OSS (Aliyun Object Storage Service). The strategy is configurable via environment configuration, allowing easy switching between storage providers without code changes.
+**Strategy Pattern** for flexible file storage backends. Files can be stored locally or on OSS (Aliyun Object Storage
+Service). The strategy is configurable via environment configuration, allowing easy switching between storage providers
+without code changes.
 
-| Service                 | Method        | Responsibility                                                                                                                                                | Dependencies                                                                                 |
-| :---------------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------- | -------------------- |
-| **FileStorageStrategy** | `upload`      | Uploads a file to the configured storage backend. Returns the file key/path in storage. (PRD Mapping: File upload)                                            | `ConfigurationService`                                                                       |
-| **FileStorageStrategy** | `getUrl`      | Generates a URL for file access. For local storage, returns a signed URL with expiry. For OSS, returns a public or signed URL. (PRD Mapping: File access URL) | `ConfigurationService`                                                                       |
-| **FileStorageStrategy** | `delete`      | Deletes a file from storage backend. (PRD Mapping: File deletion)                                                                                             | `ConfigurationService`                                                                       |
-| **FileStorageStrategy** | `getProvider` | Returns the current storage provider type (`local`                                                                                                            | `oss`). Used to determine URL generation strategy. (PRD Mapping: Storage provider detection) | None (Pure function) |
+| Service                                                                                      | Method               | Responsibility                                                              | Dependencies |
+| :------------------------------------------------------------------------------------------- | :------------------- | :-------------------------------------------------------------------------- | :----------- |
+| **FileStorageStrategy**                                                                      | `upload`             | Uploads a file to the configured storage backend. Returns the file key/path |
+| in storage. (PRD Mapping: File upload)                                                       |
+| `ConfigurationService`                                                                       |
+| **FileStorageStrategy**                                                                      | `getUrl`             | Generates a URL for file access. For local storage, returns a signed URL    |
+| with expiry. For OSS, returns a public or signed URL. (PRD Mapping: File access URL)         |
+| `ConfigurationService`                                                                       |
+| **FileStorageStrategy**                                                                      | `delete`             | Deletes a file from storage backend. (PRD Mapping: File                     |
+| deletion)                                                                                    |
+| `ConfigurationService`                                                                       |
+| **FileStorageStrategy**                                                                      | `getProvider`        | Returns the current storage provider type (                                 |
+| `local`                                                                                      |
+| `oss`). Used to determine URL generation strategy. (PRD Mapping: Storage provider detection) | None (Pure function) |
 
 **Strategy Implementation Notes**:
 
 - **Local Storage**: Files stored in `./storage/uploads` directory. URLs are signed with expiry time.
 - **OSS Storage**: Files uploaded to Aliyun OSS bucket. URLs can be public or signed based on configuration.
-- **Configuration**: Driven by `StorageConfig.provider` in configuration. The strategy is injected as a dependency, making testing easy via mock implementations.
+- **Configuration**: Driven by `StorageConfig.provider` in configuration. The strategy is injected as a dependency,
+  making testing easy via mock implementations.
 
 ---
 
@@ -166,12 +186,15 @@
 ```typescript
 interface AssignmentRepository {
   save(assignment: Assignment): Promise<void>;
+
   findById(id: bigint): Promise<Assignment | null>;
+
   findByUnitId(unitId: bigint): Promise<Assignment[]>;
 }
 
 interface SubmissionRepository {
   save(submission: Submission): Promise<void>;
+
   findByStudentAndAssignment(
     studentId: bigint,
     assignmentId: bigint,
@@ -180,13 +203,17 @@ interface SubmissionRepository {
 
 interface SubmissionFileRepository {
   save(file: SubmissionFile): Promise<void>;
+
   findBySubmissionId(submissionId: bigint): Promise<SubmissionFile[]>;
+
   deleteBySubmissionId(submissionId: bigint): Promise<void>;
 }
 
 interface AssignmentFileRepository {
   save(file: AssignmentFile): Promise<void>;
+
   findByAssignmentId(assignmentId: bigint): Promise<AssignmentFile[]>;
+
   deleteByAssignmentId(assignmentId: bigint): Promise<void>;
 }
 ```
@@ -196,5 +223,8 @@ interface AssignmentFileRepository {
 ### 8. Microservice Integration Note
 
 - **`Course` & `Unit`** data is owned by `course-service`.
-- This service maintains a **local read-only cache** of `CourseUnit` IDs and `Enrollment` status (synchronized via `StudentEnrolledEvent`).
-- When `Assignment` is created, it only stores `unitId`. To check if a user is a **Teacher**, the Application Layer makes a lightweight gRPC/REST call to `course-service` at the moment of grading (as this is a less frequent, high-value operation).
+- This service maintains a **local read-only cache** of `CourseUnit` IDs and `Enrollment` status (synchronized via
+  `StudentEnrolledEvent`).
+- When `Assignment` is created, it only stores `unitId`. To check if a user is a **Teacher**, the Application Layer
+  makes a lightweight gRPC/REST call to `course-service` at the moment of grading (as this is a less frequent,
+  high-value operation).

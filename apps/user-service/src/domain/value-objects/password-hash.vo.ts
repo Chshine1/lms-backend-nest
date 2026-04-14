@@ -18,9 +18,7 @@ export class PasswordHashVo {
   private constructor(public readonly value: string) {}
 
   static create(hash: string): PasswordHashVo {
-    // Validate bcrypt hash format: $2a$, $2b$, or $2y$ followed by cost and hash
     const bcryptRegex = /^\$2[aby]\$\d{2}\$.{53}$/;
-    // Validate argon2 hash format
     const argon2Regex = /^\$argon2(i|d|id)\$.+/;
 
     if (!bcryptRegex.test(hash) && !argon2Regex.test(hash)) {

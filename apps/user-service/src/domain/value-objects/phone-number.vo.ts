@@ -19,7 +19,6 @@ export class PhoneNumberVo {
 
   static create(phoneNumber: string): PhoneNumberVo {
     const normalized = phoneNumber.trim();
-    // E.164 format validation: +[country code][number] (max 15 digits)
     const e164Regex = /^\+[1-9]\d{1,14}$/;
 
     if (!e164Regex.test(normalized)) {

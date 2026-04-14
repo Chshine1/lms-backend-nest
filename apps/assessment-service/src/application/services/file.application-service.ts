@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-
-import { StorageProviderType } from '@app/contracts';
 import { FileStorageService } from '@app/infrastructure';
-import { ISubmissionFileRepository } from '../../domain/repositories/index';
-import { IAssignmentFileRepository } from '../../domain/repositories/index';
+import type {
+  IAssignmentFileRepository,
+  ISubmissionFileRepository,
+} from '../../domain/repositories/index';
 import { SubmissionFile } from '../../domain/entities/submission-file.entity';
 import { AssignmentFile } from '../../domain/entities/assignment-file.entity';
 

@@ -19,11 +19,9 @@ export class EmailVo {
 
   static create(email: string): EmailVo {
     const normalized = email.toLowerCase().trim();
-    // RFC 5322 compliant email validation
     const emailRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-    // TODO: Rich error handling required
     if (!emailRegex.test(normalized)) {
       throw new Error('Invalid email format');
     }

@@ -1,11 +1,15 @@
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 import { UserStatus } from '@/user-service/src/domain/enums/user-status.enum';
 
-export class UserDto {
-  id!: bigint;
-  tenantId!: bigint;
-  email!: string;
-  phoneNumber!: string | undefined;
-  status!: UserStatus;
-  createdAt!: Date;
-  updatedAt!: Date;
-}
+export const UserSchema = z.object({
+  id: z.bigint(),
+  tenantId: z.bigint(),
+  email: z.string().email(),
+  phoneNumber: z.string().optional(),
+  status: z.nativeEnum(UserStatus),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export class UserDto extends createZodDto(UserSchema) {}

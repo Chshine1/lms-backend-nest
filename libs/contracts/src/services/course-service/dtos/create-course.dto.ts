@@ -1,18 +1,11 @@
-import { IsNotEmpty, IsString, IsArray, IsNumber } from 'class-validator';
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class CreateCourseDto {
-  @IsString()
-  @IsNotEmpty()
-  name!: string;
+export const CreateCourseSchema = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1),
+  description: z.string(),
+  teacherIds: z.array(z.bigint()),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  code!: string;
-
-  @IsString()
-  description!: string;
-
-  @IsArray()
-  @IsNumber()
-  teacherIds!: bigint[];
-}
+export class CreateCourseDto extends createZodDto(CreateCourseSchema) {}

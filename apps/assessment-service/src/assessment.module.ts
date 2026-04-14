@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AssessmentController } from './assessment.controller';
-import { TypedClientModule, CourseTypedClient } from '@app/typed-client';
+import { CourseTypedClient, TypedClientModule } from '@app/typed-client';
 import { CoreModule } from '@app/core';
 import { SubmissionApplicationService } from './application/services/submission.application-service';
 import { ReviewApplicationService } from './application/services/review.application-service';

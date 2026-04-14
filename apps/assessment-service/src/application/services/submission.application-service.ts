@@ -5,19 +5,7 @@ import type {
 } from '../../domain/repositories/index';
 import { Submission } from '../../domain/entities/submission.entity';
 import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
-
-export class SubmissionDataDto {
-  content!: string;
-}
-
-export class SubmissionDto {
-  id!: bigint;
-  studentId!: bigint;
-  assignmentId!: bigint;
-  content!: string;
-  submissionCount!: number;
-  submittedAt!: Date;
-}
+import { SubmissionDataDto, SubmissionDto } from '@app/contracts';
 
 @Injectable()
 export class SubmissionApplicationService {

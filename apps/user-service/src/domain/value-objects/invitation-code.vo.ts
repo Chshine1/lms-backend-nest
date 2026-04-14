@@ -19,7 +19,6 @@ export class InvitationCodeVo {
 
   static create(code: string): InvitationCodeVo {
     const normalized = code.toUpperCase().trim();
-    // Alphanumeric, exactly 8 characters
     const codeRegex = /^[A-Z0-9]{8}$/;
 
     if (!codeRegex.test(normalized)) {

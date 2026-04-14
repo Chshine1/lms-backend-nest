@@ -7,20 +7,7 @@ import type {
 } from '../../domain/repositories/index';
 import { Review } from '../../domain/entities/review.entity';
 import { SubmissionGradedEvent } from '../../domain/events/domain.events';
-
-export class GradeDto {
-  grade!: number;
-  comment!: string;
-}
-
-export class ReviewDto {
-  id!: bigint;
-  submissionId!: bigint;
-  reviewerId!: bigint;
-  grade!: number;
-  comment!: string;
-  reviewedAt!: Date;
-}
+import { GradeDto, ReviewDto } from '@app/contracts';
 
 @Injectable()
 export class ReviewApplicationService {

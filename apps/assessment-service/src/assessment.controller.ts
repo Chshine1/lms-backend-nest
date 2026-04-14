@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { AssessmentTypedClient, ExtractController } from '@app/typed-client';
-import { SubmissionDto, GradeDto, ReviewDto } from '@app/contracts';
+import { GradeDto, ReviewDto, SubmissionDto } from '@app/contracts';
 import { SubmissionApplicationService } from './application/services/submission.application-service';
 import { ReviewApplicationService } from './application/services/review.application-service';
 

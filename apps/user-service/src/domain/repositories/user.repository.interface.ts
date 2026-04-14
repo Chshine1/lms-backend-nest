@@ -1,6 +1,6 @@
 import { User } from '../entities/user.entity';
 import { Role } from '../entities/role.entity';
-import { EmailVo, PhoneNumberVo } from '@app/contracts';
+import { EmailVo, PhoneNumberVo } from '../value-objects/index';
 
 export interface IUserRepository {
   save(user: User): Promise<void>;

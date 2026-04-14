@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class LinkParentStudentDto {
-  @IsNumber()
-  @IsNotEmpty()
-  parentUserId!: bigint;
+export const LinkParentStudentSchema = z.object({
+  parentUserId: z.bigint(),
+  studentUserId: z.bigint(),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  studentUserId!: bigint;
-}
+export class LinkParentStudentDto extends createZodDto(
+  LinkParentStudentSchema,
+) {}

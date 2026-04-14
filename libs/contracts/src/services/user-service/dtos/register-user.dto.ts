@@ -1,26 +1,11 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class RegisterUserDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
+export const RegisterUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  phoneNumber: z.string().optional(),
+  invitationCode: z.string().optional(),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(8)
-  password!: string;
-
-  @IsString()
-  @IsOptional()
-  phoneNumber?: string;
-
-  @IsString()
-  @IsOptional()
-  invitationCode?: string;
-}
+export class RegisterUserDto extends createZodDto(RegisterUserSchema) {}

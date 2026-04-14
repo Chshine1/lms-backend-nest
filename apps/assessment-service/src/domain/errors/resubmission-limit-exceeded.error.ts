@@ -1,5 +1,4 @@
-import { BaseError } from '@app/contracts';
-import { ErrorCode } from '@app/contracts';
+import { BaseError, ErrorCode } from '@app/contracts';
 
 export class ResubmissionLimitExceededError extends BaseError<{
   assignmentId: bigint;

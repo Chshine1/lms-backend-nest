@@ -2,23 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { ICourseRepository } from '../../domain/repositories/index';
 import { Course } from '../../domain/entities/course.entity';
 import { CourseCreatedEvent } from '../../domain/events/domain.events';
-
-export class CreateCourseDto {
-  name!: string;
-  code!: string;
-  description!: string;
-  teacherIds!: bigint[];
-}
-
-export class CourseDto {
-  id!: bigint;
-  name!: string;
-  code!: string;
-  description!: string;
-  teachers!: bigint[];
-  createdAt!: Date;
-  updatedAt!: Date;
-}
+import { CreateCourseDto, CourseDto } from '@app/contracts';
 
 @Injectable()
 export class CourseApplicationService {
