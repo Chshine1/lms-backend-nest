@@ -1,2 +1,2 @@
-export * from './course.repository.interface';
-export * from './enrollment.repository.interface';
+export { type ICourseRepository } from './course.repository.interface';
+export { type IEnrollmentRepository } from './enrollment.repository.interface';
