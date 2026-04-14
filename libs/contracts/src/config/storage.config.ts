@@ -11,6 +11,7 @@ import {
 export enum StorageProviderType {
   LOCAL = 'local',
   S3 = 's3',
+  OSS = 'oss',
 }
 
 export class S3Config {

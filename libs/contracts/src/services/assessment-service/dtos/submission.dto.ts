@@ -1,6 +1,5 @@
 export class SubmissionDataDto {
   content!: string;
-  files!: { fileKey: string; fileName: string }[];
 }
 
 export class SubmissionDto {

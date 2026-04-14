@@ -8,7 +8,6 @@ import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
 
 export class SubmissionDataDto {
   content!: string;
-  files!: { fileKey: string; fileName: string }[];
 }
 
 export class SubmissionDto {
@@ -48,11 +47,10 @@ export class SubmissionApplicationService {
       submission.studentId = studentId;
       submission.assignmentId = assignmentId;
       submission.content = data.content;
-      submission.files = data.files;
       submission.submissionCount = 1;
       submission.submittedAt = new Date();
     } else {
-      submission.updateContent(data.content, data.files, {
+      submission.updateContent(data.content, {
         dueTime: assignment.dueTime,
         allowedResubmissions: assignment.allowedResubmissions,
       });

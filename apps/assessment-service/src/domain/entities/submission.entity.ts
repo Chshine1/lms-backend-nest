@@ -11,7 +11,6 @@ const SubmissionSchema = defineEntity({
     content: p.text().default(''),
     submissionCount: p.integer().default(1),
     submittedAt: p.datetime(),
-    files: p.json().default('[]'),
   },
   indexes: [
     {
@@ -25,18 +24,15 @@ const SubmissionSchema = defineEntity({
 export class Submission extends SubmissionSchema.class {
   declare content: string;
   declare submissionCount: number;
-  declare files: string;
 
   constructor() {
     super();
     this.content = '';
     this.submissionCount = 1;
-    this.files = '[]';
   }
 
   updateContent(
     newContent: string,
-    newFiles: { fileKey: string; fileName: string }[],
     assignment: { dueTime: Date; allowedResubmissions: number },
   ): void {
     const now = new Date();
@@ -50,7 +46,6 @@ export class Submission extends SubmissionSchema.class {
     }
 
     this.content = newContent;
-    this.files = JSON.stringify(newFiles);
     this.submissionCount++;
     this.submittedAt = now;
   }

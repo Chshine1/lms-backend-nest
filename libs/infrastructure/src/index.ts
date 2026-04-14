@@ -14,3 +14,5 @@ export { type LogEntry } from './modules/logger/contracts/log.entry';
 export { Log } from './modules/logger/decorators/log.decorator';
 
 export * from './modules/error/index';
+
+export * from './modules/file-storage/index';
