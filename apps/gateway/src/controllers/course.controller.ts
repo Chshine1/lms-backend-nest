@@ -61,7 +61,7 @@ export class CourseController {
     @Param('courseId') courseId: string,
     @Body() body: { studentId: bigint; enrollerUserId: bigint },
   ): Promise<void> {
-    return await this.courseClient.enrollStudent({
+    await this.courseClient.enrollStudent({
       courseId: BigInt(courseId),
       studentId: body.studentId,
       enrollerUserId: body.enrollerUserId,

@@ -21,7 +21,7 @@ export class Review extends ReviewSchema.class {
 
   updateGrade(newGrade: number, totalGrade: number): void {
     if (newGrade < 0 || newGrade > totalGrade) {
-      throw new Error(`Grade must be between 0 and ${totalGrade}`);
+      throw new Error(`Grade must be between 0 and ${String(totalGrade)}`);
     }
     this.grade = newGrade;
     this.reviewedAt = new Date();

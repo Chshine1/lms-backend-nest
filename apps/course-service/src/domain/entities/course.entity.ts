@@ -1,9 +1,5 @@
 import { defineEntity, p } from '@mikro-orm/core';
-import {
-  AggregateRootSchema,
-  BigIntArrayType,
-  BigIntArrayColumn,
-} from '@app/contracts';
+import { AggregateRootSchema, BigintArrayType } from '@app/contracts';
 import { DuplicateUnitNameError } from '../errors/index';
 
 const CourseSchema = defineEntity({
@@ -11,15 +7,24 @@ const CourseSchema = defineEntity({
   extends: AggregateRootSchema,
   tableName: 'courses',
   properties: {
-    name: p.varchar(255),
-    code: p.varchar(50).unique(),
+    name: p.string().length(255),
+    code: p.string().length(50).unique(),
     description: p.text().default(''),
-    teachers: p.type(BigIntArrayType).default('{}'),
+    teachers: p.type(BigintArrayType).default('{}'),
   },
 });
 
 export class Course extends CourseSchema.class {
+  declare description: string;
+  declare teachers: bigint[];
+
   private units: { name: string; description: string }[] = [];
+
+  constructor() {
+    super();
+    this.description = '';
+    this.teachers = [];
+  }
 
   addUnit(name: string, description: string): void {
     const exists = this.units.some(
@@ -38,9 +43,9 @@ export class Course extends CourseSchema.class {
   }
 
   assignTeacher(teacherId: bigint): void {
-    const teachers = (this.teachers as bigint[]) || [];
+    const teachers = this.teachers;
     if (!teachers.includes(teacherId)) {
-      (this.teachers as bigint[]).push(teacherId);
+      this.teachers.push(teacherId);
     }
   }
 }

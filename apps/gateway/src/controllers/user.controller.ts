@@ -26,7 +26,7 @@ export class UserController {
   async assignRole(
     @Body() body: AssignRoleDto & { adminUserId: bigint },
   ): Promise<void> {
-    return await this.userClient.assignRole({
+    await this.userClient.assignRole({
       adminUserId: body.adminUserId,
       targetUserId: body.targetUserId,
       roleId: body.roleId,
@@ -35,7 +35,7 @@ export class UserController {
 
   @Post('parent-student-link')
   async linkParentStudent(@Body() body: LinkParentStudentDto): Promise<void> {
-    return await this.userClient.linkParentStudent({
+    await this.userClient.linkParentStudent({
       parentUserId: body.parentUserId,
       studentUserId: body.studentUserId,
     });
@@ -43,7 +43,7 @@ export class UserController {
 
   @Post('onboarding')
   async completeOnboarding(@Body() body: CompleteOnboardingDto): Promise<void> {
-    return await this.userClient.completeOnboarding({
+    await this.userClient.completeOnboarding({
       studentUserId: body.studentUserId,
       signatureData: body.signatureData,
     });

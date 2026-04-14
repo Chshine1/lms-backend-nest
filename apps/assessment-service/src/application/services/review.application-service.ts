@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CourseTypedClient } from '@app/typed-client';
-import {
+import type {
   IAssignmentRepository,
   IReviewRepository,
   ISubmissionRepository,
@@ -38,7 +38,7 @@ export class ReviewApplicationService {
   ): Promise<ReviewDto> {
     const submission = await this.submissionRepository.findById(submissionId);
     if (!submission) {
-      throw new Error(`Submission ${submissionId} not found`);
+      throw new Error(`Submission ${String(submissionId)} not found`);
     }
 
     const assignment = await this.assignmentRepository.findById(
@@ -56,7 +56,9 @@ export class ReviewApplicationService {
     }
 
     if (!course.teachers.includes(reviewerId)) {
-      throw new Error(`User ${reviewerId} is not a teacher of this course`);
+      throw new Error(
+        `User ${String(reviewerId)} is not a teacher of this course`,
+      );
     }
 
     let review = await this.reviewRepository.findBySubmissionId(submissionId);

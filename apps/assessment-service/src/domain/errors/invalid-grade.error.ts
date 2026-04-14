@@ -7,7 +7,7 @@ export class InvalidGradeError extends BaseError<{
 }> {
   constructor(grade: number, totalGrade: number) {
     super(
-      `Invalid grade ${grade}. Must be between 0 and ${totalGrade}`,
+      `Invalid grade ${String(grade)}. Must be between 0 and ${String(totalGrade)}`,
       ErrorCode.INVALID_SCORE,
       { grade, totalGrade },
     );

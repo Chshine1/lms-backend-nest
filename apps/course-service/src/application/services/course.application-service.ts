@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ICourseRepository } from '../../domain/repositories/index';
+import type { ICourseRepository } from '../../domain/repositories/index';
 import { Course } from '../../domain/entities/course.entity';
 import { CourseCreatedEvent } from '../../domain/events/domain.events';
 
@@ -66,7 +66,7 @@ export class CourseApplicationService {
     dto.name = course.name;
     dto.code = course.code;
     dto.description = course.description;
-    dto.teachers = course.teachers as bigint[];
+    dto.teachers = course.teachers;
     dto.createdAt = course.createdAt;
     dto.updatedAt = course.updatedAt;
     return dto;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserTypedClient } from '@app/typed-client';
-import { IEnrollmentRepository } from '../repositories/index';
+import type { IEnrollmentRepository } from '../repositories/index';
 import { Enrollment } from '../entities/enrollment.entity';
 import { EnrollmentStatus } from '../enums/enrollment-status.enum';
 import { AlreadyEnrolledError } from '../errors/index';
@@ -17,7 +17,7 @@ export class EnrollmentDomainService {
       studentId,
       courseId,
     );
-    if (existing && existing.status === EnrollmentStatus.ACTIVE) {
+    if (existing !== null && existing.status === EnrollmentStatus.ACTIVE) {
       throw new AlreadyEnrolledError(studentId, courseId);
     }
 
@@ -25,10 +25,9 @@ export class EnrollmentDomainService {
       userId: studentId,
     });
     if (!student) {
-      throw new Error(`Student ${studentId} not found`);
+      throw new Error(`Student ${String(studentId)} not found`);
     }
 
-    const enrollment = new Enrollment(studentId, courseId);
-    return enrollment;
+    return new Enrollment(studentId, courseId);
   }
 }

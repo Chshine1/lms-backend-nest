@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
+import type {
   IAssignmentRepository,
   ISubmissionRepository,
 } from '../../domain/repositories/index';
 import { Submission } from '../../domain/entities/submission.entity';
 import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
-import { SubmissionWindowClosedError } from '../../domain/errors/index';
-import { ResubmissionLimitExceededError } from '../../domain/errors/index';
 
 export class SubmissionDataDto {
   content!: string;
@@ -36,7 +34,7 @@ export class SubmissionApplicationService {
   ): Promise<SubmissionDto> {
     const assignment = await this.assignmentRepository.findById(assignmentId);
     if (!assignment) {
-      throw new Error(`Assignment ${assignmentId} not found`);
+      throw new Error(`Assignment ${String(assignmentId)} not found`);
     }
 
     let submission = await this.submissionRepository.findByStudentAndAssignment(

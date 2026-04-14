@@ -7,7 +7,7 @@ export class AlreadyEnrolledError extends BaseError<{
 }> {
   constructor(studentId: bigint, courseId: bigint) {
     super(
-      `Student ${studentId} is already enrolled in course ${courseId}`,
+      `Student ${String(studentId)} is already enrolled in course ${String(courseId)}`,
       ErrorCode.ALREADY_ENROLLED,
       { studentId, courseId },
     );

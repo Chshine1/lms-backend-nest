@@ -7,7 +7,7 @@ export class ResubmissionLimitExceededError extends BaseError<{
 }> {
   constructor(assignmentId: bigint, limit: number) {
     super(
-      `Resubmission limit (${limit}) exceeded for assignment ${assignmentId}`,
+      `Resubmission limit (${String(limit)}) exceeded for assignment ${String(assignmentId)}`,
       ErrorCode.BAD_REQUEST,
       { assignmentId, limit },
     );

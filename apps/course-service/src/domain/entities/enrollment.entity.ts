@@ -25,7 +25,7 @@ const EnrollmentSchema = defineEntity({
 });
 
 export class Enrollment extends EnrollmentSchema.class {
-  declare enrolledAt: Date;
+  declare status: EnrollmentStatus;
 
   constructor(studentId: bigint, courseId: bigint) {
     super();

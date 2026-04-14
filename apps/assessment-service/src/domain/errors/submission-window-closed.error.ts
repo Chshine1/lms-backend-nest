@@ -6,7 +6,7 @@ export class SubmissionWindowClosedError extends BaseError<{
 }> {
   constructor(assignmentId: bigint) {
     super(
-      `Submission window has closed for assignment ${assignmentId}`,
+      `Submission window has closed for assignment ${String(assignmentId)}`,
       ErrorCode.BAD_REQUEST,
       { assignmentId },
     );

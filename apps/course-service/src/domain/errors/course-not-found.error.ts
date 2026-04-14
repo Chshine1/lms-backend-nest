@@ -3,8 +3,12 @@ import { ErrorCode } from '@app/contracts';
 
 export class CourseNotFoundError extends BaseError<{ courseId: bigint }> {
   constructor(courseId: bigint) {
-    super(`Course with id "${courseId}" not found`, ErrorCode.BAD_REQUEST, {
-      courseId,
-    });
+    super(
+      `Course with id "${String(courseId)}" not found`,
+      ErrorCode.BAD_REQUEST,
+      {
+        courseId,
+      },
+    );
   }
 }

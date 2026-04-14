@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsArray, IsBigInt } from 'class-validator';
+import { IsNotEmpty, IsString, IsArray, IsNumber } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
@@ -13,6 +13,6 @@ export class CreateCourseDto {
   description!: string;
 
   @IsArray()
-  @IsBigInt({ each: true })
+  @IsNumber()
   teacherIds!: bigint[];
 }
