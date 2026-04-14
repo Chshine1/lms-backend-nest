@@ -23,4 +23,25 @@ export interface AssessmentPatterns extends Record<
     };
     response: ReviewDto;
   };
+  'assignment.find-by-id': {
+    request: {
+      assignmentId: bigint;
+    };
+    response: {
+      id: bigint;
+      unitId: bigint;
+      title: string;
+      type: string;
+      content: Record<string, unknown>;
+      dueTime: Date;
+      allowedResubmissions: number;
+      totalGrade: number;
+    } | null;
+  };
+  'submission.find-by-id': {
+    request: {
+      submissionId: bigint;
+    };
+    response: SubmissionDto | null;
+  };
 }

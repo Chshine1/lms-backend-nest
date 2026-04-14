@@ -9,6 +9,7 @@ import {
   InfrastructureModule,
 } from '@app/infrastructure';
 import {
+  AssessmentTypedClient,
   CourseTypedClient,
   TypedClientModule,
   UserTypedClient,
@@ -17,6 +18,7 @@ import {
   UserController,
   CourseController,
   CommonController,
+  AssessmentController,
 } from './controllers/index';
 import { CoreModule } from '@app/core';
 
@@ -32,6 +34,10 @@ import { CoreModule } from '@app/core';
         },
         {
           name: 'course-service',
+          type: 'topic',
+        },
+        {
+          name: 'assessment-service',
           type: 'topic',
         },
       ],
@@ -63,9 +69,20 @@ import { CoreModule } from '@app/core';
         },
         client: CourseTypedClient,
       },
+      {
+        mqOptions: {
+          exchange: 'assessment-service',
+        },
+        client: AssessmentTypedClient,
+      },
     ]),
   ],
-  controllers: [CommonController, UserController, CourseController],
+  controllers: [
+    CommonController,
+    UserController,
+    CourseController,
+    AssessmentController,
+  ],
   providers: [AppService, JwtStrategy],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

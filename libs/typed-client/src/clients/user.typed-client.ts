@@ -45,4 +45,10 @@ export class UserTypedClient extends TypedClientBase<UserPatterns> {
   ): Promise<UserPatterns['user.complete-onboarding']['response']> {
     return this.rpc('user.complete-onboarding', data);
   }
+
+  userLogin(
+    data: UserPatterns['user.login']['request'],
+  ): Promise<UserPatterns['user.login']['response']> {
+    return this.rpc('user.login', data);
+  }
 }

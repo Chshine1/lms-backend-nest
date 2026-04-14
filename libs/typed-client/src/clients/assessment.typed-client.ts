@@ -27,4 +27,16 @@ export class AssessmentTypedClient extends TypedClientBase<AssessmentPatterns> {
   ): Promise<AssessmentPatterns['submission.grade']['response']> {
     return this.rpc('submission.grade', data);
   }
+
+  findAssignmentById(
+    data: AssessmentPatterns['assignment.find-by-id']['request'],
+  ): Promise<AssessmentPatterns['assignment.find-by-id']['response']> {
+    return this.rpc('assignment.find-by-id', data);
+  }
+
+  findSubmissionById(
+    data: AssessmentPatterns['submission.find-by-id']['request'],
+  ): Promise<AssessmentPatterns['submission.find-by-id']['response']> {
+    return this.rpc('submission.find-by-id', data);
+  }
 }

@@ -1,29 +1,32 @@
-﻿import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+﻿import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CourseTypedClient } from '@app/typed-client';
-import {
-  AssignmentContract,
-  CourseContract,
-  CourseMaterialContract,
-  CourseUnitContract,
-  CreateCourseDto,
-} from '@app/contracts';
+import { CreateCourseDto, CourseDto } from '@app/contracts';
 
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseClient: CourseTypedClient) {}
 
   @Post()
-  async createCourse(@Body() data: CreateCourseDto): Promise<CourseContract> {
-    return await this.courseClient.createCourse(data);
+  async createCourse(@Body() data: CreateCourseDto): Promise<CourseDto> {
+    return await this.courseClient.createCourse({
+      dto: data,
+      creatorUserId: BigInt(0),
+    });
   }
 
   @Get(':id')
   async getCourse(@Param('id') id: string): Promise<{
-    course: CourseContract;
-    courseUnits: CourseUnitContract[];
+    course: CourseDto;
+    courseUnits: Array<{
+      id: bigint;
+      courseId: bigint;
+      title: string;
+      description?: string;
+      position: number;
+    }>;
   }> {
     return await this.courseClient.findCourseWithUnits({
-      courseId: Number(id),
+      courseId: BigInt(id),
     });
   }
 
@@ -32,22 +35,36 @@ export class CourseController {
     @Param('courseId') courseId: string,
     @Param('courseUnitId') courseUnitId: string,
   ): Promise<{
-    assignments: AssignmentContract[];
-    courseMaterials: CourseMaterialContract[];
+    assignments: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      title: string;
+      description: string;
+      dueDate: Date;
+      attachments: bigint[];
+    }>;
+    courseMaterials: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      fileId: bigint;
+      title: string;
+    }>;
   }> {
     return await this.courseClient.findUnitDetail({
-      courseId: Number(courseId),
-      courseUnitId: Number(courseUnitId),
+      courseId: BigInt(courseId),
+      courseUnitId: BigInt(courseUnitId),
     });
   }
-  @Put(':id')
-  async batchUpdateCourse(
-    @Param('id') id: string,
-    @Body() data: CreateCourseDto,
-  ): Promise<CourseContract> {
-    return await this.courseClient.batchUpdateCourse({
-      courseId: Number(id),
-      data,
+
+  @Post(':courseId/enrollments')
+  async enrollStudent(
+    @Param('courseId') courseId: string,
+    @Body() body: { studentId: bigint; enrollerUserId: bigint },
+  ): Promise<void> {
+    return await this.courseClient.enrollStudent({
+      courseId: BigInt(courseId),
+      studentId: body.studentId,
+      enrollerUserId: body.enrollerUserId,
     });
   }
 }

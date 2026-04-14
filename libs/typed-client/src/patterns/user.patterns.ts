@@ -36,4 +36,13 @@ export interface UserPatterns extends Record<
     };
     response: void;
   };
+  'user.login': {
+    request: {
+      username: string;
+      password: string;
+    };
+    response: {
+      accessToken: string;
+    };
+  };
 }
