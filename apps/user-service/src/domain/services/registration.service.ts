@@ -19,7 +19,7 @@ interface IPasswordHasher {
 }
 
 @Injectable()
-export class RegistrationDomainService {
+export class RegistrationService {
   constructor(
     private readonly tenantRepository: ITenantRepository,
     private readonly userRepository: IUserRepository,

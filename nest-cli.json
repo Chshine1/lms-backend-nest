@@ -8,6 +8,15 @@
     "webpack": false
   },
   "projects": {
+    "assessment-service": {
+      "type": "application",
+      "root": "apps/assessment-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/assessment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/assessment-service/tsconfig.app.json"
+      }
+    },
     "audit": {
       "type": "library",
       "root": "libs/audit",

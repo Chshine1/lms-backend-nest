@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { ExtractController, UserTypedClient } from '@app/typed-client';
-import { UserApplicationService } from './application/services/user-application.service';
-import { OnboardingApplicationService } from './application/services/onboarding-application.service';
-import { RoleApplicationService } from './application/services/role-application.service';
-import { LinkingApplicationService } from './application/services/linking-application.service';
+import { UserApplicationService } from './application/services/user.application-service';
+import { OnboardingApplicationService } from './application/services/onboarding.application-service';
+import { RoleApplicationService } from './application/services/role.application-service';
+import { LinkingApplicationService } from './application/services/linking.application-service';
 import { RegisterUserDto, UserDto } from '@app/contracts';
 
 @Controller()

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/index';
-import { RegistrationDomainService } from '@/user-service/src/domain/services/registration-domain.service';
+import { RegistrationService } from '@/user-service/src/domain/services/registration.service';
 import { AccountCreated } from '../../domain/events/domain.events';
 import { RegisterUserDto, UserDto } from '@app/contracts';
 import { User } from '@/user-service/src/domain/entities/user.entity';
@@ -9,7 +9,7 @@ import { User } from '@/user-service/src/domain/entities/user.entity';
 export class UserApplicationService {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly registrationDomainService: RegistrationDomainService,
+    private readonly registrationDomainService: RegistrationService,
   ) {}
 
   async registerByEmail(dto: RegisterUserDto): Promise<UserDto> {
