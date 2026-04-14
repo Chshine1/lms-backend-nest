@@ -1,0 +1,68 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { DomainEvent } from '../events/domain-event';
+import {
+  EventPublisher,
+  EventSubscriber,
+} from '../interfaces/event-publisher.interface';
+
+type EventHandler<T extends DomainEvent> = (event: T) => Promise<void>;
+
+@Injectable()
+export class EventBusService implements EventPublisher {
+  private readonly logger = new Logger(EventBusService.name);
+  private readonly subscribers = new Map<string, EventHandler<DomainEvent>[]>();
+
+  async publish<T extends DomainEvent>(event: T): Promise<void> {
+    const eventType = this.getEventType(event);
+    const handlers = this.subscribers.get(eventType) ?? [];
+
+    if (handlers.length === 0) {
+      this.logger.warn(`No subscribers for event type: ${eventType}`);
+      return;
+    }
+
+    this.logger.debug(
+      `Publishing event ${eventType} to ${handlers.length} subscribers`,
+    );
+
+    const results = await Promise.allSettled(
+      handlers.map((handler) => handler(event)),
+    );
+
+    const failures = results.filter(
+      (r): r is PromiseRejectedResult => r.status === 'rejected',
+    );
+
+    if (failures.length > 0) {
+      this.logger.error(
+        `${failures.length} subscriber(s) failed for event ${eventType}`,
+        failures.map((f) => f.reason),
+      );
+    }
+  }
+
+  async publishBatch<T extends DomainEvent>(events: T[]): Promise<void> {
+    await Promise.all(events.map((event) => this.publish(event)));
+  }
+
+  subscribe<T extends DomainEvent>(
+    eventConstructor: new (...args: unknown[]) => T,
+    handler: EventHandler<T>,
+  ): void {
+    const eventType = this.getEventTypeFromConstructor(eventConstructor);
+    const existing = this.subscribers.get(eventType) ?? [];
+    existing.push(handler as EventHandler<DomainEvent>);
+    this.subscribers.set(eventType, existing);
+    this.logger.debug(`Subscribed handler to event: ${eventType}`);
+  }
+
+  private getEventType(event: DomainEvent): string {
+    return event.eventType;
+  }
+
+  private getEventTypeFromConstructor(
+    constructor: new (...args: unknown[]) => DomainEvent,
+  ): string {
+    return constructor.prototype.constructor.name;
+  }
+}

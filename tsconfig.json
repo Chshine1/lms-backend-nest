@@ -34,6 +34,12 @@
       "@app/core/*": [
         "libs/core/src/*"
       ],
+      "@app/event-bus": [
+        "libs/event-bus/src"
+      ],
+      "@app/event-bus/*": [
+        "libs/event-bus/src/*"
+      ],
       "@app/infrastructure": [
         "libs/infrastructure/src"
       ],

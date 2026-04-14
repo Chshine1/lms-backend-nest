@@ -62,6 +62,15 @@
         "tsConfigPath": "apps/course-service/tsconfig.app.json"
       }
     },
+    "event-bus": {
+      "type": "library",
+      "root": "libs/event-bus",
+      "entryFile": "index",
+      "sourceRoot": "libs/event-bus/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/event-bus/tsconfig.lib.json"
+      }
+    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",

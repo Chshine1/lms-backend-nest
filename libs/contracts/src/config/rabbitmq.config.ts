@@ -21,4 +21,14 @@ export class RabbitMQConfig {
   @IsDefined()
   @Expose()
   password!: string;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  eventExchange!: string;
+
+  @IsString()
+  @IsDefined()
+  @Expose()
+  eventQueue!: string;
 }

@@ -98,6 +98,7 @@
       "^@app/authentication(|/.*)$": "<rootDir>/libs/authentication/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
+      "^@app/event-bus(|/.*)$": "<rootDir>/libs/event-bus/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/typed-client(|/.*)$": "<rootDir>/libs/typed-client/src/$1"
     }
