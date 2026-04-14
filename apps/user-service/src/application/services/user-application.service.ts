@@ -3,6 +3,7 @@ import type { IUserRepository } from '../../domain/repositories/index';
 import { RegistrationDomainService } from '@/user-service/src/domain/services/registration-domain.service';
 import { AccountCreated } from '../../domain/events/domain.events';
 import { RegisterUserDto, UserDto } from '@app/contracts';
+import { User } from '@/user-service/src/domain/entities/user.entity';
 
 @Injectable()
 export class UserApplicationService {
@@ -45,20 +46,12 @@ export class UserApplicationService {
     return this.mapToDto(user);
   }
 
-  private mapToDto(user: {
-    id: bigint;
-    tenantId: bigint;
-    getEmail: () => { getValue: () => string };
-    getPhoneNumber: () => { getValue: () => string } | undefined;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }): UserDto {
+  private mapToDto(user: User): UserDto {
     const dto = new UserDto();
     dto.id = user.id;
     dto.tenantId = user.tenantId;
-    dto.email = user.getEmail().getValue();
-    dto.phoneNumber = user.getPhoneNumber()?.getValue();
+    dto.email = user.email.value;
+    dto.phoneNumber = user.phoneNumber?.value;
     dto.status = user.status as UserDto['status'];
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;

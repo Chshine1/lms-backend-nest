@@ -1,299 +1,154 @@
-﻿# Documentation Standards
+﻿# Part 1: Domain Model Template (English)
 
-This document defines the structure, format, and naming conventions for all documentation files in this project. It is
-intended for both human contributors and AI assistants.
+This template should be used as the structural blueprint. Replace all content within `[Square Brackets]` with service‑specific information.
 
-## 1. Document Types
+## Domain Model
 
-We maintain five main types of documentation:
+### 1. Aggregates and Entities
 
-| Type             | Location             | Purpose                                             |
-|------------------|----------------------|-----------------------------------------------------|
-| ADR              | `docs/adr/`          | Architecture Decision Records                       |
-| Root AGENTS.md   | `/AGENTS.md`         | Global AI behavior and project overview             |
-| Module README.md | `<module>/README.md` | Internal development guidelines per module          |
-| Module API.md    | `<module>/API.md`    | Public API contract for external usage              |
-| Module DOMAIN.md | `<module>/DOMAIN.md` | Domain model for business microservice applications |
+#### 1.1 [AggregateName] Aggregate
 
-## 2. General Rules (All Documents)
+**Core Responsibility**: [Concise statement of what this aggregate manages and, importantly, what it does **not** manage. Define its consistency boundary.]
 
-- **Language**: English (for consistency with code and tooling).
-- **Format**: Markdown (`.md`).
-- **Line width**: Wrap at 80–100 characters for readability.
-- **Headings**: Use ATX style (`#`, `##`, `###`). Do not skip levels.
-- **Code blocks**: Use triple backticks with language specification.
-- **File names**: `kebab-case.md` (except `AGENTS.md` which is capitalized).
+| Member Type        | Member Name         | [Database] Type | Description / Domain Behavior                                                                                                                                                           | Domain Constraints / Rules                                             |
+| :----------------- | :------------------ | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| **Aggregate Root** | **[AggregateName]** | -               | [High-level description and PRD mapping reference.]                                                                                                                                     | -                                                                      |
+| Field              | `[fieldName]`       | `[DB_TYPE]`     | [Description of the field and its domain meaning. Reference PRD mapping if applicable.]                                                                                                 | [`PRIMARY KEY` / `NOT NULL` / `UNIQUE` / `FOREIGN KEY` / Immutability] |
+| Field              | `[valueObjectField]`| `[DB_TYPE]`     | **Modeled as `[ValueObjectName]` value object in the domain layer.** [Description.]                                                                                                     | [Constraints]                                                          |
+| **Entity Method**  | `[methodName]`      | -               | [Description of the domain behavior. Explain side effects like state changes or validation. Reference PRD mapping.]                                                                     | [Throws `[SpecificDomainException]` / Publishes `[DomainEvent]`]       |
 
-## 3. ADR Format (`docs/adr/NNNN-title.md`)
+---
 
-Each ADR must contain the following sections:
+#### 1.2 [RelationshipEntityName] (Relationship Entity)
 
-```markdown
-# ADR NNNN: <Short title>
+**Core Responsibility**: Persists the relationship between [Entity A] and [Entity B]. **Business rule validation is performed by `[DomainServiceName]`, not inside this entity.**
 
-## Status
+| Member Type | Member Name           | [Database] Type | Description                                                                         | Domain Constraints / Rules                                                         |
+| :---------- | :-------------------- | :-------------- | :---------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| Entity      | **[RelationshipName]**| -               | [Description of the relationship.]                                                   | [High-level rule, e.g., Foreign keys ensure referential integrity.]                |
+| Field       | `[sourceId]`          | `[DB_TYPE]`     | References `[SourceEntity].id`.                                                      | `FOREIGN KEY ([sourceId]) REFERENCES [SourceEntity](id)`, part of composite `PK`   |
+| Field       | `[targetId]`          | `[DB_TYPE]`     | References `[TargetEntity].id`.                                                      | `FOREIGN KEY ([targetId]) REFERENCES [TargetEntity](id)`, part of composite `PK`   |
+| Field       | `[metadataField]`     | `[DB_TYPE]`     | [e.g., assignedBy, linkedAt].                                                        | [Constraints]                                                                      |
 
-[Proposed | Accepted | Deprecated | Superseded]
+---
 
-## Context
+### 2. Value Objects (Domain Primitives)
 
-What is the problem? Why is this decision needed?
+These are immutable types that encapsulate validation and behavior for core concepts.
 
-## Decision
+| Value Object     | Internal Representation | Invariants / Validation                                                                                             | Behavior         |
+| :--------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------ | :--------------- |
+| `[ValueObjectName]` | `[PrimitiveType]`    | [List specific validation rules (format, length, regex). Normalization rules.] (PRD Mapping: [Reference])           | `[methodName]()` |
 
-What we decided and why.
+---
 
-## Consequences
+### 3. Application Layer (Orchestration)
 
-What becomes easier or harder after this decision.
+**Application Services** coordinate use cases. They own the transaction boundary, convert DTOs to domain objects, and delegate business logic to aggregates and domain services.
 
-## Compliance
+| Application Service              | Method                     | Input                                                 | Output    | Dependencies / Notes                                                                                                                                                               |
+| :------------------------------- | :------------------------- | :---------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[ServiceName]ApplicationService** | `[methodName]`          | `[param1]`, `[param2]`                                | `[ReturnDto]` | Uses `[Repository]`, `[DomainService]`. Calls `[Aggregate].[method]()`. Publishes `[DomainEvent]`. (PRD Mapping: [Reference]) |
 
-How to enforce this decision (e.g., linting rules, code review, AI instructions).
+---
+
+### 4. Domain Services (Encapsulated Business Rules)
+
+These services contain logic that naturally spans multiple aggregates or requires external policy checks.
+
+| Domain Service                  | Method            | Responsibility                                                                                                                                                                                                                                 | Dependencies                                                       |
+| :------------------------------ | :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| **[ServiceName]DomainService**  | `[methodName]`    | [Detailed explanation of the business rule enforced. Describe the checks performed and the outcome.]                                                                                                                                           | `[Repository]`, `[ExternalServiceInterface]`.                       |
+
+**`[ServiceName].[methodName]()` Implementation Strategy**:
+```[language]
+// Optional: Pseudo-code or flowchart describing complex logic (e.g., Authorization, State Machine transitions).
 ```
 
-- File naming: `0001-title.md`, with leading zeros to keep order.
+---
 
-### 3.1 What Belongs in an ADR
+### 5. Domain Events
 
-ADRs capture **architectural decisions** — the high-level design choices that shape the system's structure. They should
-contain:
+| Event Name                     | Payload Data                                | Triggering Point                                                                                                  |
+| :----------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------------------------- |
+| **[EventName]**                | `[propertyName]`, `[propertyName]`          | [Exact location: e.g., `[Aggregate].[method]()` or `[ApplicationService].[method]` after persistence.] (PRD Mapping: [Reference]) |
 
-- **Design patterns and architectural ideas** (e.g., "sinks are composable through decorator pattern")
-- **Abstraction contracts** (e.g., "sinks must implement an interface accepting log entries")
-- **Composition rules** (e.g., "wrapper sinks delegate to child sinks")
-- **Trade-offs and consequences** at the architectural level
-- **Compliance requirements** for future implementations
+---
 
-### 3.2 What Does NOT Belong in an ADR
+### 6. Key Business Rules & Invariants
 
-ADRs are not implementation specifications. They should NOT contain:
+| Rule ID   | Description                                                     | Enforcement Location                                                                                      |
+| :-------- | :-------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **BR-01** | [Concise statement of the business rule.]                       | [Where is this rule checked? Aggregate method, Domain Service, or Database Constraint?]                   |
 
-- **Specific class/function names** (e.g., "EnvLoader", "MulticastSink")
-- **Concrete library names** (e.g., "uses mitt", "uses class-validator")
-- **Configuration values or defaults** (e.g., "loads from /basePath/environment")
-- **Code examples with actual code** (pseudocode or diagrams are acceptable)
-- **Step-by-step implementation details**
+---
 
-**Rule of thumb**: If a non-developer (e.g., a technical architect) can understand and agree on the decision, it's ADR
-material. If it requires reading code to understand, it's README/API material.
+### 7. Repository Interfaces (Conceptual)
 
-### 3.3 ADR vs README
+Defined in the domain layer; implemented in infrastructure.
 
-| Aspect   | ADR                             | README                    |
-|----------|---------------------------------|---------------------------|
-| Purpose  | Record design decisions         | Guide implementation      |
-| Audience | Architects, reviewers           | Developers                |
-| Content  | Why and what                    | How and where             |
-| Examples | Design patterns, abstract flows | Class names, file paths   |
-| Updates  | Never (historical record)       | As implementation evolves |
+```typescript
+interface [AggregateName]Repository {
+  save([aggregate]: [AggregateName]): Promise<void>;
+  findById(id: [IdType]): Promise<[AggregateName] | null>;
+  // Additional query methods specific to domain invariants
+}
 
-### 3.4 Module-Level ADRs
-
-Modules may also have their own architecture decisions specific to their internal design. These decisions are captured
-in ADRs located under the module’s own documentation directory.
-
-- **Location**: `<module_root>/docs/adr/NNNN-title.md`
-- **Format**: Same structure as global ADRs (see above).
-- **Purpose**: Document decisions that affect only the module’s internal architecture, component interactions, or
-  local trade-offs that do not warrant a global ADR.
-- **Relation to module README**: The module `README.md` should reference relevant module ADRs (e.g., under the
-  **Architecture** section) to provide rationale for the module’s design, but avoid duplicating content. The ADR
-  contains the full decision context, while the README summarizes the resulting architecture.
-
-When a module’s internal decisions later become relevant at the project level, they may be promoted to global ADRs.
-
-## 4. Root `AGENTS.md`
-
-This file is the primary entry point for AI assistants. It must contain:
-
-- **Project overview** (tech stack, monorepo structure).
-- **AI behavior constraints** (no command execution, no git, etc.).
-- **How to load knowledge** (point to ADRs, module-level docs).
-- **Common tasks** (optional, but keep concise).
-
-See the existing root `AGENTS.md` for reference; updates must preserve the core sections.
-
-## 5. Module-Level `README.md` (for apps and libs)
-
-Each module that contains code may have a `README.md` file in its root (e.g., `apps/course-service/README.md`). This
-file is for **internal development only**.
-
-Required sections:
-
-```markdown
-# <Module Name>
-
-## Purpose
-
-One-sentence summary of what this module does.
-
-## Architecture
-
-High-level description of the module's internal structure, key components, and how they interact. Reference any ADRs
-that influenced the design (both global and module-level ADRs).
-
-## File Structure
-
-Describe the folder layout and purpose of each subdirectory.
-
-## Internal Dependencies
-
-- Which shared libraries are allowed (e.g., `@app/infrastructure`).
-- Which external libraries are used.
-
-## Coding Conventions (if deviating from global rules)
-
-List any module-specific naming, patterns, or TypeScript rules that override or extend the global standards defined in
-root `AGENTS.md`.
-
-## Testing
-
-Coverage expectations, testing patterns, mock strategies (if different from project defaults).
-
-## Local Development
-
-Any special steps to run, build, or debug this module in isolation.
+interface [AnotherAggregate]Repository {
+  // ...
+}
 ```
 
-## 6. Module-Level `API.md` (for apps and libs)
+---
 
-This file documents the **public interface** of the module. It should be read by any developer (or AI) that wants to use
-this module from another part of the system.
+### 8. Microservice Integration Note
 
-> **Important**: API.md documents what is **exported by the module** (via `exports` array in `@Module()`), NOT what is
-> exported in the TypeScript sense. For NestJS modules, only the services/classes that consumers need to use should be
-> documented. Internal implementations used only within the module are implementation details and must NOT be exposed.
+- **[External Dependency/Aggregate]** reside in a separate `[ServiceName]`.
+- This service publishes `[EventName]` events to a message broker.
+- `[OtherService]` subscribes to these events and updates its local read model to enforce access without runtime RPC calls.
 
-### What to Include
 
-- Only the services/classes that are actually exported from the module's `exports` array
-- Types/interfaces that are necessary for using those exported services (e.g., method parameters, return types)
-- Types that consumers need to reference directly (e.g., enums for configuration)
+---
 
-### What to Exclude
+# Part 2: DDD Specification & Style Guide for AI Generation
 
-- Internal helper classes, dependencies classes (e.g., `*Dependencies` classes)
-- Sinks, buffers, loaders, or other internal components not meant for external use
-- Internal error classes used only within the module
-- Internal types or interfaces not needed by consumers
+When instructing the AI to fill out the template above, provide these **strict guidelines** to ensure consistency with the original document's quality.
 
-Required sections:
+### 1. Structural & Formatting Rules
+- **Table Format**: **Must** use Markdown tables exactly as shown in the template. Do not use bullet points for field definitions.
+- **Database Column**: The third column header must be the specific database technology used by the microservice (e.g., `PostgreSQL Type`, `MongoDB Collection`, `DynamoDB Attribute`).
+- **PRD Mapping**: Every major element (Fields, Methods, Services) **must** include a `(PRD Mapping: [Section/Requirement])` note in its description to ensure traceability.
+- **Naming Convention**: Member names must be `camelCase`. Aggregate/Entity names must be `PascalCase`.
 
-```markdown
-# <Module Name> – Public API
+### 2. Aggregate & Entity Definition Guidelines
+- **Core Responsibility**: The first paragraph under an Aggregate heading **must** define both what it *does* and what it *explicitly does not do* (boundary definition).
+- **Member Type Column**: Use only the following exact values: `Aggregate Root`, `Field`, `Entity Method`, `Entity`.
+- **Entity Methods**: Only include methods that change the internal state of the Aggregate or enforce a business invariant. **Do not include simple getters/setters.**
+- **Relationship Entities**: For join tables (Many-to-Many), explicitly state: *"No business rule validation is performed inside this entity."* This clarifies the thin, persistence-focused nature of these objects.
 
-## Purpose
+### 3. Value Object Specification
+- **Immutability**: Describe all Value Objects as immutable.
+- **Behavior Column**: Only list public methods that the Value Object exposes (e.g., `matches(input)`, `equals(other)`). Leave blank if none.
 
-One-sentence summary of what this module provides to consumers.
+### 4. Application Service Specification
+- **Orchestration Only**: Application Services must **not** contain business logic. They should only: Load aggregates -> Call aggregate/domain service methods -> Save aggregates -> Publish events.
+- **Input/Output**: Define DTOs implicitly via the Input/Output column. Do not define full DTO classes in this document.
 
-## Exported Services
+### 5. Authorization & Permission Tags (If Applicable)
+- **Pattern**: If the system uses permissions, adhere to the pattern: `<resource>:<action>:<scope>`.
+- **Scopes**:
+    - `:own` - User acts on their own data.
+    - `:linked_parent` - User acts on a linked child resource.
+    - `:[tenant]` - User acts within tenant boundary.
 
-List only the services/classes that are exported by the module and available for injection/use.
+### 6. Exception & Event Naming
+- **Exceptions**: Use explicit names in the constraints column, e.g., `Throws [SpecificCondition]Exception`.
+- **Event Naming**: Use **Past Tense** for events that have happened (e.g., `AccountCreated`, `ParentLinkedToStudent`).
 
-## Exported Types
+### 7. Repository Interface Definition
+- **Technology Agnostic**: Define these as conceptual interfaces (TypeScript/Python-like signatures) without implementation details.
+- **Return Types**: Always return `Promise<[Type] | null>` to reflect async nature and potential for missing entities.
 
-List only the types/enums that consumers need to use the exported services.
-
-## Usage Example
-
-Show a minimal example of how to import and use the module's exported services.
-
-## Configuration
-
-If the module requires any configuration (e.g., environment variables, module imports), describe them.
-
-## Error Handling
-
-What errors can be thrown? Use error codes from `@app/contracts/errors`.
-
-## Notes
-
-Any special considerations (e.g., performance, thread safety, versioning).
-```
-
-## 7. Module-Level `DOMAIN.md` (for business microservice applications)
-
-Each business microservice application (located in `apps/`) must contain a `DOMAIN.md` file that documents the domain
-model. This file provides a clear overview of the domain concepts, business rules, and domain logic. It serves as the
-authoritative reference for understanding the business domain modeled by the service.
-
-> **Note**: The gateway service and infrastructure libraries are exempt from this requirement, as they do not model
-> business domains in the traditional DDD sense.
-
-Required sections:
-
-```markdown
-# Domain Model – <Service Name>
-
-## Overview
-
-Brief description of the domain and its purpose within the system.
-
-## Aggregates
-
-An aggregate is a cluster of related entities and value objects that form a consistency boundary. Define the key
-aggregates in this domain, their purpose, and the business invariants they enforce. Each aggregate should have a clear
-responsibility and transactional boundary.
-
-## Entities
-
-List the entities in this domain, describing their identity, lifecycle, and state transitions. Explain what makes each
-entity unique and how they relate to aggregates. Describe the key state changes and business rules that govern entity
-behavior.
-
-## Value Objects
-
-Describe the value objects used in this domain. Value objects are immutable and defined by their attributes rather than
-identity. Explain what concepts they model and why they are modeled as value objects rather than entities.
-
-## Domain Events
-
-Document the domain events that capture significant business occurrences. For each event, describe the triggering
-conditions, the data it carries, and how consumers (within or across services) use it. Domain events represent the
-historical record of what happened in the business.
-
-## Business Invariants
-
-Define the business invariants—rules that must always hold true in this domain. Explain which invariants are enforced by
-entities, which by aggregates, and which by domain services. Invariants represent the core business constraints that
-maintain consistency and validity.
-
-## Domain Services
-
-Describe the domain services that encapsulate operations that do not naturally belong to a single entity or value
-object. Explain what complex business operations they orchestrate and how they coordinate multiple aggregates or
-entities. Domain services should contain pure domain logic without infrastructure concerns.
-```
-
-## 8. When to Create/Update Documentation
-
-- **New ADR**: When a significant architectural decision is made (global or module-level).
-- **New domain model**: When creating a new business microservice, create its `DOMAIN.md`.
-- **Changes to public API**: Update the module's `API.md`.
-- **Changes to domain model**: Update the module's `DOMAIN.md` when business concepts, aggregates, or invariants change.
-- **Changes to internal practices**: Update the module's `README.md`.
-- **Changes to global AI rules**: Update root `AGENTS.md`.
-
-## 9. AI Workflow for Documentation Tasks
-
-When asked to **create or update any documentation**, the AI must:
-
-1. **Read this `DOCUMENTATION_STANDARDS.md`** to understand the expected format.
-2. **Locate the target document** based on the type (ADR, root AGENTS, module README, module API).
-3. **Gather context**:
-    - For module docs: read the module's source code, its `package.json`, and any existing `README.md`/`API.md`.
-    - For ADRs: review related code and previous ADRs (global and module-level) to maintain consistency.
-4. **Generate or modify** the document following the section requirements above.
-5. **Preserve existing sections** unless explicitly asked to replace.
-6. **Output the final document content** with a brief summary of changes.
-
-## 10. Validation Checklist (for Humans and AI)
-
-After writing/updating a document, verify:
-
-- [ ] File name and location match the rules.
-- [ ] All required sections are present.
-- [ ] Code examples are correct and use proper imports.
-- [ ] No internal implementation details leaked in `API.md`.
-- [ ] The document is self-contained (references to other docs are optional but encouraged).
+### 8. Tone and Language
+- **Use Active Voice**: "Validates the code" instead of "The code is validated".
+- **Precision**: Use specific verbs: `persists`, `encapsulates`, `delegates`, `transitions`.
