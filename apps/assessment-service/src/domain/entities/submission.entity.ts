@@ -25,11 +25,13 @@ const SubmissionSchema = defineEntity({
 export class Submission extends SubmissionSchema.class {
   declare content: string;
   declare submissionCount: number;
+  declare files: string;
 
   constructor() {
     super();
     this.content = '';
     this.submissionCount = 1;
+    this.files = '[]';
   }
 
   updateContent(
@@ -53,3 +55,5 @@ export class Submission extends SubmissionSchema.class {
     this.submittedAt = now;
   }
 }
+
+SubmissionSchema.setClass(Submission);

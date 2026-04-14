@@ -58,3 +58,5 @@ export class User extends UserSchema.class {
     }
   }
 }
+
+UserSchema.setClass(User);

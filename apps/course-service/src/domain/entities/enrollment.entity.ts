@@ -35,3 +35,5 @@ export class Enrollment extends EnrollmentSchema.class {
     this.status = EnrollmentStatus.ACTIVE;
   }
 }
+
+EnrollmentSchema.setClass(Enrollment);

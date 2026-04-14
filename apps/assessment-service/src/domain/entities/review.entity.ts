@@ -17,7 +17,12 @@ const ReviewSchema = defineEntity({
 });
 
 export class Review extends ReviewSchema.class {
-  declare reviewedAt: Date;
+  declare comment: string;
+
+  constructor() {
+    super();
+    this.comment = '';
+  }
 
   updateGrade(newGrade: number, totalGrade: number): void {
     if (newGrade < 0 || newGrade > totalGrade) {
@@ -27,3 +32,5 @@ export class Review extends ReviewSchema.class {
     this.reviewedAt = new Date();
   }
 }
+
+ReviewSchema.setClass(Review);

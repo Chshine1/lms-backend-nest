@@ -32,3 +32,5 @@ export class StudentProfile extends StudentProfileSchema.class {
     return new StudentOnboardingCompleted(this.userId, new Date());
   }
 }
+
+StudentProfileSchema.setClass(StudentProfile);

@@ -35,3 +35,5 @@ export class Assignment extends AssignmentSchema.class {
     }
   }
 }
+
+AssignmentSchema.setClass(Assignment);

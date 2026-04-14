@@ -49,3 +49,5 @@ export class Course extends CourseSchema.class {
     }
   }
 }
+
+CourseSchema.setClass(Course);
