@@ -5,6 +5,7 @@ import { CoreModule } from '@app/core';
 import { EnrollmentDomainService } from './domain/services/enrollment.service';
 import { CourseApplicationService } from './application/services/course.application-service';
 import { EnrollmentApplicationService } from './application/services/enrollment.application-service';
+import { EventBusModule } from '@app/event-bus';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EnrollmentApplicationService } from './application/services/enrollment.
         client: UserTypedClient,
       },
     ]),
+    EventBusModule.forRoot(),
   ],
   controllers: [CourseController],
   providers: [

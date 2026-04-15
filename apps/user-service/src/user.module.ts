@@ -7,6 +7,7 @@ import {
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { JwtConfig } from '@app/contracts';
 import { CoreModule } from '@app/core';
+import { EventBusModule } from '@app/event-bus';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CoreModule } from '@app/core';
       },
       inject: [ConfigurationService],
     }),
+    EventBusModule.forRoot(),
   ],
   controllers: [UserController],
 })

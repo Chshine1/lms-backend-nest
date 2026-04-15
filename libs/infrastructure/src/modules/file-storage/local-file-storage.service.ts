@@ -25,7 +25,7 @@ export class LocalFileStorageService implements IFileStorageStrategy {
   }
 
   async getUrl(fileKey: string): Promise<string> {
-    return `/storage/uploads/${fileKey}`;
+    return Promise.resolve(`/storage/uploads/${fileKey}`);
   }
 
   async delete(fileKey: string): Promise<void> {
@@ -41,6 +41,6 @@ export class LocalFileStorageService implements IFileStorageStrategy {
     const timestamp = Date.now();
     const random = crypto.randomBytes(8).toString('hex');
     const ext = path.extname(originalName);
-    return `${timestamp}-${random}${ext}`;
+    return `${String(timestamp)}-${random}${ext}`;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   DomainEvent,
   EventMetadata,
@@ -8,6 +8,7 @@ import { EventPublisher } from '../interfaces/event-publisher.interface';
 
 @Injectable()
 export class InMemoryEventPublisher implements EventPublisher {
+  private readonly logger = new Logger(InMemoryEventPublisher.name);
   private readonly handlers = new Map<
     string,
     ((event: DomainEvent) => Promise<void>)[]
@@ -29,6 +30,7 @@ export class InMemoryEventPublisher implements EventPublisher {
     const existing = this.handlers.get(eventType) ?? [];
     existing.push(handler);
     this.handlers.set(eventType, existing);
+    this.logger.debug(`Registered handler for event type: ${eventType}`);
   }
 
   clear(): void {

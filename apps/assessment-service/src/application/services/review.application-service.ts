@@ -8,6 +8,7 @@ import type {
 import { Review } from '../../domain/entities/review.entity';
 import { SubmissionGradedEvent } from '../../domain/events/domain.events';
 import { GradeDto, ReviewDto } from '@app/contracts';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class ReviewApplicationService {
@@ -16,6 +17,7 @@ export class ReviewApplicationService {
     private readonly reviewRepository: IReviewRepository,
     private readonly submissionRepository: ISubmissionRepository,
     private readonly courseTypedClient: CourseTypedClient,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async gradeSubmission(
@@ -71,7 +73,7 @@ export class ReviewApplicationService {
       review.studentId,
       review.grade,
     );
-    console.log('Event:', event);
+    await this.eventBus.publish(event);
 
     return this.mapToDto(review);
   }

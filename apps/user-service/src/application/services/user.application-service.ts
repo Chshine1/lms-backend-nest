@@ -4,16 +4,17 @@ import { RegistrationService } from '@/user-service/src/domain/services/registra
 import { AccountCreated } from '../../domain/events/domain.events';
 import { RegisterUserDto, UserDto } from '@app/contracts';
 import { User } from '@/user-service/src/domain/entities/user.entity';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class UserApplicationService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly registrationDomainService: RegistrationService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async registerByEmail(dto: RegisterUserDto): Promise<UserDto> {
-    // Use domain service to create user
     const user = await this.registrationDomainService.registerUser(
       dto.email,
       dto.password,
@@ -21,20 +22,16 @@ export class UserApplicationService {
       dto.invitationCode,
     );
 
-    // Save user
     await this.userRepository.save(user);
 
-    // Publish event (in a real implementation, use an event bus)
     const event = new AccountCreated(
       user.id,
       user.email.value,
       user.tenantId,
       user.createdAt,
     );
-    // TODO: Publish event to event bus
-    console.log('Event:', event);
+    await this.eventBus.publish(event);
 
-    // Map to DTO
     return this.mapToDto(user);
   }
 

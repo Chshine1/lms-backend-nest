@@ -2,15 +2,16 @@ import { Injectable } from '@nestjs/common';
 import type { IStudentProfileRepository } from '../../domain/repositories/index';
 import { UserNotFoundError } from '../../domain/errors/index';
 import { CompleteOnboardingDto } from '@app/contracts';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class OnboardingApplicationService {
   constructor(
     private readonly studentProfileRepository: IStudentProfileRepository,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async confirmStudentOnboarding(dto: CompleteOnboardingDto): Promise<void> {
-    // Find student profile
     const profile = await this.studentProfileRepository.findByUserId(
       dto.studentUserId,
     );
@@ -18,16 +19,10 @@ export class OnboardingApplicationService {
       throw new UserNotFoundError(dto.studentUserId);
     }
 
-    // TODO: Verify signature if needed using SignatureVerificationService
-    // For now, we'll skip signature verification
-
-    // Complete onboarding
     const event = profile.completeOnboarding();
 
-    // Save profile
     await this.studentProfileRepository.save(profile);
 
-    // TODO: Publish event to event bus
-    console.log('Event:', event);
+    await this.eventBus.publish(event);
   }
 }

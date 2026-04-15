@@ -10,6 +10,7 @@ import { Submission } from './domain/entities/submission.entity';
 import { Review } from './domain/entities/review.entity';
 import { AssignmentFile } from './domain/entities/assignment-file.entity';
 import { SubmissionFile } from './domain/entities/submission-file.entity';
+import { EventBusModule } from '@app/event-bus';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SubmissionFile } from './domain/entities/submission-file.entity';
         client: CourseTypedClient,
       },
     ]),
+    EventBusModule.forRoot(),
   ],
   controllers: [AssessmentController],
   providers: [

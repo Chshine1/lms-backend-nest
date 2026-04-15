@@ -12,7 +12,7 @@ import { StorageConfig } from '@app/contracts';
   providers: [
     {
       provide: StorageConfig,
-      useFactory: (configService: ConfigurationService) => {
+      useFactory: (configService: ConfigurationService): StorageConfig => {
         return configService.get(StorageConfig);
       },
       inject: [ConfigurationService],
@@ -23,4 +23,5 @@ import { StorageConfig } from '@app/contracts';
   ],
   exports: [FileStorageService],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class FileStorageModule {}

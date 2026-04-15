@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from './modules/logger/logger.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
-import { FileStorageModule } from './modules/file-storage/file-storage.module';
+import { FileStorageModule } from './modules/file-storage/index';
 
 @Module({
   imports: [ConfigurationModule, LoggerModule, FileStorageModule],

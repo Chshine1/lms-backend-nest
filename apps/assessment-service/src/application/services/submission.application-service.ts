@@ -6,12 +6,14 @@ import type {
 import { Submission } from '../../domain/entities/submission.entity';
 import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
 import { SubmissionDataDto, SubmissionDto } from '@app/contracts';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class SubmissionApplicationService {
   constructor(
     private readonly submissionRepository: ISubmissionRepository,
     private readonly assignmentRepository: IAssignmentRepository,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async submit(
@@ -52,7 +54,7 @@ export class SubmissionApplicationService {
         submission.studentId,
         submission.assignmentId,
       );
-      console.log('Event:', event);
+      await this.eventBus.publish(event);
     }
 
     return this.mapToDto(submission);

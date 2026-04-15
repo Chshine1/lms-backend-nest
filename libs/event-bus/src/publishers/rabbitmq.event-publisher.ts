@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { Channel, ChannelModel, connect } from 'amqplib';
 import { DomainEvent } from '../events/domain-event';
 import { RemoteEventPublisher } from '../interfaces/event-bus-bridge.interface';
@@ -15,6 +20,7 @@ export interface RabbitMQPublisherConfig {
 export class RabbitMQEventPublisher
   implements RemoteEventPublisher, OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(RabbitMQEventPublisher.name);
   private connection: ChannelModel | null = null;
   private channel: Channel | null = null;
   private readonly config: RabbitMQPublisherConfig;
@@ -45,11 +51,11 @@ export class RabbitMQEventPublisher
       });
 
       this.isConnected = true;
-      console.log(
+      this.logger.log(
         `Connected to RabbitMQ at ${this.config.host}:${String(this.config.port)}`,
       );
     } catch (error) {
-      console.error('Failed to connect to RabbitMQ', error);
+      this.logger.error('Failed to connect to RabbitMQ', error);
       throw error;
     }
   }
@@ -59,9 +65,9 @@ export class RabbitMQEventPublisher
       await this.channel?.close();
       await this.connection?.close();
       this.isConnected = false;
-      console.log('Disconnected from RabbitMQ');
+      this.logger.log('Disconnected from RabbitMQ');
     } catch (error) {
-      console.error('Error disconnecting from RabbitMQ', error);
+      this.logger.error('Error disconnecting from RabbitMQ', error);
     }
   }
 
@@ -71,7 +77,7 @@ export class RabbitMQEventPublisher
     event: DomainEvent,
   ): Promise<void> {
     if (!this.isConnected || !this.channel) {
-      console.warn('RabbitMQ not connected, cannot publish event');
+      this.logger.warn('RabbitMQ not connected, cannot publish event');
       return Promise.resolve();
     }
 
@@ -86,7 +92,7 @@ export class RabbitMQEventPublisher
       },
     });
 
-    console.debug(
+    this.logger.debug(
       `Published event ${event.eventType} to ${exchangeName}/${routingKey}`,
     );
 

@@ -3,10 +3,14 @@ import type { ICourseRepository } from '../../domain/repositories/index';
 import { Course } from '../../domain/entities/course.entity';
 import { CourseCreatedEvent } from '../../domain/events/domain.events';
 import { CreateCourseDto, CourseDto } from '@app/contracts';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class CourseApplicationService {
-  constructor(private readonly courseRepository: ICourseRepository) {}
+  constructor(
+    private readonly courseRepository: ICourseRepository,
+    private readonly eventBus: EventBusService,
+  ) {}
 
   async createCourse(
     dto: CreateCourseDto,
@@ -31,7 +35,7 @@ export class CourseApplicationService {
       course.code,
       course.teachers,
     );
-    console.log('Event:', event);
+    await this.eventBus.publish(event);
 
     return this.mapToDto(course);
   }

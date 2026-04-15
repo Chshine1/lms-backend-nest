@@ -5,19 +5,20 @@ import { UserRoleLink } from '@/user-service/src/domain/entities/user-role-link.
 import { RoleAssignedToUser } from '@/user-service/src/domain/events/domain.events';
 import { UnauthorizedActionError } from '@/user-service/src/domain/errors';
 import { AssignRoleDto } from '@app/contracts';
+import { EventBusService } from '@app/event-bus';
 
 @Injectable()
 export class RoleApplicationService {
   constructor(
     private readonly userRoleAssignmentRepository: IUserRoleAssignmentRepository,
     private readonly authorizationService: AuthorizationService,
+    private readonly eventBus: EventBusService,
   ) {}
 
   async assignRoleToUser(
     adminUserId: bigint,
     dto: AssignRoleDto,
   ): Promise<void> {
-    // Verify admin has permission to assign roles
     const canAssign = await this.authorizationService.can(
       adminUserId,
       'role:assign',
@@ -26,23 +27,19 @@ export class RoleApplicationService {
       throw new UnauthorizedActionError('role:assign');
     }
 
-    // Create assignment
     const assignment = new UserRoleLink(
       dto.targetUserId,
       dto.roleId,
       adminUserId,
     );
 
-    // Save assignment
     await this.userRoleAssignmentRepository.save(assignment);
 
-    // Publish event
     const event = new RoleAssignedToUser(
       dto.targetUserId,
       dto.roleId,
       adminUserId,
     );
-    // TODO: Publish event to event bus
-    console.log('Event:', event);
+    await this.eventBus.publish(event);
   }
 }
