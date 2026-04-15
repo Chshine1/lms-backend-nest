@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 
 export const CourseSchema = z.object({
   id: z.bigint(),
-  name: z.string(),
+  courseName: z.string(),
   code: z.string(),
   description: z.string(),
   teachers: z.array(z.bigint()),

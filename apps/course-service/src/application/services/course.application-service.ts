@@ -51,7 +51,7 @@ export class CourseApplicationService {
   private mapToDto(course: Course): CourseDto {
     const dto = new CourseDto();
     dto.id = course.id;
-    dto.name = course.name;
+    dto.courseName = course.name;
     dto.code = course.code;
     dto.description = course.description;
     dto.teachers = course.teachers;
