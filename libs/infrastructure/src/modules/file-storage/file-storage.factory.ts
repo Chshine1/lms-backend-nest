@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-
 import { StorageProviderType, StorageConfig } from '@app/contracts';
 import { IFileStorageStrategy, FileMetadata } from './file-storage.interface';
 import { LocalFileStorageService } from './local-file-storage.service';
-import { OssFileStorageService } from './oss-file-storage.service';
 
 @Injectable()
 export class FileStorageService implements IFileStorageStrategy {
@@ -12,7 +10,6 @@ export class FileStorageService implements IFileStorageStrategy {
   constructor(
     private readonly config: StorageConfig,
     private readonly localStorage: LocalFileStorageService,
-    private readonly ossStorage: OssFileStorageService,
   ) {
     this.strategy = this.resolveStrategy();
   }
@@ -21,7 +18,7 @@ export class FileStorageService implements IFileStorageStrategy {
     switch (this.config.provider) {
       case StorageProviderType.OSS:
       case StorageProviderType.S3:
-        return this.ossStorage;
+        return this.localStorage;
       case StorageProviderType.LOCAL:
       default:
         return this.localStorage;
