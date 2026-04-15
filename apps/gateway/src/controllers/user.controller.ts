@@ -45,7 +45,7 @@ export class UserController {
   async completeOnboarding(@Body() body: CompleteOnboardingDto): Promise<void> {
     await this.userClient.completeOnboarding({
       studentUserId: body.studentUserId,
-      signatureData: body.signatureData,
+      signatureData: body.signatureData ?? {},
     });
   }
 }

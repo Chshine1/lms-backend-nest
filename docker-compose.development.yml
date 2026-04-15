@@ -196,3 +196,28 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  assessment-service:
+    build:
+      context: .
+      dockerfile: apps/assessment-service/Dockerfile
+    container_name: assessment-service
+    ports:
+      - '3003:3003'
+    volumes:
+      - ./config:/app/config:ro
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: development
+      SERVICE_NAME: assessment-service
+      CONFIG_BASE_PATH: /app/config
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3003/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

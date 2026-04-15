@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 
 export const CompleteOnboardingSchema = z.object({
   studentUserId: z.bigint(),
-  signatureData: z.record(z.unknown()).optional(),
+  signatureData: z.record(z.string(), z.unknown()).optional(),
 });
 
 export class CompleteOnboardingDto extends createZodDto(

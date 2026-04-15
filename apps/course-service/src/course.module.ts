@@ -6,12 +6,14 @@ import { EnrollmentDomainService } from './domain/services/enrollment.service';
 import { CourseApplicationService } from './application/services/course.application-service';
 import { EnrollmentApplicationService } from './application/services/enrollment.application-service';
 import { EventBusModule } from '@app/event-bus';
+import { Course } from './domain/entities/course.entity';
+import { Enrollment } from './domain/entities/enrollment.entity';
 
 @Module({
   imports: [
     CoreModule.forRoot({
       endpointsProtocol: 'rabbitmq',
-      entities: [],
+      entities: [Course, Enrollment],
       exchanges: [
         { name: 'course-service', type: 'topic' },
         { name: 'user-service', type: 'topic' },

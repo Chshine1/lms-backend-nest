@@ -41,4 +41,42 @@ export class CourseController implements ExtractController<CourseTypedClient> {
   async findCourseById(data: { courseId: bigint }): Promise<CourseDto | null> {
     return this.courseApplicationService.findById(data.courseId);
   }
+
+  findCourseWithUnits(_data: { courseId: bigint }): Promise<{
+    course: CourseDto;
+    courseUnits: Array<{
+      id: bigint;
+      courseId: bigint;
+      title: string;
+      description?: string;
+      position: number;
+    }>;
+  }> {
+    throw new Error('Method not implemented.');
+  }
+  findUnitDetail(_data: { courseId: bigint; courseUnitId: bigint }): Promise<{
+    assignments: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      title: string;
+      description: string;
+      dueDate: Date;
+      attachments: bigint[];
+    }>;
+    courseMaterials: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      fileId: bigint;
+      title: string;
+    }>;
+  }> {
+    throw new Error('Method not implemented.');
+  }
+  enrollStudent(_data: {
+    courseId: bigint;
+    studentId: bigint;
+    enrollerUserId: bigint;
+  }): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }

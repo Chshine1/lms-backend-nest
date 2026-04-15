@@ -1,1 +1,1 @@
-export { AssignmentContent, ContentBlock } from './assignment-content.vo';
+export type { AssignmentContent, ContentBlock } from './assignment-content.vo';

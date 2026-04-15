@@ -1,10 +1,10 @@
-﻿FROM lms-deps-base:latest AS builder
+FROM lms-deps-base:latest AS builder
 
 COPY nest-cli.json tsconfig.json ./
 COPY apps/assessment-service ./apps/assessment-service/
 COPY libs ./libs/
 
-RUN yarn nest build course-service
+RUN yarn nest build assessment-service
 
 FROM node:24.14.0-alpine AS workspace
 WORKDIR /app

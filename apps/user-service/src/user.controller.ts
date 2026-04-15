@@ -93,4 +93,10 @@ export class UserController implements ExtractController<UserTypedClient> {
   }): Promise<void> {
     return this.onboardingApplicationService.confirmStudentOnboarding(data);
   }
+
+  userLogin(_data: { username: string; password: string }): Promise<{
+    accessToken: string;
+  }> {
+    throw new Error('Method not implemented.');
+  }
 }

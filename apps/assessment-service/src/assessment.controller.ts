@@ -56,4 +56,41 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
       data.data,
     );
   }
+
+  @RabbitRPC({
+    exchange: 'assessment-service',
+    routingKey: 'assignment.find-by-id',
+    queue: 'assessment-service-assignment-find-by-id',
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
+  })
+  findAssignmentById(_data: { assignmentId: bigint }): Promise<{
+    id: bigint;
+    unitId: bigint;
+    title: string;
+    type: string;
+    content: Record<string, unknown>;
+    dueTime: Date;
+    allowedResubmissions: number;
+    totalGrade: number;
+  } | null> {
+    throw new Error('Not implemented');
+  }
+
+  @RabbitRPC({
+    exchange: 'assessment-service',
+    routingKey: 'submission.find-by-id',
+    queue: 'assessment-service-submission-find-by-id',
+    queueOptions: {
+      durable: true,
+      autoDelete: false,
+    },
+  })
+  findSubmissionById(_data: {
+    submissionId: bigint;
+  }): Promise<SubmissionDto | null> {
+    throw new Error('Not implemented');
+  }
 }
