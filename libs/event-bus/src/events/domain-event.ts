@@ -15,7 +15,3 @@ export interface EnvelopedEvent<T extends DomainEvent> {
   readonly event: T;
   readonly metadata: EventMetadata;
 }
-
-export type EventConstructor<T extends DomainEvent> = new (
-  ...args: unknown[]
-) => T;

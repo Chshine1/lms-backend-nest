@@ -1,11 +1,6 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleInit,
-  OnModuleDestroy,
-} from '@nestjs/common';
-import * as amqp from 'amqplib';
-import { DomainEvent, EventMetadata } from '../events/domain-event';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Channel, ChannelModel, connect } from 'amqplib';
+import { DomainEvent } from '../events/domain-event';
 import { RemoteEventPublisher } from '../interfaces/event-bus-bridge.interface';
 
 export interface RabbitMQPublisherConfig {
@@ -20,9 +15,8 @@ export interface RabbitMQPublisherConfig {
 export class RabbitMQEventPublisher
   implements RemoteEventPublisher, OnModuleInit, OnModuleDestroy
 {
-  private readonly logger = new Logger(RabbitMQEventPublisher.name);
-  private connection: amqp.Connection | null = null;
-  private channel: amqp.Channel | null = null;
+  private connection: ChannelModel | null = null;
+  private channel: Channel | null = null;
   private readonly config: RabbitMQPublisherConfig;
   private readonly exchangeName: string;
   private isConnected = false;
@@ -42,8 +36,8 @@ export class RabbitMQEventPublisher
 
   private async connect(): Promise<void> {
     try {
-      const url = `amqp://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
-      this.connection = await amqp.connect(url);
+      const url = `amqp://${this.config.username}:${this.config.password}@${this.config.host}:${String(this.config.port)}`;
+      this.connection = await connect(url);
       this.channel = await this.connection.createChannel();
 
       await this.channel.assertExchange(this.exchangeName, 'topic', {
@@ -51,11 +45,11 @@ export class RabbitMQEventPublisher
       });
 
       this.isConnected = true;
-      this.logger.log(
-        `Connected to RabbitMQ at ${this.config.host}:${this.config.port}`,
+      console.log(
+        `Connected to RabbitMQ at ${this.config.host}:${String(this.config.port)}`,
       );
     } catch (error) {
-      this.logger.error('Failed to connect to RabbitMQ', error);
+      console.error('Failed to connect to RabbitMQ', error);
       throw error;
     }
   }
@@ -65,20 +59,20 @@ export class RabbitMQEventPublisher
       await this.channel?.close();
       await this.connection?.close();
       this.isConnected = false;
-      this.logger.log('Disconnected from RabbitMQ');
+      console.log('Disconnected from RabbitMQ');
     } catch (error) {
-      this.logger.error('Error disconnecting from RabbitMQ', error);
+      console.error('Error disconnecting from RabbitMQ', error);
     }
   }
 
-  async publishToExchange<T extends DomainEvent>(
+  publishToExchange(
     exchangeName: string,
     routingKey: string,
-    event: T,
+    event: DomainEvent,
   ): Promise<void> {
     if (!this.isConnected || !this.channel) {
-      this.logger.warn('RabbitMQ not connected, cannot publish event');
-      return;
+      console.warn('RabbitMQ not connected, cannot publish event');
+      return Promise.resolve();
     }
 
     const payload = Buffer.from(JSON.stringify(event));
@@ -92,19 +86,10 @@ export class RabbitMQEventPublisher
       },
     });
 
-    this.logger.debug(
+    console.debug(
       `Published event ${event.eventType} to ${exchangeName}/${routingKey}`,
     );
-  }
 
-  async publish<T extends DomainEvent>(event: T): Promise<void> {
-    const routingKey = event.eventType.toLowerCase();
-    await this.publishToExchange(this.exchangeName, routingKey, event);
-  }
-}
-
-export class RabbitMQEventPublisherFactory {
-  static create(config: RabbitMQPublisherConfig): RabbitMQEventPublisher {
-    return new RabbitMQEventPublisher(config);
+    return Promise.resolve();
   }
 }

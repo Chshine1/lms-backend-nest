@@ -7,10 +7,10 @@ export interface EventSubscriberMetadata {
   eventConstructor: new (...args: unknown[]) => DomainEvent;
 }
 
-export function OnEvent<T extends DomainEvent>(
-  eventConstructor: new (...args: unknown[]) => T,
+export function OnEvent(
+  eventConstructor: new (...args: unknown[]) => DomainEvent,
 ): MethodDecorator {
   return SetMetadata(EVENT_SUBSCRIBER_METADATA, {
     eventConstructor,
-  } as EventSubscriberMetadata);
+  });
 }

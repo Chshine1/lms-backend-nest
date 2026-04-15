@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { ExtractController, UserTypedClient } from '@app/typed-client';
 import { UserApplicationService } from './application/services/user.application-service';
 import { OnboardingApplicationService } from './application/services/onboarding.application-service';
@@ -20,7 +20,6 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.register',
     queue: 'user-service-user-register',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -34,7 +33,6 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.find-by-id',
     queue: 'user-service-user-find-by-id',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -48,7 +46,6 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.assign-role',
     queue: 'user-service-user-assign-role',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -69,7 +66,6 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.link-parent-student',
     queue: 'user-service-user-link-parent-student',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -86,7 +82,6 @@ export class UserController implements ExtractController<UserTypedClient> {
     exchange: 'user-service',
     routingKey: 'user.complete-onboarding',
     queue: 'user-service-user-complete-onboarding',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,

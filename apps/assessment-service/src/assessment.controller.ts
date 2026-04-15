@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { AssessmentTypedClient, ExtractController } from '@app/typed-client';
 import { GradeDto, ReviewDto, SubmissionDto } from '@app/contracts';
 import { SubmissionApplicationService } from './application/services/submission.application-service';
@@ -16,7 +16,6 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
     exchange: 'assessment-service',
     routingKey: 'submission.submit',
     queue: 'assessment-service-submission-submit',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -41,7 +40,6 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
     exchange: 'assessment-service',
     routingKey: 'submission.grade',
     queue: 'assessment-service-submission-grade',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,

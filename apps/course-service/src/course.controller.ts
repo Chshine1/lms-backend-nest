@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseTypedClient, ExtractController } from '@app/typed-client';
 import { CreateCourseDto, CourseDto } from '@app/contracts';
 import { CourseApplicationService } from './application/services/course.application-service';
@@ -14,7 +14,6 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.create',
     queue: 'course-service-course-create',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,
@@ -34,7 +33,6 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     exchange: 'course-service',
     routingKey: 'course.find-by-id',
     queue: 'course-service-course-find-by-id',
-    errorHandler: defaultNackErrorHandler,
     queueOptions: {
       durable: true,
       autoDelete: false,

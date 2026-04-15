@@ -1,6 +1,4 @@
 export * from './events/domain-event';
-export * from './events/envelope';
-export * from './events/event-factory';
 export * from './interfaces/event-publisher.interface';
 export * from './interfaces/event-bus-bridge.interface';
 export * from './publishers/in-memory.event-publisher';

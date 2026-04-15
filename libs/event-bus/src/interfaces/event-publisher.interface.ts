@@ -1,8 +1,8 @@
 import { DomainEvent } from '../events/domain-event';
 
 export interface EventPublisher {
-  publish<T extends DomainEvent>(event: T): Promise<void>;
-  publishBatch<T extends DomainEvent>(events: T[]): Promise<void>;
+  publish(event: DomainEvent): Promise<void>;
+  publishBatch(events: DomainEvent[]): Promise<void>;
 }
 
 export interface EventSubscriber<T extends DomainEvent> {
@@ -10,7 +10,7 @@ export interface EventSubscriber<T extends DomainEvent> {
 }
 
 export interface EventBus {
-  publish<T extends DomainEvent>(event: T): Promise<void>;
+  publish(event: DomainEvent): Promise<void>;
   subscribe<T extends DomainEvent>(
     eventConstructor: new (...args: unknown[]) => T,
     handler: (event: T) => Promise<void>,

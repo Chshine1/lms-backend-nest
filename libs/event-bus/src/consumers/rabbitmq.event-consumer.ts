@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import * as amqp from 'amqplib';
+import { Channel, ChannelModel, connect } from 'amqplib';
 import { DomainEvent } from '../events/domain-event';
 
 export interface RabbitMQConsumerConfig {
@@ -21,11 +21,10 @@ type EventHandler<T extends DomainEvent> = (event: T) => Promise<void>;
 @Injectable()
 export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQEventConsumer.name);
-  private connection: amqp.Connection | null = null;
-  private channel: amqp.Channel | null = null;
+  private connection: ChannelModel | null = null;
+  private channel: Channel | null = null;
   private readonly config: RabbitMQConsumerConfig;
   private readonly handlers = new Map<string, EventHandler<DomainEvent>[]>();
-  private isConnected = false;
 
   constructor(config: RabbitMQConsumerConfig) {
     this.config = config;
@@ -42,8 +41,8 @@ export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
 
   private async connect(): Promise<void> {
     try {
-      const url = `amqp://${this.config.username}:${this.config.password}@${this.config.host}:${this.config.port}`;
-      this.connection = await amqp.connect(url);
+      const url = `amqp://${this.config.username}:${this.config.password}@${this.config.host}:${String(this.config.port)}`;
+      this.connection = await connect(url);
       this.channel = await this.connection.createChannel();
 
       await this.channel.assertExchange(this.config.exchangeName, 'topic', {
@@ -54,9 +53,8 @@ export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
         durable: true,
       });
 
-      this.isConnected = true;
       this.logger.log(
-        `Connected to RabbitMQ at ${this.config.host}:${this.config.port}`,
+        `Connected to RabbitMQ at ${this.config.host}:${String(this.config.port)}`,
       );
     } catch (error) {
       this.logger.error('Failed to connect to RabbitMQ', error);
@@ -68,7 +66,6 @@ export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
     try {
       await this.channel?.close();
       await this.connection?.close();
-      this.isConnected = false;
       this.logger.log('Disconnected from RabbitMQ');
     } catch (error) {
       this.logger.error('Error disconnecting from RabbitMQ', error);
@@ -79,7 +76,7 @@ export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
     eventConstructor: new (...args: unknown[]) => T,
     handler: EventHandler<T>,
   ): void {
-    const eventType = eventConstructor.prototype.constructor.name;
+    const eventType = eventConstructor.name;
     const existing = this.handlers.get(eventType) ?? [];
     existing.push(handler as EventHandler<DomainEvent>);
     this.handlers.set(eventType, existing);
@@ -103,23 +100,25 @@ export class RabbitMQEventConsumer implements OnModuleInit, OnModuleDestroy {
 
     await this.channel.consume(
       this.config.queueName,
-      async (msg) => {
-        if (!msg) return;
+      (message): void => {
+        if (message === null) return;
 
-        try {
-          const content = JSON.parse(msg.content.toString()) as DomainEvent;
-          const eventType = content.eventType;
-          const handlers = this.handlers.get(eventType) ?? [];
+        void (async (): Promise<void> => {
+          try {
+            const content = JSON.parse(
+              message.content.toString(),
+            ) as DomainEvent;
+            const eventType = content.eventType;
+            const handlers = this.handlers.get(eventType) ?? [];
 
-          for (const handler of handlers) {
-            await handler(content);
+            await Promise.all(handlers.map((handler) => handler(content)));
+
+            this.channel?.ack(message);
+          } catch (error) {
+            this.logger.error('Error processing message', error);
+            this.channel?.nack(message, false, false);
           }
-
-          this.channel?.ack(msg);
-        } catch (error) {
-          this.logger.error('Error processing message', error);
-          this.channel?.nack(msg, false, false);
-        }
+        })();
       },
       { noAck: false },
     );

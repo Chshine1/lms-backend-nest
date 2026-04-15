@@ -1,14 +1,14 @@
 import { DomainEvent } from '../events/domain-event';
 
 export interface RemoteEventPublisher {
-  publishToExchange<T extends DomainEvent>(
+  publishToExchange(
     exchangeName: string,
     routingKey: string,
-    event: T,
+    event: DomainEvent,
   ): Promise<void>;
 }
 
 export interface EventBusBridge {
-  publishLocally<T extends DomainEvent>(event: T): Promise<void>;
-  publishRemotely<T extends DomainEvent>(event: T): Promise<void>;
+  publishLocally(event: DomainEvent): Promise<void>;
+  publishRemotely(event: DomainEvent): Promise<void>;
 }

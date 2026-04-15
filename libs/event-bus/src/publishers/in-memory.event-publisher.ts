@@ -10,15 +10,15 @@ import { EventPublisher } from '../interfaces/event-publisher.interface';
 export class InMemoryEventPublisher implements EventPublisher {
   private readonly handlers = new Map<
     string,
-    (event: DomainEvent) => Promise<void>
+    ((event: DomainEvent) => Promise<void>)[]
   >();
 
-  async publish<T extends DomainEvent>(event: T): Promise<void> {
+  async publish(event: DomainEvent): Promise<void> {
     const handlers = this.handlers.get(event.eventType) ?? [];
     await Promise.all(handlers.map((handler) => handler(event)));
   }
 
-  async publishBatch<T extends DomainEvent>(events: T[]): Promise<void> {
+  async publishBatch(events: DomainEvent[]): Promise<void> {
     await Promise.all(events.map((event) => this.publish(event)));
   }
 
