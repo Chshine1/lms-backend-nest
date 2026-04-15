@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ITenantRepository, IUserRepository } from '../repositories/index';
-import { TenantRepository, UserRepository } from '../../infrastructure/repositories/index';
+import {
+  TenantRepository,
+  UserRepository,
+} from '../../infrastructure/repositories/index';
 import { User } from '../entities/user.entity';
 import {
   EmailAlreadyExistsError,
@@ -13,11 +16,7 @@ import {
   PasswordHashVo,
   PhoneNumberVo,
 } from '../value-objects/index';
-
-interface IPasswordHasher {
-  hash(plaintext: string): Promise<string>;
-  compare(plaintext: string, hash: string): Promise<boolean>;
-}
+import { PasswordHashService } from '../../infrastructure/services/password-hash.service';
 
 @Injectable()
 export class RegistrationService {
@@ -26,7 +25,7 @@ export class RegistrationService {
     private readonly tenantRepository: ITenantRepository,
     @Inject(UserRepository)
     private readonly userRepository: IUserRepository,
-    private readonly passwordHasher: IPasswordHasher,
+    private readonly passwordHashService: PasswordHashService,
   ) {}
 
   async registerUser(
@@ -65,7 +64,8 @@ export class RegistrationService {
       throw new InvalidInvitationCodeError();
     }
 
-    const hashedPasswordString = await this.passwordHasher.hash(plainPassword);
+    const hashedPasswordString =
+      await this.passwordHashService.hash(plainPassword);
     const hashedPassword = PasswordHashVo.create(hashedPasswordString);
 
     return new User(tenantId, email, hashedPassword, phoneNumber);

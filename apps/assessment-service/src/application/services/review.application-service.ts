@@ -5,7 +5,11 @@ import type {
   ISubmissionRepository,
 } from '../../domain/repositories/index';
 import { CourseTypedClient } from '@app/typed-client';
-import { AssignmentRepository, ReviewRepository, SubmissionRepository } from '../../infrastructure/repositories/index';
+import {
+  AssignmentRepository,
+  ReviewRepository,
+  SubmissionRepository,
+} from '../../infrastructure/repositories/index';
 import { Review } from '../../domain/entities/review.entity';
 import { SubmissionGradedEvent } from '../../domain/events/domain.events';
 import { GradeDto, ReviewDto } from '@app/contracts';

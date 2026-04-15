@@ -4,7 +4,10 @@ import type {
   IAssignmentFileRepository,
 } from '../../domain/repositories/index';
 import { FileStorageService } from '@app/infrastructure';
-import { SubmissionFileRepository, AssignmentFileRepository } from '../../infrastructure/repositories/index';
+import {
+  SubmissionFileRepository,
+  AssignmentFileRepository,
+} from '../../infrastructure/repositories/index';
 import { SubmissionFile } from '../../domain/entities/submission-file.entity';
 import { AssignmentFile } from '../../domain/entities/assignment-file.entity';
 

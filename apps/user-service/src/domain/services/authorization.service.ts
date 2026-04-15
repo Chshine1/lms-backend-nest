@@ -3,7 +3,10 @@ import type {
   IUserRepository,
   IParentStudentLinkRepository,
 } from '../repositories/index';
-import { UserRepository, ParentStudentLinkRepository } from '../../infrastructure/repositories/index';
+import {
+  UserRepository,
+  ParentStudentLinkRepository,
+} from '../../infrastructure/repositories/index';
 
 @Injectable()
 export class AuthorizationService {

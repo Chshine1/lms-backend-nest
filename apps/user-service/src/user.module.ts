@@ -29,7 +29,7 @@ import {
   ParentStudentLinkRepository,
   UserRoleAssignmentRepository,
 } from './infrastructure/repositories/index';
-import { PasswordHasher } from './infrastructure/services/password-hasher';
+import { PasswordHashService } from '@/user-service/src/infrastructure/services/password-hash.service';
 
 @Module({
   imports: [
@@ -68,7 +68,7 @@ import { PasswordHasher } from './infrastructure/services/password-hasher';
     StudentProfileRepository,
     ParentStudentLinkRepository,
     UserRoleAssignmentRepository,
-    PasswordHasher,
+    PasswordHashService,
     RegistrationService,
     AuthorizationService,
     ParentStudentLinkingService,

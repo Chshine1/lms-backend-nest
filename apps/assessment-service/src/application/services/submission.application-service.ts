@@ -3,7 +3,10 @@ import type {
   ISubmissionRepository,
   IAssignmentRepository,
 } from '../../domain/repositories/index';
-import { SubmissionRepository, AssignmentRepository } from '../../infrastructure/repositories/index';
+import {
+  SubmissionRepository,
+  AssignmentRepository,
+} from '../../infrastructure/repositories/index';
 import { Submission } from '../../domain/entities/submission.entity';
 import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
 import { SubmissionDataDto, SubmissionDto } from '@app/contracts';
