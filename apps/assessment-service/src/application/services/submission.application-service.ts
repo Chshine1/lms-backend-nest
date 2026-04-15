@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
-  IAssignmentRepository,
   ISubmissionRepository,
+  IAssignmentRepository,
 } from '../../domain/repositories/index';
+import { SubmissionRepository, AssignmentRepository } from '../../infrastructure/repositories/index';
 import { Submission } from '../../domain/entities/submission.entity';
 import { SubmissionCreatedEvent } from '../../domain/events/domain.events';
 import { SubmissionDataDto, SubmissionDto } from '@app/contracts';
@@ -11,7 +12,9 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class SubmissionApplicationService {
   constructor(
+    @Inject(SubmissionRepository)
     private readonly submissionRepository: ISubmissionRepository,
+    @Inject(AssignmentRepository)
     private readonly assignmentRepository: IAssignmentRepository,
     private readonly eventBus: EventBusService,
   ) {}

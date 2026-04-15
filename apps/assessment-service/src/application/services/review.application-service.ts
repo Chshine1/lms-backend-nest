@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CourseTypedClient } from '@app/typed-client';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
   IAssignmentRepository,
   IReviewRepository,
   ISubmissionRepository,
 } from '../../domain/repositories/index';
+import { CourseTypedClient } from '@app/typed-client';
+import { AssignmentRepository, ReviewRepository, SubmissionRepository } from '../../infrastructure/repositories/index';
 import { Review } from '../../domain/entities/review.entity';
 import { SubmissionGradedEvent } from '../../domain/events/domain.events';
 import { GradeDto, ReviewDto } from '@app/contracts';
@@ -13,8 +14,11 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class ReviewApplicationService {
   constructor(
+    @Inject(AssignmentRepository)
     private readonly assignmentRepository: IAssignmentRepository,
+    @Inject(ReviewRepository)
     private readonly reviewRepository: IReviewRepository,
+    @Inject(SubmissionRepository)
     private readonly submissionRepository: ISubmissionRepository,
     private readonly courseTypedClient: CourseTypedClient,
     private readonly eventBus: EventBusService,

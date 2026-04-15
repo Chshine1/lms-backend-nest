@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IUserRoleAssignmentRepository } from '../../domain/repositories/index';
+import { UserRoleAssignmentRepository } from '../../infrastructure/repositories/index';
 import { AuthorizationService } from '@/user-service/src/domain/services/authorization.service';
 import { UserRoleLink } from '@/user-service/src/domain/entities/user-role-link.entity';
 import { RoleAssignedToUser } from '@/user-service/src/domain/events/domain.events';
@@ -10,6 +11,7 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class RoleApplicationService {
   constructor(
+    @Inject(UserRoleAssignmentRepository)
     private readonly userRoleAssignmentRepository: IUserRoleAssignmentRepository,
     private readonly authorizationService: AuthorizationService,
     private readonly eventBus: EventBusService,

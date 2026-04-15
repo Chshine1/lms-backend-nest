@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { ICourseRepository } from '../../domain/repositories/index';
+import { CourseRepository } from '../../infrastructure/repositories/index';
 import { Course } from '../../domain/entities/course.entity';
 import { CourseCreatedEvent } from '../../domain/events/domain.events';
 import { CreateCourseDto, CourseDto } from '@app/contracts';
@@ -8,6 +9,7 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class CourseApplicationService {
   constructor(
+    @Inject(CourseRepository)
     private readonly courseRepository: ICourseRepository,
     private readonly eventBus: EventBusService,
   ) {}

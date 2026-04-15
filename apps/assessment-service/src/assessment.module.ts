@@ -11,6 +11,13 @@ import { Review } from './domain/entities/review.entity';
 import { AssignmentFile } from './domain/entities/assignment-file.entity';
 import { SubmissionFile } from './domain/entities/submission-file.entity';
 import { EventBusModule } from '@app/event-bus';
+import {
+  AssignmentRepository,
+  SubmissionRepository,
+  ReviewRepository,
+  SubmissionFileRepository,
+  AssignmentFileRepository,
+} from './infrastructure/repositories/index';
 
 @Module({
   imports: [
@@ -43,6 +50,11 @@ import { EventBusModule } from '@app/event-bus';
     SubmissionApplicationService,
     ReviewApplicationService,
     FileApplicationService,
+    AssignmentRepository,
+    SubmissionRepository,
+    ReviewRepository,
+    SubmissionFileRepository,
+    AssignmentFileRepository,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

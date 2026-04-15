@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IStudentProfileRepository } from '../../domain/repositories/index';
+import { StudentProfileRepository } from '../../infrastructure/repositories/index';
 import { UserNotFoundError } from '../../domain/errors/index';
 import { CompleteOnboardingDto } from '@app/contracts';
 import { EventBusService } from '@app/event-bus';
@@ -7,6 +8,7 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class OnboardingApplicationService {
   constructor(
+    @Inject(StudentProfileRepository)
     private readonly studentProfileRepository: IStudentProfileRepository,
     private readonly eventBus: EventBusService,
   ) {}

@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { ITenantRepository, IUserRepository } from '../repositories/index';
+import { TenantRepository, UserRepository } from '../../infrastructure/repositories/index';
 import { User } from '../entities/user.entity';
 import {
   EmailAlreadyExistsError,
@@ -21,7 +22,9 @@ interface IPasswordHasher {
 @Injectable()
 export class RegistrationService {
   constructor(
+    @Inject(TenantRepository)
     private readonly tenantRepository: ITenantRepository,
+    @Inject(UserRepository)
     private readonly userRepository: IUserRepository,
     private readonly passwordHasher: IPasswordHasher,
   ) {}
@@ -37,13 +40,11 @@ export class RegistrationService {
       ? PhoneNumberVo.create(phoneNumberString)
       : undefined;
 
-    // Check email uniqueness
     const existingUserByEmail = await this.userRepository.findByEmail(email);
     if (existingUserByEmail) {
       throw new EmailAlreadyExistsError(emailString);
     }
 
-    // Check phone number uniqueness
     if (phoneNumber) {
       const phoneExists = await this.userRepository.existsByPhone(phoneNumber);
       if (phoneExists) {
@@ -51,7 +52,6 @@ export class RegistrationService {
       }
     }
 
-    // Validate invitation code and get tenant
     let tenantId: bigint;
     if (invitationCodeString) {
       const invitationCode = InvitationCodeVo.create(invitationCodeString);
@@ -62,15 +62,12 @@ export class RegistrationService {
       }
       tenantId = tenant.id;
     } else {
-      // For now, require invitation code. Adjust if needed.
       throw new InvalidInvitationCodeError();
     }
 
-    // Hash password
     const hashedPasswordString = await this.passwordHasher.hash(plainPassword);
     const hashedPassword = PasswordHashVo.create(hashedPasswordString);
 
-    // Create user
     return new User(tenantId, email, hashedPassword, phoneNumber);
   }
 }

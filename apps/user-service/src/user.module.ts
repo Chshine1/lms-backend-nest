@@ -14,6 +14,22 @@ import { Role } from './domain/entities/role.entity';
 import { StudentProfile } from './domain/entities/student-profile.entity';
 import { ParentStudentLink } from './domain/entities/parent-student-link.entity';
 import { UserRoleLink } from './domain/entities/user-role-link.entity';
+import { RegistrationService } from './domain/services/registration.service';
+import { AuthorizationService } from './domain/services/authorization.service';
+import { ParentStudentLinkingService } from './domain/services/parent-student-linking.service';
+import { UserApplicationService } from './application/services/user.application-service';
+import { OnboardingApplicationService } from './application/services/onboarding.application-service';
+import { RoleApplicationService } from './application/services/role.application-service';
+import { LinkingApplicationService } from './application/services/linking.application-service';
+import {
+  UserRepository,
+  TenantRepository,
+  RoleRepository,
+  StudentProfileRepository,
+  ParentStudentLinkRepository,
+  UserRoleAssignmentRepository,
+} from './infrastructure/repositories/index';
+import { PasswordHasher } from './infrastructure/services/password-hasher';
 
 @Module({
   imports: [
@@ -45,6 +61,22 @@ import { UserRoleLink } from './domain/entities/user-role-link.entity';
     EventBusModule.forRoot(),
   ],
   controllers: [UserController],
+  providers: [
+    UserRepository,
+    TenantRepository,
+    RoleRepository,
+    StudentProfileRepository,
+    ParentStudentLinkRepository,
+    UserRoleAssignmentRepository,
+    PasswordHasher,
+    RegistrationService,
+    AuthorizationService,
+    ParentStudentLinkingService,
+    UserApplicationService,
+    OnboardingApplicationService,
+    RoleApplicationService,
+    LinkingApplicationService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserModule {}

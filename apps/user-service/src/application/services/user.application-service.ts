@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/index';
+import { UserRepository } from '../../infrastructure/repositories/index';
 import { RegistrationService } from '@/user-service/src/domain/services/registration.service';
 import { AccountCreated } from '../../domain/events/domain.events';
 import { RegisterUserDto, UserDto } from '@app/contracts';
@@ -9,6 +10,7 @@ import { EventBusService } from '@app/event-bus';
 @Injectable()
 export class UserApplicationService {
   constructor(
+    @Inject(UserRepository)
     private readonly userRepository: IUserRepository,
     private readonly registrationDomainService: RegistrationService,
     private readonly eventBus: EventBusService,

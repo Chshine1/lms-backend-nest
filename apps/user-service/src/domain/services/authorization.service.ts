@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
-  IParentStudentLinkRepository,
   IUserRepository,
+  IParentStudentLinkRepository,
 } from '../repositories/index';
+import { UserRepository, ParentStudentLinkRepository } from '../../infrastructure/repositories/index';
 
 @Injectable()
 export class AuthorizationService {
   constructor(
+    @Inject(UserRepository)
     private readonly userRepository: IUserRepository,
+    @Inject(ParentStudentLinkRepository)
     private readonly linkRepository: IParentStudentLinkRepository,
   ) {}
 
@@ -21,12 +24,10 @@ export class AuthorizationService {
     for (const role of roles) {
       for (const permTag of role.permissions) {
         if (this.matchesActionPattern(permTag, action)) {
-          // Static permission (no relationship scope) → grant
           if (!this.hasScopeSuffix(permTag)) {
             return true;
           }
 
-          // Relationship-based scope (e.g., ":linked_parent") → check link table
           if (permTag.includes(':linked_parent') && resourceId) {
             const link = await this.linkRepository.findLink(userId, resourceId);
             if (link) {
@@ -34,7 +35,6 @@ export class AuthorizationService {
             }
           }
 
-          // Additional relationship checks (e.g., ":own") can be added here
           if (permTag.includes(':own') && resourceId) {
             if (userId === resourceId) {
               return true;
@@ -48,8 +48,6 @@ export class AuthorizationService {
   }
 
   private matchesActionPattern(permTag: string, action: string): boolean {
-    // Simple pattern matching: "resource:action:scope" or "resource:action"
-    // Example: permTag = "student:read:linked_parent", action = "student:read"
     const parts = permTag.split(':');
     const actionParts = action.split(':');
 

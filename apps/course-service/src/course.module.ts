@@ -8,6 +8,10 @@ import { EnrollmentApplicationService } from './application/services/enrollment.
 import { EventBusModule } from '@app/event-bus';
 import { Course } from './domain/entities/course.entity';
 import { Enrollment } from './domain/entities/enrollment.entity';
+import {
+  CourseRepository,
+  EnrollmentRepository,
+} from './infrastructure/repositories/index';
 
 @Module({
   imports: [
@@ -34,6 +38,8 @@ import { Enrollment } from './domain/entities/enrollment.entity';
     EnrollmentDomainService,
     CourseApplicationService,
     EnrollmentApplicationService,
+    CourseRepository,
+    EnrollmentRepository,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

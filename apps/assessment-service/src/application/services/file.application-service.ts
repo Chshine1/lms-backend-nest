@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { FileStorageService } from '@app/infrastructure';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
-  IAssignmentFileRepository,
   ISubmissionFileRepository,
+  IAssignmentFileRepository,
 } from '../../domain/repositories/index';
+import { FileStorageService } from '@app/infrastructure';
+import { SubmissionFileRepository, AssignmentFileRepository } from '../../infrastructure/repositories/index';
 import { SubmissionFile } from '../../domain/entities/submission-file.entity';
 import { AssignmentFile } from '../../domain/entities/assignment-file.entity';
 
@@ -29,7 +30,9 @@ export class FileDto {
 export class FileApplicationService {
   constructor(
     private readonly fileStorage: FileStorageService,
+    @Inject(SubmissionFileRepository)
     private readonly submissionFileRepository: ISubmissionFileRepository,
+    @Inject(AssignmentFileRepository)
     private readonly assignmentFileRepository: IAssignmentFileRepository,
   ) {}
 

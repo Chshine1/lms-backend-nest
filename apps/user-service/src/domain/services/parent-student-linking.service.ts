@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IUserRepository } from '../repositories/index';
+import { UserRepository } from '../../infrastructure/repositories/index';
 import { ParentStudentLink } from '../entities/parent-student-link.entity';
 import {
   DifferentTenantError,
@@ -9,13 +10,15 @@ import {
 
 @Injectable()
 export class ParentStudentLinkingService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    @Inject(UserRepository)
+    private readonly userRepository: IUserRepository,
+  ) {}
 
   async validateAndLink(
     parentUserId: bigint,
     studentUserId: bigint,
   ): Promise<ParentStudentLink> {
-    // Fetch both users
     const parentUser = await this.userRepository.findById(parentUserId);
     if (!parentUser) {
       throw new UserNotFoundError(parentUserId);
@@ -26,12 +29,10 @@ export class ParentStudentLinkingService {
       throw new UserNotFoundError(studentUserId);
     }
 
-    // Check same tenant
     if (parentUser.tenantId !== studentUser.tenantId) {
       throw new DifferentTenantError();
     }
 
-    // Check roles
     const parentRoles = await this.userRepository.getRoles(parentUserId);
     const studentRoles = await this.userRepository.getRoles(studentUserId);
 

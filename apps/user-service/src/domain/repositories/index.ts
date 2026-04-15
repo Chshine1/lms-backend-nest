@@ -1,4 +1,4 @@
-﻿export { type IParentStudentLinkRepository } from './parent-student-link.repository.interface';
+export { type IParentStudentLinkRepository } from './parent-student-link.repository.interface';
 export { type IRoleRepository } from './role.repository.interface';
 export { type IStudentProfileRepository } from './student-profile.repository.interface';
 export { type ITenantRepository } from './tenant.repository.interface';

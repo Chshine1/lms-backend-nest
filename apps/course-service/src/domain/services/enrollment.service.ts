@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserTypedClient } from '@app/typed-client';
 import type { IEnrollmentRepository } from '../repositories/index';
+import { EnrollmentRepository } from '../../infrastructure/repositories/index';
 import { Enrollment } from '../entities/enrollment.entity';
 import { EnrollmentStatus } from '../enums/enrollment-status.enum';
 import { AlreadyEnrolledError } from '../errors/index';
@@ -8,6 +9,7 @@ import { AlreadyEnrolledError } from '../errors/index';
 @Injectable()
 export class EnrollmentDomainService {
   constructor(
+    @Inject(EnrollmentRepository)
     private readonly enrollmentRepository: IEnrollmentRepository,
     private readonly userTypedClient: UserTypedClient,
   ) {}
