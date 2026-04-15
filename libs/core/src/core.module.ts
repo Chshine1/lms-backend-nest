@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import {
   ConfigurationService,
   InfrastructureModule,
@@ -13,7 +13,6 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { GlobalExceptionFilter } from '@app/infrastructure';
 
 export interface CoreModuleOptions {
-  permissionEntity?: ClassConstructor<object>;
   endpointsProtocol: 'http' | 'rabbitmq';
   exchanges?: { name: string; type: string }[];
   entities: ClassConstructor<object>[];
@@ -23,7 +22,6 @@ export interface CoreModuleOptions {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class CoreModule {
   static forRoot({
-    permissionEntity,
     endpointsProtocol,
     exchanges = [],
     entities,
@@ -33,21 +31,17 @@ export class CoreModule {
       imports: [
         InfrastructureModule,
         AuthenticationModule.forRoot({
-          ...(permissionEntity === undefined ? {} : { permissionEntity }),
           endpointsProtocol,
         }),
         TypedClientModule.forRoot(exchanges),
-        TypeOrmModule.forRootAsync({
+        // TODO: There should be a commonly wrapped database module independent of implementations?
+        MikroOrmModule.forRootAsync({
           imports: [InfrastructureModule],
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('database', DatabaseConfig);
             return {
-              type: 'postgres',
-              host: section.host,
-              port: section.port,
-              username: section.username,
-              password: section.password,
-              database: section.database,
+              type: 'postgresql',
+              clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
               entities,
               synchronize: false,
             };
@@ -70,7 +64,7 @@ export class CoreModule {
         InfrastructureModule,
         AuthenticationModule,
         TypedClientModule,
-        TypeOrmModule,
+        MikroOrmModule,
       ],
     };
   }

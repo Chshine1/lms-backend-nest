@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { EntityManager } from '@mikro-orm/core';
 import {
   HealthIndicatorResult,
   HealthIndicatorService,
@@ -8,18 +8,16 @@ import {
 @Injectable()
 export class DatabaseHealthIndicator {
   constructor(
-    private readonly dataSource: DataSource,
+    private readonly em: EntityManager,
     private readonly healthIndicatorService: HealthIndicatorService,
   ) {}
 
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
     const indicator = this.healthIndicatorService.check(key);
-    if (!this.dataSource.isInitialized) {
-      return indicator.down({ message: 'Database connection not initialized' });
-    }
 
     try {
-      await this.dataSource.query('SELECT 1');
+      const connection = this.em.getConnection();
+      await connection.execute('SELECT 1');
       return indicator.up();
     } catch {
       return indicator.down({ message: 'Database connection failed' });
