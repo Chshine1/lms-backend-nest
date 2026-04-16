@@ -11,6 +11,8 @@ import { User } from '@/user-service/src/domain/entities/user.entity';
 import { EventBusService } from '@app/event-bus';
 import { PasswordHashService } from '@/user-service/src/infrastructure/services/password-hash.service';
 import { EmailVo } from '@/user-service/src/domain/value-objects/email.vo';
+import { EmailVerificationService } from './email-verification.service';
+import { EmailAlreadyExistsError } from '../../domain/errors';
 
 @Injectable()
 export class UserApplicationService {
@@ -20,6 +22,7 @@ export class UserApplicationService {
     private readonly registrationDomainService: RegistrationService,
     private readonly eventBus: EventBusService,
     private readonly passwordHashService: PasswordHashService,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
   async registerByEmail(dto: RegisterUserDto): Promise<UserDto> {
@@ -67,6 +70,69 @@ export class UserApplicationService {
     }
 
     return `token-${user.id.toString()}`;
+  }
+
+  async requestEmailVerification(email: string): Promise<void> {
+    // Check if email is already registered
+    const emailVo = EmailVo.create(email);
+    const existingUser = await this.userRepository.findByEmail(emailVo);
+    if (existingUser) {
+      throw new EmailAlreadyExistsError(email);
+    }
+
+    // Request verification code and send email
+    await this.emailVerificationService.requestEmailVerification(email);
+  }
+
+  async verifyEmailAndIssueToken(
+    email: string,
+    code: string,
+  ): Promise<{ registrationToken: string }> {
+    // Validate code and issue token
+    return await this.emailVerificationService.verifyEmailAndIssueToken(
+      email,
+      code,
+    );
+  }
+
+  async completeRegistration(
+    registrationToken: string,
+    plainPassword: string,
+    invitationCode?: string,
+  ): Promise<UserDto> {
+    // Verify token and extract email
+    const { email, jti } =
+      await this.emailVerificationService.verifyRegistrationToken(
+        registrationToken,
+      );
+
+    // Create user via registration service
+    const user = await this.registrationDomainService.registerUser(
+      email,
+      plainPassword,
+      undefined, // phoneNumber is optional
+      invitationCode,
+    );
+
+    // Save user
+    await this.userRepository.save(user);
+
+    // Mark token as consumed
+    await this.emailVerificationService.consumeRegistrationToken(
+      jti,
+      new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
+    );
+
+    // Publish event
+    const event = new AccountCreated(
+      user.id,
+      user.email.value,
+      user.tenantId,
+      user.createdAt,
+    );
+    await this.eventBus.publish(event);
+
+    return this.mapToDto(user);
   }
 
   async verifyEmail(userId: bigint): Promise<void> {

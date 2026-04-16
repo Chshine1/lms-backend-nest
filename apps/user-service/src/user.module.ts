@@ -30,6 +30,10 @@ import {
   UserRoleAssignmentRepository,
 } from './infrastructure/repositories/index';
 import { PasswordHashService } from '@/user-service/src/infrastructure/services/password-hash.service';
+import { NotificationService } from '@/user-service/src/infrastructure/services/notification.service';
+import { InMemoryVerificationCache } from '@/user-service/src/infrastructure/transient/in-memory-verification-cache';
+import { InMemoryTokenBlacklist } from '@/user-service/src/infrastructure/transient/in-memory-token-blacklist';
+import { EmailVerificationService } from '@/user-service/src/application/services/email-verification.service';
 
 @Module({
   imports: [
@@ -69,6 +73,10 @@ import { PasswordHashService } from '@/user-service/src/infrastructure/services/
     ParentStudentLinkRepository,
     UserRoleAssignmentRepository,
     PasswordHashService,
+    NotificationService,
+    InMemoryVerificationCache,
+    InMemoryTokenBlacklist,
+    EmailVerificationService,
     RegistrationService,
     AuthorizationService,
     ParentStudentLinkingService,

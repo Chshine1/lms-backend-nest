@@ -1,8 +1,9 @@
-﻿export { DifferentTenantError } from './different-tenant.error';
+export { DifferentTenantError } from './different-tenant.error';
 export { EmailAlreadyExistsError } from './email-already-exists.error';
 export { InvalidInvitationCodeError } from './invalid-invitation-code.error';
 export { InvalidPhoneNumberError } from './invalid-phone-number.error';
 export { InvalidRoleLinkingError } from './invalid-role-linking.error';
+export { InvalidVerificationCodeError } from './invalid-verification-code.error';
 export { OnboardingAlreadyCompletedError } from './onboarding-already-completed.error';
 export { PhoneNumberAlreadyExistsError } from './phone-number-already-exists.error';
 export { TenantNotFoundError } from './tenant-not-found.error';

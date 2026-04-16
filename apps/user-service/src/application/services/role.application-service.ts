@@ -44,22 +44,4 @@ export class RoleApplicationService {
     );
     await this.eventBus.publish(event);
   }
-
-  async revokeRoleFromUser(
-    adminUserId: bigint,
-    dto: AssignRoleDto,
-  ): Promise<void> {
-    const canRevoke = await this.authorizationService.can(
-      adminUserId,
-      'role:revoke',
-    );
-    if (!canRevoke) {
-      throw new UnauthorizedActionError('role:revoke');
-    }
-
-    await this.userRoleAssignmentRepository.delete(
-      dto.targetUserId,
-      dto.roleId,
-    );
-  }
 }
