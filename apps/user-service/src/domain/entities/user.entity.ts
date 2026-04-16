@@ -10,6 +10,8 @@ import {
   PhoneNumberVo,
 } from '../value-objects/index';
 import { InvalidPhoneNumberError, WeakPasswordError } from '../errors/index';
+import { EmailVerified } from '../events/domain.events';
+import type { DomainEvent } from '@app/event-bus';
 
 const UserSchema = defineEntity({
   name: 'User',
@@ -28,6 +30,13 @@ const UserSchema = defineEntity({
 export class User extends UserSchema.class {
   declare phoneNumber: PhoneNumberVo | null;
   declare emailVerifiedAt: Date | null;
+  // Lazy-loaded relationships (empty by default per DOMAIN.md §12)
+  // Use repository with { include: ['roles'] } to load - should be UserRoleLink[]
+  declare roles?: unknown[];
+  // Use repository with { include: ['linkedStudents'] } to load - should be ParentStudentLink[]
+  declare linkedStudents?: unknown[];
+
+  private _domainEvents: DomainEvent[] = [];
 
   constructor(
     tenantId: bigint,
@@ -40,12 +49,26 @@ export class User extends UserSchema.class {
     this.email = email;
     this.phoneNumber = phoneNumber ?? null;
     this.passwordHash = hashedPassword;
-    this.status = UserStatus.INACTIVE;
+    this.status = UserStatus.ACTIVE;
     this.emailVerifiedAt = null;
   }
 
   markEmailVerified(): void {
-    Object.assign(this, { emailVerifiedAt: new Date() });
+    const now = new Date();
+    Object.assign(this, { emailVerifiedAt: now });
+    this.addEvent(new EmailVerified(this.id, now));
+  }
+
+  getDomainEvents(): DomainEvent[] {
+    return [...this._domainEvents];
+  }
+
+  clearDomainEvents(): void {
+    this._domainEvents = [];
+  }
+
+  protected addEvent(event: DomainEvent): void {
+    this._domainEvents.push(event);
   }
 
   updatePhoneNumber(phoneNumber: PhoneNumberVo): void {

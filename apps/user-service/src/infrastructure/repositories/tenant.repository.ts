@@ -8,7 +8,11 @@ import { InvitationCodeVo } from '../../domain/value-objects/index';
 export class TenantRepository implements ITenantRepository {
   constructor(private readonly em: EntityManager) {}
 
-  findById(id: bigint): Promise<Tenant | null> {
+  async findById(
+    id: bigint,
+    _options?: { include?: string[] },
+  ): Promise<Tenant | null> {
+    // Note: include options reserved for future relationship loading
     return this.em.findOne(Tenant, { id });
   }
 

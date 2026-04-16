@@ -315,74 +315,42 @@ async save(submission: Submission): Promise<void> {
 
 ## 5. Application Layer (Orchestration)
 
-### SubmissionApplicationService.submit()
+### 5.1 SubmissionApplicationService.submit()
 
 **Responsibility**: Idempotent upsert of student submission. Loads or creates submission, updates content, persists, publishes events.
 
-#### Input
+#### Input: `SubmitSubmissionInput`
 
-```typescript
-export class SubmitSubmissionInput {
-  @IsDefined()
-  @IsNumberString()
-  studentId!: bigint;
+| Field          | Type                    | Constraints / Validation |
+| :------------- | :---------------------- | :----------------------- |
+| `studentId`    | `bigint`                | Required                 |
+| `assignmentId` | `bigint`                | Required                 |
+| `content`      | `string`                | Required, non-empty      |
+| `files`        | `SubmissionFileInput[]` | Optional, min length 0   |
 
-  @IsDefined()
-  @IsNumberString()
-  assignmentId!: bigint;
+#### `SubmissionFileInput` (nested in `files` array)
 
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  content!: string;
+| Field             | Type               | Constraints / Validation           |
+| :---------------- | :----------------- | :--------------------------------- |
+| `fileKey`         | `string`           | Required, non-empty                |
+| `fileName`        | `string`           | Required, non-empty                |
+| `fileSize`        | `number`           | Required, ≥ 0                      |
+| `mimeType`        | `string`           | Required                           |
+| `storageProvider` | `'local' \| 'oss'` | Required, one of enumerated values |
 
-  @IsOptional()
-  @IsArray()
-  files?: SubmissionFileInput[];
-}
-```
+#### Output: `SubmissionDto`
 
-#### Output
-
-```typescript
-export class SubmissionDto {
-  @IsDefined()
-  @IsNumberString()
-  id!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  studentId!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  assignmentId!: bigint;
-
-  @IsDefined()
-  @IsString()
-  content!: string;
-
-  @IsDefined()
-  @IsNumber()
-  submissionCount!: number;
-
-  @IsDefined()
-  @IsDate()
-  submittedAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  createdAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  updatedAt!: Date;
-
-  @IsDefined()
-  @IsNumber()
-  version!: number;
-}
-```
+| Field             | Type     | Description                     |
+| :---------------- | :------- | :------------------------------ |
+| `id`              | `bigint` | Submission identifier           |
+| `studentId`       | `bigint` | Student reference               |
+| `assignmentId`    | `bigint` | Assignment reference            |
+| `content`         | `string` | Submission content              |
+| `submissionCount` | `number` | Number of submission attempts   |
+| `submittedAt`     | `Date`   | Timestamp of most recent update |
+| `createdAt`       | `Date`   | Creation timestamp              |
+| `updatedAt`       | `Date`   | Last update timestamp           |
+| `version`         | `number` | Optimistic locking version      |
 
 #### Orchestration Steps
 
@@ -443,70 +411,31 @@ async submit(input: SubmitSubmissionInput): Promise<SubmissionDto> {
 
 ---
 
-### ReviewApplicationService.gradeSubmission()
+### 5.2 ReviewApplicationService.gradeSubmission()
 
 **Responsibility**: Create or update a review with grade and feedback. Validates reviewer is teacher, validates grade, publishes grading event.
 
-#### Input
+#### Input: `GradeSubmissionInput`
 
-```typescript
-export class GradeSubmissionInput {
-  @IsDefined()
-  @IsNumberString()
-  submissionId!: bigint;
+| Field          | Type     | Constraints / Validation  |
+| :------------- | :------- | :------------------------ |
+| `submissionId` | `bigint` | Required                  |
+| `reviewerId`   | `bigint` | Required                  |
+| `grade`        | `number` | Required, ≥ 0             |
+| `comment`      | `string` | Optional, max length 2000 |
 
-  @IsDefined()
-  @IsNumberString()
-  reviewerId!: bigint;
+#### Output: `ReviewDto`
 
-  @IsDefined()
-  @IsNumber()
-  @Min(0)
-  grade!: number;
-
-  @IsOptional()
-  @IsString()
-  comment?: string;
-}
-```
-
-#### Output
-
-```typescript
-export class ReviewDto {
-  @IsDefined()
-  @IsNumberString()
-  id!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  submissionId!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  reviewerId!: bigint;
-
-  @IsDefined()
-  @IsNumber()
-  grade!: number;
-
-  @IsDefined()
-  @IsString()
-  comment!: string;
-
-  @IsDefined()
-  @IsDate()
-  reviewedAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  createdAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  updatedAt!: Date;
-}
-```
+| Field          | Type     | Description           |
+| :------------- | :------- | :-------------------- |
+| `id`           | `bigint` | Review identifier     |
+| `submissionId` | `bigint` | Submission reference  |
+| `reviewerId`   | `bigint` | Teacher reference     |
+| `grade`        | `number` | Awarded score         |
+| `comment`      | `string` | Feedback text         |
+| `reviewedAt`   | `Date`   | Review timestamp      |
+| `createdAt`    | `Date`   | Creation timestamp    |
+| `updatedAt`    | `Date`   | Last update timestamp |
 
 #### Orchestration Steps
 
@@ -574,6 +503,38 @@ async gradeSubmission(input: GradeSubmissionInput): Promise<ReviewDto> {
   return this.toReviewDto(review);
 }
 ```
+
+---
+
+### 5.3 AssignmentApplicationService.createAssignment()
+
+#### Input: `CreateAssignmentInput`
+
+| Field                  | Type                     | Constraints / Validation           |
+| :--------------------- | :----------------------- | :--------------------------------- |
+| `unitId`               | `bigint`                 | Required                           |
+| `title`                | `string`                 | Required, non-empty, max 255 chars |
+| `type`                 | `'TEXT_ENTRY' \| 'QUIZ'` | Required, one of enumerated values |
+| `content`              | `AssignmentContent`      | Required (object)                  |
+| `dueTime`              | `Date`                   | Required                           |
+| `allowedResubmissions` | `number`                 | Required, ≥ -1                     |
+| `totalGrade`           | `number`                 | Required, ≥ 1                      |
+
+#### Output: `AssignmentDto`
+
+| Field                  | Type                     | Description                |
+| :--------------------- | :----------------------- | :------------------------- |
+| `id`                   | `bigint`                 | Assignment identifier      |
+| `unitId`               | `bigint`                 | Course unit reference      |
+| `title`                | `string`                 | Assignment title           |
+| `type`                 | `'TEXT_ENTRY' \| 'QUIZ'` | Assignment type            |
+| `content`              | `AssignmentContent`      | Structured content         |
+| `dueTime`              | `Date`                   | Submission deadline        |
+| `allowedResubmissions` | `number`                 | Max attempts allowed       |
+| `totalGrade`           | `number`                 | Maximum score              |
+| `createdAt`            | `Date`                   | Creation timestamp         |
+| `updatedAt`            | `Date`                   | Last update timestamp      |
+| `version`              | `number`                 | Optimistic locking version |
 
 ---
 
@@ -705,266 +666,90 @@ throw new SubmissionWindowClosedException({
 
 ## 11. Data Transfer Objects (DTOs)
 
-All DTOs include validation decorators for automatic request validation.
+All DTOs are plain objects with the following structure and validation rules. The actual validation mechanism (e.g., `class-validator`, `zod`, `io-ts`) is an implementation detail.
 
-### SubmitSubmissionInput
+### 11.1 SubmitSubmissionInput
 
-Input DTO for `SubmissionApplicationService.submit()`:
+| Field          | Type                    | Validation             |
+| :------------- | :---------------------- | :--------------------- |
+| `studentId`    | `bigint`                | required               |
+| `assignmentId` | `bigint`                | required               |
+| `content`      | `string`                | required, non-empty    |
+| `files`        | `SubmissionFileInput[]` | optional, min length 0 |
 
-```typescript
-export class SubmitSubmissionInput {
-  @IsDefined()
-  @IsNumberString()
-  studentId!: bigint;
+### 11.2 SubmissionFileInput
 
-  @IsDefined()
-  @IsNumberString()
-  assignmentId!: bigint;
+| Field             | Type               | Validation                      |
+| :---------------- | :----------------- | :------------------------------ |
+| `fileKey`         | `string`           | required, non-empty             |
+| `fileName`        | `string`           | required, non-empty             |
+| `fileSize`        | `number`           | required, ≥ 0                   |
+| `mimeType`        | `string`           | required                        |
+| `storageProvider` | `'local' \| 'oss'` | required, one of allowed values |
 
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  content!: string;
+### 11.3 SubmissionDto
 
-  @IsOptional()
-  @IsArray()
-  @ArrayMinSize(0)
-  files?: SubmissionFileInput[];
-}
-```
+| Field             | Type     |
+| :---------------- | :------- |
+| `id`              | `bigint` |
+| `studentId`       | `bigint` |
+| `assignmentId`    | `bigint` |
+| `content`         | `string` |
+| `submissionCount` | `number` |
+| `submittedAt`     | `Date`   |
+| `createdAt`       | `Date`   |
+| `updatedAt`       | `Date`   |
+| `version`         | `number` |
 
-### SubmissionFileInput
+### 11.4 GradeSubmissionInput
 
-Input DTO for file metadata in submission:
+| Field          | Type     | Validation                |
+| :------------- | :------- | :------------------------ |
+| `submissionId` | `bigint` | required                  |
+| `reviewerId`   | `bigint` | required                  |
+| `grade`        | `number` | required, ≥ 0             |
+| `comment`      | `string` | optional, max length 2000 |
 
-```typescript
-export class SubmissionFileInput {
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  fileKey!: string;
+### 11.5 ReviewDto
 
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  fileName!: string;
+| Field          | Type     |
+| :------------- | :------- |
+| `id`           | `bigint` |
+| `submissionId` | `bigint` |
+| `reviewerId`   | `bigint` |
+| `grade`        | `number` |
+| `comment`      | `string` |
+| `reviewedAt`   | `Date`   |
+| `createdAt`    | `Date`   |
+| `updatedAt`    | `Date`   |
 
-  @IsDefined()
-  @IsNumber()
-  @Min(0)
-  fileSize!: number;
+### 11.6 CreateAssignmentInput
 
-  @IsDefined()
-  @IsString()
-  mimeType!: string;
+| Field                  | Type                     | Validation                      |
+| :--------------------- | :----------------------- | :------------------------------ |
+| `unitId`               | `bigint`                 | required                        |
+| `title`                | `string`                 | required, non-empty, max 255    |
+| `type`                 | `'TEXT_ENTRY' \| 'QUIZ'` | required, one of allowed values |
+| `content`              | `AssignmentContent`      | required (object)               |
+| `dueTime`              | `Date`                   | required                        |
+| `allowedResubmissions` | `number`                 | required, ≥ -1                  |
+| `totalGrade`           | `number`                 | required, ≥ 1                   |
 
-  @IsDefined()
-  @IsEnum(['local', 'oss'])
-  storageProvider!: 'local' | 'oss';
-}
-```
+### 11.7 AssignmentDto
 
-### SubmissionDto
-
-Response DTO for submission:
-
-```typescript
-export class SubmissionDto {
-  @IsDefined()
-  @IsNumberString()
-  id!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  studentId!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  assignmentId!: bigint;
-
-  @IsDefined()
-  @IsString()
-  content!: string;
-
-  @IsDefined()
-  @IsNumber()
-  submissionCount!: number;
-
-  @IsDefined()
-  @IsDate()
-  submittedAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  createdAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  updatedAt!: Date;
-
-  @IsDefined()
-  @IsNumber()
-  version!: number;
-}
-```
-
-### GradeSubmissionInput
-
-Input DTO for `ReviewApplicationService.gradeSubmission()`:
-
-```typescript
-export class GradeSubmissionInput {
-  @IsDefined()
-  @IsNumberString()
-  submissionId!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  reviewerId!: bigint;
-
-  @IsDefined()
-  @IsNumber()
-  @Min(0)
-  grade!: number;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(2000)
-  comment?: string;
-}
-```
-
-### ReviewDto
-
-Response DTO for review:
-
-```typescript
-export class ReviewDto {
-  @IsDefined()
-  @IsNumberString()
-  id!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  submissionId!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  reviewerId!: bigint;
-
-  @IsDefined()
-  @IsNumber()
-  grade!: number;
-
-  @IsDefined()
-  @IsString()
-  comment!: string;
-
-  @IsDefined()
-  @IsDate()
-  reviewedAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  createdAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  updatedAt!: Date;
-}
-```
-
-### CreateAssignmentInput
-
-Input DTO for assignment creation:
-
-```typescript
-export class CreateAssignmentInput {
-  @IsDefined()
-  @IsNumberString()
-  unitId!: bigint;
-
-  @IsDefined()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(255)
-  title!: string;
-
-  @IsDefined()
-  @IsEnum(['TEXT_ENTRY', 'QUIZ'])
-  type!: 'TEXT_ENTRY' | 'QUIZ';
-
-  @IsDefined()
-  @IsObject()
-  content!: AssignmentContent;
-
-  @IsDefined()
-  @IsDate()
-  dueTime!: Date;
-
-  @IsDefined()
-  @IsNumber()
-  @Min(-1)
-  allowedResubmissions!: number;
-
-  @IsDefined()
-  @IsNumber()
-  @Min(1)
-  totalGrade!: number;
-}
-```
-
-### AssignmentDto
-
-Response DTO for assignment:
-
-```typescript
-export class AssignmentDto {
-  @IsDefined()
-  @IsNumberString()
-  id!: bigint;
-
-  @IsDefined()
-  @IsNumberString()
-  unitId!: bigint;
-
-  @IsDefined()
-  @IsString()
-  title!: string;
-
-  @IsDefined()
-  @IsEnum(['TEXT_ENTRY', 'QUIZ'])
-  type!: 'TEXT_ENTRY' | 'QUIZ';
-
-  @IsDefined()
-  @IsObject()
-  content!: AssignmentContent;
-
-  @IsDefined()
-  @IsDate()
-  dueTime!: Date;
-
-  @IsDefined()
-  @IsNumber()
-  allowedResubmissions!: number;
-
-  @IsDefined()
-  @IsNumber()
-  totalGrade!: number;
-
-  @IsDefined()
-  @IsDate()
-  createdAt!: Date;
-
-  @IsDefined()
-  @IsDate()
-  updatedAt!: Date;
-
-  @IsDefined()
-  @IsNumber()
-  version!: number;
-}
-```
+| Field                  | Type                     |
+| :--------------------- | :----------------------- |
+| `id`                   | `bigint`                 |
+| `unitId`               | `bigint`                 |
+| `title`                | `string`                 |
+| `type`                 | `'TEXT_ENTRY' \| 'QUIZ'` |
+| `content`              | `AssignmentContent`      |
+| `dueTime`              | `Date`                   |
+| `allowedResubmissions` | `number`                 |
+| `totalGrade`           | `number`                 |
+| `createdAt`            | `Date`                   |
+| `updatedAt`            | `Date`                   |
+| `version`              | `number`                 |
 
 ---
 
@@ -1115,3 +900,10 @@ const submission = await submissionQueryService.getSubmissionWithDetails(456n);
 - When `Assignment` created, stores only `unitId`. To verify **Teacher** role, Application Layer makes lightweight gRPC/REST call to `course-service` at grading time (less frequent, high-value operation).
 - **Events Published**: `SubmissionCreatedEvent`, `SubmissionUpdatedEvent`, `SubmissionGradedEvent`, `ReviewGradeUpdatedEvent`.
 - **Events Consumed**: `StudentEnrolledEvent` (from `course-service`), `TeacherAssignedEvent` (from `course-service`).
+
+I'll identify the sections that contain hard-coded DTO/validation classes and replace them with table-based descriptions to avoid framework-specific implementation details (like `class-validator` decorators). This makes the specification more portable (e.g., switching to Zod requires only updating the implementation layer, not the domain model doc).
+
+**Sections to be modified:**
+
+- **Section 5 (Application Layer)** – Input/Output DTOs are currently defined as TypeScript classes with validation decorators.
+- **Section 11 (Data Transfer Objects)** – The same DTOs are repeated with full decorator listings.

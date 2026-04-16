@@ -61,7 +61,10 @@ export class RegistrationService {
       }
       tenantId = tenant.id;
     } else {
-      throw new InvalidInvitationCodeError();
+      // Per DOMAIN.md §3.1: "derives tenantId from invitation code or uses default tenant"
+      // Use default tenant (ID: 1) when no invitation code provided
+      // NOTE: This assumes a default tenant with ID 1 exists; should be created during system initialization
+      tenantId = 1n;
     }
 
     const hashedPasswordString =

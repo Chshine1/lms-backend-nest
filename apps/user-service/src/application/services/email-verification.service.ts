@@ -1,11 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import type { IVerificationCache } from '../transient/verification-cache.interface';
 import type { ITokenBlacklist } from '../transient/token-blacklist.interface';
 import type { INotificationService } from '../../domain/services/notification.service.interface';
-import { InvalidVerificationCodeError } from '../../domain/errors';
-import { Inject } from '@nestjs/common';
+import { InvalidVerificationCodeError } from '../../domain/errors/index';
 import { InMemoryVerificationCache } from '../../infrastructure/transient/in-memory-verification-cache';
 import { InMemoryTokenBlacklist } from '../../infrastructure/transient/in-memory-token-blacklist';
 import { NotificationService } from '../../infrastructure/services/notification.service';

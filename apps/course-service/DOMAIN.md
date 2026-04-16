@@ -596,9 +596,3 @@ course.courseUnits[0].addAttachment(newAttachment);
 await courseRepository.save(course);
 // All changes (new units, modified units, new attachments) are persisted in one transaction
 ```
-
-This pattern ensures:
-
-- **Performance**: Relationships are only loaded when needed
-- **Consistency**: The aggregate root controls access to nested entities
-- **Simplicity**: All changes are persisted together with a single `save()` call

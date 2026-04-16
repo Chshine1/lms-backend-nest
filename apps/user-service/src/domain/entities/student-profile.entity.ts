@@ -1,12 +1,13 @@
 import { defineEntity, p } from '@mikro-orm/core';
 import { OnboardingStatus } from '../enums/onboarding-status.enum';
 import { StudentOnboardingCompleted } from '../events/domain.events';
-import { BaseEntitySchema } from '@app/contracts';
+import { AggregateRootSchema } from '@app/contracts';
+import type { DomainEvent } from '@app/event-bus';
 import { OnboardingAlreadyCompletedError } from '../errors/index';
 
 const StudentProfileSchema = defineEntity({
   name: 'StudentProfile',
-  extends: BaseEntitySchema,
+  extends: AggregateRootSchema,
   tableName: 'student_profiles',
   properties: {
     userId: p.bigint().unique(),
@@ -17,6 +18,8 @@ const StudentProfileSchema = defineEntity({
 });
 
 export class StudentProfile extends StudentProfileSchema.class {
+  private _domainEvents: DomainEvent[] = [];
+
   constructor(userId: bigint) {
     super();
     this.userId = userId;
@@ -29,7 +32,21 @@ export class StudentProfile extends StudentProfileSchema.class {
     }
 
     this.onboardingStatus = OnboardingStatus.COMPLETED;
-    return new StudentOnboardingCompleted(this.userId, new Date());
+    const event = new StudentOnboardingCompleted(this.userId, new Date());
+    this.addEvent(event);
+    return event;
+  }
+
+  getDomainEvents(): DomainEvent[] {
+    return [...this._domainEvents];
+  }
+
+  clearDomainEvents(): void {
+    this._domainEvents = [];
+  }
+
+  protected addEvent(event: DomainEvent): void {
+    this._domainEvents.push(event);
   }
 }
 

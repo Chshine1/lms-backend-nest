@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import type { IUserRepository } from '../../domain/repositories/index';
 import { UserRepository } from '../../infrastructure/repositories/index';
 import { RegistrationService } from '@/user-service/src/domain/services/registration.service';
@@ -12,7 +13,10 @@ import { EventBusService } from '@app/event-bus';
 import { PasswordHashService } from '@/user-service/src/infrastructure/services/password-hash.service';
 import { EmailVo } from '@/user-service/src/domain/value-objects/email.vo';
 import { EmailVerificationService } from './email-verification.service';
-import { EmailAlreadyExistsError } from '../../domain/errors';
+import {
+  EmailAlreadyExistsError,
+  UnauthorizedActionError,
+} from '../../domain/errors/index';
 
 @Injectable()
 export class UserApplicationService {
@@ -23,6 +27,7 @@ export class UserApplicationService {
     private readonly eventBus: EventBusService,
     private readonly passwordHashService: PasswordHashService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async registerByEmail(dto: RegisterUserDto): Promise<UserDto> {
@@ -58,7 +63,7 @@ export class UserApplicationService {
     const email = EmailVo.create(username);
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedActionError('login');
     }
 
     const isValid = await this.passwordHashService.compare(
@@ -66,10 +71,15 @@ export class UserApplicationService {
       user.passwordHash.value,
     );
     if (!isValid) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedActionError('login');
     }
 
-    return `token-${user.id.toString()}`;
+    // Per DOMAIN.md §3.1: "Generate JWT token with claims: userId (subject), exp (1 hour from now)"
+    const token = this.jwtService.sign(
+      { sub: user.id.toString() },
+      { expiresIn: '1h' },
+    );
+    return token;
   }
 
   async requestEmailVerification(email: string): Promise<void> {
@@ -138,7 +148,7 @@ export class UserApplicationService {
   async verifyEmail(userId: bigint): Promise<void> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new UnauthorizedActionError('verify-email');
     }
 
     user.markEmailVerified();

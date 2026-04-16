@@ -15,8 +15,21 @@ export class UserRepository implements IUserRepository {
     await this.em.flush();
   }
 
-  findById(id: bigint): Promise<User | null> {
-    return this.em.findOne(User, { id });
+  async findById(
+    id: bigint,
+    options?: { include?: string[] },
+  ): Promise<User | null> {
+    const user = await this.em.findOne(User, { id });
+    if (!user || !options?.include) {
+      return user;
+    }
+
+    // Lazy-load relationships based on include option
+    if (options.include.includes('roles')) {
+      user.roles = await this.getRoles(id);
+    }
+
+    return user;
   }
 
   findByEmail(email: EmailVo): Promise<User | null> {

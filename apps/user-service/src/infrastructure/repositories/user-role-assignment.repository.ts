@@ -16,6 +16,10 @@ export class UserRoleAssignmentRepository implements IUserRoleAssignmentReposito
     return this.em.find(UserRoleLink, { userId });
   }
 
+  findByRoleId(roleId: bigint): Promise<UserRoleLink[]> {
+    return this.em.find(UserRoleLink, { roleId });
+  }
+
   async delete(userId: bigint, roleId: bigint): Promise<void> {
     const link = await this.em.findOne(UserRoleLink, { userId, roleId });
     if (link) {
