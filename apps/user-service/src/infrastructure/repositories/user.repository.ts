@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { User } from '../../domain/entities/user.entity';
 import { Role } from '../../domain/entities/role.entity';
-import type { IUserRepository } from '../../domain/repositories/index';
+import { UserRoleLink } from '../../domain/entities/user-role-link.entity';
+import { type IUserRepository } from '../../domain/repositories/index';
 import { EmailVo, PhoneNumberVo } from '../../domain/value-objects/index';
 
 @Injectable()
@@ -27,7 +28,10 @@ export class UserRepository implements IUserRepository {
     return count > 0;
   }
 
-  getRoles(_userId: bigint): Promise<Role[]> {
-    return Promise.resolve([]);
+  async getRoles(userId: bigint): Promise<Role[]> {
+    const userRoleLinks = await this.em.find(UserRoleLink, { userId });
+    const roleIds = userRoleLinks.map((link) => link.roleId);
+    const roles = await this.em.find(Role, { id: { $in: roleIds } });
+    return roles;
   }
 }

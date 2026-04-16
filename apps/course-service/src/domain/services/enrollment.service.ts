@@ -14,7 +14,11 @@ export class EnrollmentDomainService {
     private readonly userTypedClient: UserTypedClient,
   ) {}
 
-  async enroll(studentId: bigint, courseId: bigint): Promise<Enrollment> {
+  async enroll(
+    studentId: bigint,
+    courseId: bigint,
+    enrollerUserId: bigint,
+  ): Promise<Enrollment> {
     const existing = await this.enrollmentRepository.findByStudentAndCourse(
       studentId,
       courseId,
@@ -28,6 +32,15 @@ export class EnrollmentDomainService {
     });
     if (!student) {
       throw new Error(`Student ${String(studentId)} not found`);
+    }
+
+    if (studentId !== enrollerUserId) {
+      const enroller = await this.userTypedClient.findUserById({
+        userId: enrollerUserId,
+      });
+      if (!enroller) {
+        throw new Error(`Enroller ${String(enrollerUserId)} not found`);
+      }
     }
 
     return new Enrollment(studentId, courseId);

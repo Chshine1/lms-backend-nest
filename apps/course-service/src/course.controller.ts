@@ -3,11 +3,13 @@ import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { CourseTypedClient, ExtractController } from '@app/typed-client';
 import { CreateCourseDto, CourseDto } from '@app/contracts';
 import { CourseApplicationService } from './application/services/course.application-service';
+import { EnrollmentApplicationService } from './application/services/enrollment.application-service';
 
 @Controller()
 export class CourseController implements ExtractController<CourseTypedClient> {
   constructor(
     private readonly courseApplicationService: CourseApplicationService,
+    private readonly enrollmentApplicationService: EnrollmentApplicationService,
   ) {}
 
   @RabbitRPC({
@@ -42,7 +44,7 @@ export class CourseController implements ExtractController<CourseTypedClient> {
     return this.courseApplicationService.findById(data.courseId);
   }
 
-  findCourseWithUnits(_data: { courseId: bigint }): Promise<{
+  async findCourseWithUnits(data: { courseId: bigint }): Promise<{
     course: CourseDto;
     courseUnits: Array<{
       id: bigint;
@@ -52,9 +54,21 @@ export class CourseController implements ExtractController<CourseTypedClient> {
       position: number;
     }>;
   }> {
-    throw new Error('Method not implemented.');
+    const course = await this.courseApplicationService.findById(data.courseId);
+    if (!course) {
+      throw new Error('Course not found');
+    }
+
+    const courseUnits = await this.courseApplicationService.findUnitsByCourseId(
+      data.courseId,
+    );
+    return { course, courseUnits };
   }
-  findUnitDetail(_data: { courseId: bigint; courseUnitId: bigint }): Promise<{
+
+  async findUnitDetail(data: {
+    courseId: bigint;
+    courseUnitId: bigint;
+  }): Promise<{
     assignments: Array<{
       id: bigint;
       courseUnitId: bigint;
@@ -70,13 +84,21 @@ export class CourseController implements ExtractController<CourseTypedClient> {
       title: string;
     }>;
   }> {
-    throw new Error('Method not implemented.');
+    return this.courseApplicationService.findUnitDetail(
+      data.courseId,
+      data.courseUnitId,
+    );
   }
-  enrollStudent(_data: {
+
+  async enrollStudent(data: {
     courseId: bigint;
     studentId: bigint;
     enrollerUserId: bigint;
   }): Promise<void> {
-    throw new Error('Method not implemented.');
+    await this.enrollmentApplicationService.enrollStudent(
+      data.courseId,
+      data.studentId,
+      data.enrollerUserId,
+    );
   }
 }

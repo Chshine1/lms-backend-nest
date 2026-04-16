@@ -98,7 +98,42 @@ These are immutable types that encapsulate validation and behavior for core conc
 
 ---
 
-### 3. Application Layer (Orchestration)
+## 3. Application Use Case Specifications
+
+This section provides a complete, step‑by‑step specification of application‑layer workflows that span multiple external interactions or involve transient state. Each use case is documented with explicit inputs, outputs, side effects, dependencies, and exceptional paths.
+
+### 3.1 Stepwise Email Registration
+
+**PRD Mapping**: Sign‑up Information – Email verification before account creation.
+
+| Step                              | Method / Endpoint                                 | Input                                                                                                             | Output / Side Effects                                                                                                                                                                                                                                                                                                                                                                                            | Dependencies                                                                                        | Exceptional Paths                                                                                                         |
+| :-------------------------------- | :------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **1. Request Verification Code**  | `UserApplicationService.requestEmailVerification` | `email` (string, unregistered)                                                                                    | ① Generates `EmailVerificationCode` (6‑digit numeric, expires in 5 minutes).<br>② Calls `NotificationService.sendVerificationEmail(email, code)`.<br>③ Stores code‑email binding in `VerificationCache` (application‑layer transient store).                                                                                                                                                                     | `UserRepository` (to check uniqueness)<br>`NotificationService`                                     | Email already registered → `EmailAlreadyExistsException`                                                                  |
+| **2. Verify Email & Issue Token** | `UserApplicationService.verifyEmailAndIssueToken` | `email`, `code`                                                                                                   | ① Validates `code` against `VerificationCache`.<br>② Issues a single‑use `RegistrationToken` (JWT containing `email` claim, valid for 15 minutes).<br>③ Removes the verification code from cache.                                                                                                                                                                                                                | `VerificationCache`                                                                                 | Invalid or expired code → `InvalidVerificationCodeException`                                                              |
+| **3. Complete Registration**      | `UserApplicationService.completeRegistration`     | `registrationToken` (Bearer), `plainPassword`, `tenantInvitationCode` (optional), `studentProfileData` (optional) | ① Verifies `RegistrationToken` signature and expiration.<br>② Extracts `email` claim.<br>③ Delegates to `RegistrationDomainService.registerUser` to create a `User` aggregate.<br>④ If the created user holds the `Student` role, a `StudentProfile` aggregate is synchronously created.<br>⑤ Marks `RegistrationToken` as consumed (e.g., via a `TokenBlacklist`).<br>⑥ Returns `UserDto` and an `accessToken`. | `RegistrationDomainService`<br>`StudentProfileRepository`<br>`TokenBlacklist`<br>`TenantRepository` | Token invalid/expired → `InvalidRegistrationTokenException`<br>Invitation code invalid → `InvalidInvitationCodeException` |
+
+**Design Constraints for Code Consistency**:
+
+- `VerificationCache` is **not** part of the domain model; it is an application‑layer concern (e.g., Redis or in‑memory store).
+- `RegistrationToken` flows only within the application layer, is never persisted in the domain, and integrity is ensured via cryptographic signatures.
+
+---
+
+## 4. Transient Objects & Flow Control
+
+This section defines short‑lived, non‑persistent objects that are essential for secure, multi‑step workflows. They exist solely in the application or infrastructure layers and do not belong to the domain model aggregates.
+
+| Transient Object                         | Internal Representation                           | Lifecycle                                                                                                                    | Security Constraints                                                              |
+| :--------------------------------------- | :------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| `EmailVerificationCode`                  | `VARCHAR(6)` numeric characters                   | Generated with a **5‑minute** TTL. Destroyed immediately after successful verification or upon expiry.                       | Bound to a specific `email`. Invalidated after **3 consecutive failed attempts**. |
+| `RegistrationToken`                      | JWT (claims: `email`, `exp`, `jti`)               | Issued upon successful email verification, valid for **15 minutes**. Consumed (blacklisted) after a successful registration. | Signed using `HS256` or `RS256`. `jti` claim prevents replay attacks.             |
+| `FileUploadTicket` _(example extension)_ | JWT (claims: `userId`, `resourceType`, `maxSize`) | Issued by `MediaService`, valid for **10 minutes**. Consumed upon successful file upload.                                    | Used to authorize temporary file uploads to object storage.                       |
+
+**Important**: These objects are **not aggregates or value objects** in the domain layer. They are explicitly documented here to separate core business invariants from security‑oriented, flow‑control mechanisms.
+
+---
+
+### 5. Application Layer (Orchestration)
 
 **Application Services** coordinate use cases. They own the transaction boundary, convert DTOs to domain objects, and delegate business logic to aggregates and domain services.
 
@@ -112,7 +147,7 @@ These are immutable types that encapsulate validation and behavior for core conc
 
 ---
 
-### 4. Domain Services (Encapsulated Business Rules)
+### 6. Domain Services (Encapsulated Business Rules)
 
 These services contain logic that naturally spans multiple aggregates or requires external policy checks.
 
@@ -148,7 +183,7 @@ async can(userId: UserId, action: string, resourceId?: ResourceId): Promise<bool
 
 ---
 
-### 5. Domain Events
+### 7. Domain Events
 
 | Event Name                     | Payload Data                                | Triggering Point                                                                                                  |
 | :----------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------------------------- |
@@ -161,7 +196,7 @@ async can(userId: UserId, action: string, resourceId?: ResourceId): Promise<bool
 
 ---
 
-### 6. Key Business Rules & Invariants
+### 8. Key Business Rules & Invariants
 
 | Rule ID   | Description                                                     | Enforcement Location                                                                                      |
 | :-------- | :-------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
@@ -173,7 +208,7 @@ async can(userId: UserId, action: string, resourceId?: ResourceId): Promise<bool
 
 ---
 
-### 7. Repository Interfaces (Conceptual)
+### 9. Repository Interfaces (Conceptual)
 
 Defined in the domain layer; implemented in infrastructure.
 
@@ -208,7 +243,7 @@ interface ParentStudentLinkRepository {
 
 ---
 
-### 8. Microservice Integration Note
+### 10. Microservice Integration Note
 
 - **Course & Enrollment aggregates** reside in a separate `CourseService`.
 - This service publishes `StudentOnboardingCompleted` events to a message broker.

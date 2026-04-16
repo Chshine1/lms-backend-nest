@@ -50,6 +50,60 @@ export class CourseApplicationService {
     return this.mapToDto(course);
   }
 
+  async findUnitsByCourseId(courseId: bigint): Promise<
+    Array<{
+      id: bigint;
+      courseId: bigint;
+      title: string;
+      description?: string;
+      position: number;
+    }>
+  > {
+    const units = await this.courseRepository.findUnitsByCourseId(courseId);
+    return units.map((unit) => ({
+      id: unit.id,
+      courseId: unit.courseId,
+      title: unit.title,
+      ...(unit.description !== undefined && { description: unit.description }),
+      position: unit.position,
+    }));
+  }
+
+  async findUnitDetail(
+    courseId: bigint,
+    courseUnitId: bigint,
+  ): Promise<{
+    assignments: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      title: string;
+      description: string;
+      dueDate: Date;
+      attachments: bigint[];
+    }>;
+    courseMaterials: Array<{
+      id: bigint;
+      courseUnitId: bigint;
+      fileId: bigint;
+      title: string;
+    }>;
+  }> {
+    const course = await this.courseRepository.findById(courseId);
+    if (!course) {
+      throw new Error('Course not found');
+    }
+
+    const unit = await this.courseRepository.findUnitById(courseUnitId);
+    if (!unit || unit.courseId !== courseId) {
+      throw new Error('Unit not found');
+    }
+
+    return {
+      assignments: [],
+      courseMaterials: [],
+    };
+  }
+
   private mapToDto(course: Course): CourseDto {
     const dto = new CourseDto();
     dto.id = course.id;

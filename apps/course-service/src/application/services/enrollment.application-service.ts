@@ -14,10 +14,15 @@ export class EnrollmentApplicationService {
     private readonly eventBus: EventBusService,
   ) {}
 
-  async enrollStudent(courseId: bigint, studentId: bigint): Promise<void> {
+  async enrollStudent(
+    courseId: bigint,
+    studentId: bigint,
+    enrollerUserId: bigint,
+  ): Promise<void> {
     const enrollment = await this.enrollmentDomainService.enroll(
       studentId,
       courseId,
+      enrollerUserId,
     );
 
     await this.enrollmentRepository.save(enrollment);

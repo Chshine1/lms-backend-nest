@@ -21,11 +21,13 @@ const UserSchema = defineEntity({
     phoneNumber: p.type(PhoneNumberType).length(20).nullable().unique(),
     passwordHash: p.type(PasswordHashType).length(255),
     status: p.enum(() => UserStatus).nativeEnumName('user_status'),
+    emailVerifiedAt: p.datetime().nullable(),
   },
 });
 
 export class User extends UserSchema.class {
   declare phoneNumber: PhoneNumberVo | null;
+  declare emailVerifiedAt: Date | null;
 
   constructor(
     tenantId: bigint,
@@ -39,6 +41,11 @@ export class User extends UserSchema.class {
     this.phoneNumber = phoneNumber ?? null;
     this.passwordHash = hashedPassword;
     this.status = UserStatus.INACTIVE;
+    this.emailVerifiedAt = null;
+  }
+
+  markEmailVerified(): void {
+    Object.assign(this, { emailVerifiedAt: new Date() });
   }
 
   updatePhoneNumber(phoneNumber: PhoneNumberVo): void {

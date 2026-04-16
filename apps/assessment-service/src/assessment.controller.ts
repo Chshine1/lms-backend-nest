@@ -4,12 +4,14 @@ import { AssessmentTypedClient, ExtractController } from '@app/typed-client';
 import { GradeDto, ReviewDto, SubmissionDto } from '@app/contracts';
 import { SubmissionApplicationService } from './application/services/submission.application-service';
 import { ReviewApplicationService } from './application/services/review.application-service';
+import { AssignmentApplicationService } from './application/services/assignment.application-service';
 
 @Controller()
 export class AssessmentController implements ExtractController<AssessmentTypedClient> {
   constructor(
     private readonly submissionApplicationService: SubmissionApplicationService,
     private readonly reviewApplicationService: ReviewApplicationService,
+    private readonly assignmentApplicationService: AssignmentApplicationService,
   ) {}
 
   @RabbitRPC({
@@ -66,7 +68,7 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
       autoDelete: false,
     },
   })
-  findAssignmentById(_data: { assignmentId: bigint }): Promise<{
+  async findAssignmentById(data: { assignmentId: bigint }): Promise<{
     id: bigint;
     unitId: bigint;
     title: string;
@@ -76,7 +78,7 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
     allowedResubmissions: number;
     totalGrade: number;
   } | null> {
-    throw new Error('Not implemented');
+    return this.assignmentApplicationService.findById(data.assignmentId);
   }
 
   @RabbitRPC({
@@ -88,9 +90,9 @@ export class AssessmentController implements ExtractController<AssessmentTypedCl
       autoDelete: false,
     },
   })
-  findSubmissionById(_data: {
+  async findSubmissionById(data: {
     submissionId: bigint;
   }): Promise<SubmissionDto | null> {
-    throw new Error('Not implemented');
+    return this.submissionApplicationService.findById(data.submissionId);
   }
 }

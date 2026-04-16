@@ -66,6 +66,14 @@ export class SubmissionApplicationService {
     return this.mapToDto(submission);
   }
 
+  async findById(submissionId: bigint): Promise<SubmissionDto | null> {
+    const submission = await this.submissionRepository.findById(submissionId);
+    if (!submission) {
+      return null;
+    }
+    return this.mapToDto(submission);
+  }
+
   private mapToDto(submission: Submission): SubmissionDto {
     const dto = new SubmissionDto();
     dto.id = submission.id;

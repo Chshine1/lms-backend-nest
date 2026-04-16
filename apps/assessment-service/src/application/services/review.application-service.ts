@@ -77,7 +77,7 @@ export class ReviewApplicationService {
     await this.reviewRepository.save(review);
 
     const event = new SubmissionGradedEvent(
-      review.id,
+      review.submissionId,
       review.studentId,
       review.grade,
     );

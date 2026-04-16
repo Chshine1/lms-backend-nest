@@ -19,4 +19,26 @@ export class CourseRepository implements ICourseRepository {
   findByCode(code: string): Promise<Course | null> {
     return this.em.findOne(Course, { code });
   }
+
+  async findUnitsByCourseId(_courseId: bigint): Promise<
+    Array<{
+      id: bigint;
+      courseId: bigint;
+      title: string;
+      description?: string;
+      position: number;
+    }>
+  > {
+    return [];
+  }
+
+  async findUnitById(_courseUnitId: bigint): Promise<{
+    id: bigint;
+    courseId: bigint;
+    title: string;
+    description?: string;
+    position: number;
+  } | null> {
+    return null;
+  }
 }
