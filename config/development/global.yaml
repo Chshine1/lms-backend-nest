@@ -20,3 +20,7 @@ health:
 logger:
   level: debug
   prettyPrint: true
+
+storage:
+  provider: local
+  storagePath: /tmp/storage

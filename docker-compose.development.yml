@@ -131,6 +131,7 @@ services:
       - '3000:3000'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -158,6 +159,7 @@ services:
       - '3001:3001'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -183,6 +185,7 @@ services:
       - '3002:3002'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -208,6 +211,7 @@ services:
       - '3003:3003'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -223,3 +227,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+volumes:
+  storage-data:
