@@ -10,7 +10,8 @@ import { TypedClientModule } from '@app/typed-client';
 import { AuthenticationModule } from '@app/authentication';
 import { HealthModule } from './health/health.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { GlobalExceptionFilter } from '@app/infrastructure';
+import { GlobalExceptionFilter, LoggerService } from '@app/infrastructure';
+import {LogLevel} from '@app/contracts';
 
 export interface CoreModuleOptions {
   endpointsProtocol: 'http' | 'rabbitmq';
@@ -58,7 +59,17 @@ export class CoreModule {
         },
         {
           provide: APP_FILTER,
-          useClass: GlobalExceptionFilter,
+          useFactory: (loggerService: LoggerService): GlobalExceptionFilter => {
+            const errorToLogLevelMap: Record<string, LogLevel> = {
+              UNKNOWN_ERROR: LogLevel.ERROR,
+              BAD_REQUEST: LogLevel.WARN,
+              UNAUTHORIZED: LogLevel.WARN,
+              FORBIDDEN: LogLevel.WARN,
+              NOT_FOUND: LogLevel.WARN,
+            };
+            return new GlobalExceptionFilter(loggerService, errorToLogLevelMap);
+          },                    // ← factory function closes here
+          inject: [LoggerService],
         },
       ],
       exports: [
