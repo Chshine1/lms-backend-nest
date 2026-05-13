@@ -36,6 +36,7 @@ services:
       - ./package.json:/app/package.json:ro
       - ./yarn.lock:/app/yarn.lock:ro
       - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./mikro-orm.config.ts:/app/mikro-orm.config.ts:ro
     command: sh -c "yarn run migration:run"
     depends_on:
       postgres:
