@@ -48,6 +48,7 @@ export class CoreModule {
           },
           inject: [ConfigurationService],
         }),
+        MikroOrmModule.forFeature(entities),
         HealthModule,
       ],
       providers: [
@@ -64,7 +65,7 @@ export class CoreModule {
         InfrastructureModule,
         AuthenticationModule,
         TypedClientModule,
-        MikroOrmModule,
+        // MikroOrmModule,
       ],
     };
   }
