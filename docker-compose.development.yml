@@ -38,7 +38,7 @@ services:
       - ./tsconfig.json:/app/tsconfig.json:ro
       - ./mikro-orm.config.ts:/app/mikro-orm.config.ts:ro
     # command: sh -c "yarn run migration:run"
-    command: sh -c "yarn node_modules/.bin/ts-node -r tsconfig-paths/register node_modules/.bin/mikro-orm migration:up"
+    command: sh -c "node_modules/.bin/ts-node -r tsconfig-paths/register node_modules/.bin/mikro-orm migration:up --config mikro-orm.config.ts"
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,7 +76,7 @@ services:
     volumes:
       - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     tmpfs:
-      - /tmp/loki:rw,noexec,nosuid,size=256M
+      - /tmp/loki:rw,noexec,nosuid,size=256M,uid=10001
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - loki-net
