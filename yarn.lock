@@ -1586,6 +1586,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mikro-orm/cli@npm:7.0.10":
+  version: 7.0.10
+  resolution: "@mikro-orm/cli@npm:7.0.10"
+  dependencies:
+    "@mikro-orm/core": "npm:7.0.10"
+    mikro-orm: "npm:7.0.10"
+    yargs: "npm:17.7.2"
+  bin:
+    mikro-orm: cli.js
+  checksum: 10c0/7949a49fd4182e1d435ea5d7d389eb8977ee7d955d84121077a7a564acee2f2331edd13102bed24580bef92fdeec1324ad717c5c3816f29814d2942e26852823
+  languageName: node
+  linkType: hard
+
 "@mikro-orm/core@npm:^7.0.10":
   version: 7.0.10
   resolution: "@mikro-orm/core@npm:7.0.10"
@@ -6804,6 +6817,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.26.0"
     "@eslint/js": "npm:^9.18.0"
+    "@mikro-orm/cli": "npm:7.0.10"
     "@nestjs/cli": "npm:^11.0.0"
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/core": "npm:^11.0.1"
@@ -7084,6 +7098,13 @@ __metadata:
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
   checksum: 10c0/867fdbb30a6d58b011449b8885601ec1690c3e41c759ecd5a9d609094f7aed0096c37823ff4a7190ef0b8f22cc86beb7049196ff68c016e3b3c671d0dac91ce5
+  languageName: node
+  linkType: hard
+
+"mikro-orm@npm:7.0.10":
+  version: 7.0.10
+  resolution: "mikro-orm@npm:7.0.10"
+  checksum: 10c0/2425cf0732f1535bfaeed9296aa4aa9956143514210771a483a8dd4aefb108507ec39ef76a08d80e937b22f2d34acb96aed3b74d7c74183a065f1ae9ae5e2c61
   languageName: node
   linkType: hard
 
@@ -9952,7 +9973,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:^17.7.2":
+"yargs@npm:17.7.2, yargs@npm:^17.7.2":
   version: 17.7.2
   resolution: "yargs@npm:17.7.2"
   dependencies:
