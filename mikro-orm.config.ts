@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { defineConfig } from '@mikro-orm/postgresql';
 import { Migrator } from '@mikro-orm/migrations';
 import { Assignment } from './apps/assessment-service/src/domain/entities/assignment.entity';
