@@ -9,7 +9,7 @@ import {
   RabbitMQConsumerConfig,
 } from './consumers/rabbitmq.event-consumer';
 import { InMemoryEventPublisher } from './publishers/in-memory.event-publisher';
-import { ConfigurationService } from '@app/infrastructure';
+import { ConfigurationService, InfrastructureModule } from '@app/infrastructure';
 import { RabbitMQConfig } from '@app/contracts';
 
 @Module({})
@@ -18,6 +18,7 @@ export class EventBusModule {
   static forRoot(): DynamicModule {
     return {
       module: EventBusModule,
+      imports: [InfrastructureModule],
       providers: [
         EventBusService,
         InMemoryEventPublisher,
