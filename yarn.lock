@@ -1622,7 +1622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mikro-orm/nestjs@npm:^7.0.0":
+"@mikro-orm/nestjs@npm:^7.0.1":
   version: 7.0.1
   resolution: "@mikro-orm/nestjs@npm:7.0.1"
   peerDependencies:
