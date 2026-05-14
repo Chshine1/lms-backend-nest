@@ -3,6 +3,7 @@ import { AssessmentController } from './assessment.controller';
 import { CourseTypedClient, TypedClientModule } from '@app/typed-client';
 import { CoreModule } from '@app/core';
 import { SubmissionApplicationService } from './application/services/submission.application-service';
+import { AssignmentApplicationService } from './application/services/assignment.application-service';
 import { ReviewApplicationService } from './application/services/review.application-service';
 import { FileApplicationService } from './application/services/file.application-service';
 import { Assignment } from './domain/entities/assignment.entity';
@@ -50,6 +51,7 @@ import {
     SubmissionApplicationService,
     ReviewApplicationService,
     FileApplicationService,
+    AssignmentApplicationService,
     AssignmentRepository,
     SubmissionRepository,
     ReviewRepository,
