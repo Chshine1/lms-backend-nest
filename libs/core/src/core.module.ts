@@ -4,6 +4,7 @@ import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
+import {PostgreSqlDriver} from '@mikro-orm/postgresql';
 import { DatabaseConfig, RpcResponseInterceptor } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientModule } from '@app/typed-client';
@@ -41,7 +42,8 @@ export class CoreModule {
           useFactory: (configService: ConfigurationService) => {
             const section = configService.getByKey('database', DatabaseConfig);
             return {
-              type: 'postgresql',
+              // type: 'postgresql',
+              driver: PostgreSqlDriver,
               clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
               entities,
               synchronize: false,
