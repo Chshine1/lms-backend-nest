@@ -28,6 +28,22 @@ export class CoreModule {
     exchanges = [],
     entities,
   }: CoreModuleOptions): DynamicModule {
+    const mikrOrmImports = entities.length > 0 ? [
+      MikroOrmModule.forRootAsync({
+        imports: [InfrastructureModule],
+        useFactory: (configService: ConfigurationService) => {
+          const section = configService.getByKey('database', DatabaseConfig);
+          return {
+            driver: PostgreSqlDriver,
+            clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
+            entities,
+            synchronize: false,
+          };
+        },
+        inject: [ConfigurationService],
+      }),
+      MikroOrmModule.forFeature(entities),
+    ] : [];
     return {
       module: CoreModule,
       imports: [
@@ -36,22 +52,23 @@ export class CoreModule {
           endpointsProtocol,
         }),
         TypedClientModule.forRoot(exchanges),
+        ...mikrOrmImports,
         // TODO: There should be a commonly wrapped database module independent of implementations?
-        MikroOrmModule.forRootAsync({
-          imports: [InfrastructureModule],
-          useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey('database', DatabaseConfig);
-            return {
-              // type: 'postgresql',
-              driver: PostgreSqlDriver,
-              clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
-              entities,
-              synchronize: false,
-            };
-          },
-          inject: [ConfigurationService],
-        }),
-        MikroOrmModule.forFeature(entities),
+        // MikroOrmModule.forRootAsync({
+        //   imports: [InfrastructureModule],
+        //   useFactory: (configService: ConfigurationService) => {
+        //     const section = configService.getByKey('database', DatabaseConfig);
+        //     return {
+        //       // type: 'postgresql',
+        //       driver: PostgreSqlDriver,
+        //       clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
+        //       entities,
+        //       synchronize: false,
+        //     };
+        //   },
+        //   inject: [ConfigurationService],
+        // }),
+        // MikroOrmModule.forFeature(entities),
         HealthModule,
       ],
       providers: [
