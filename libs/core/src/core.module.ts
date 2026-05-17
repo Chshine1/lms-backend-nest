@@ -69,7 +69,7 @@ export class CoreModule {
         //   inject: [ConfigurationService],
         // }),
         // MikroOrmModule.forFeature(entities),
-        HealthModule,
+        HealthModule.forRoot(entities.length > 0),
       ],
       providers: [
         {
