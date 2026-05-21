@@ -10,7 +10,18 @@ rabbitmq:
   port: 5672
   username: lms
   password: lms
+  eventExchange: lms-events
+  eventQueue: lms-event-queue
+
+health:
+  port: 9000
+  timeoutMs: 3000
 
 logger:
   level: debug
   prettyPrint: true
+
+
+storage:
+  provider: local
+  storagePath: /tmp/storage

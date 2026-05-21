@@ -4,13 +4,15 @@ import {
   ConfigurationService,
   InfrastructureModule,
 } from '@app/infrastructure';
+import {PostgreSqlDriver} from '@mikro-orm/postgresql';
 import { DatabaseConfig, RpcResponseInterceptor } from '@app/contracts';
 import { ClassConstructor } from 'class-transformer';
 import { TypedClientModule } from '@app/typed-client';
 import { AuthenticationModule } from '@app/authentication';
 import { HealthModule } from './health/health.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { GlobalExceptionFilter } from '@app/infrastructure';
+import { GlobalExceptionFilter, LoggerService } from '@app/infrastructure';
+import {LogLevel} from '@app/contracts';
 
 export interface CoreModuleOptions {
   endpointsProtocol: 'http' | 'rabbitmq';
@@ -26,6 +28,22 @@ export class CoreModule {
     exchanges = [],
     entities,
   }: CoreModuleOptions): DynamicModule {
+    const mikrOrmImports = entities.length > 0 ? [
+      MikroOrmModule.forRootAsync({
+        imports: [InfrastructureModule],
+        useFactory: (configService: ConfigurationService) => {
+          const section = configService.getByKey('database', DatabaseConfig);
+          return {
+            driver: PostgreSqlDriver,
+            clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
+            entities,
+            synchronize: false,
+          };
+        },
+        inject: [ConfigurationService],
+      }),
+      MikroOrmModule.forFeature(entities),
+    ] : [];
     return {
       module: CoreModule,
       imports: [
@@ -34,21 +52,24 @@ export class CoreModule {
           endpointsProtocol,
         }),
         TypedClientModule.forRoot(exchanges),
+        ...mikrOrmImports,
         // TODO: There should be a commonly wrapped database module independent of implementations?
-        MikroOrmModule.forRootAsync({
-          imports: [InfrastructureModule],
-          useFactory: (configService: ConfigurationService) => {
-            const section = configService.getByKey('database', DatabaseConfig);
-            return {
-              type: 'postgresql',
-              clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
-              entities,
-              synchronize: false,
-            };
-          },
-          inject: [ConfigurationService],
-        }),
-        HealthModule,
+        // MikroOrmModule.forRootAsync({
+        //   imports: [InfrastructureModule],
+        //   useFactory: (configService: ConfigurationService) => {
+        //     const section = configService.getByKey('database', DatabaseConfig);
+        //     return {
+        //       // type: 'postgresql',
+        //       driver: PostgreSqlDriver,
+        //       clientUrl: `postgresql://${section.username}:${section.password}@${section.host}:${String(section.port)}/${section.database}`,
+        //       entities,
+        //       synchronize: false,
+        //     };
+        //   },
+        //   inject: [ConfigurationService],
+        // }),
+        // MikroOrmModule.forFeature(entities),
+        HealthModule.forRoot(entities.length > 0),
       ],
       providers: [
         {
@@ -57,14 +78,24 @@ export class CoreModule {
         },
         {
           provide: APP_FILTER,
-          useClass: GlobalExceptionFilter,
+          useFactory: (loggerService: LoggerService): GlobalExceptionFilter => {
+            const errorToLogLevelMap: Record<string, LogLevel> = {
+              UNKNOWN_ERROR: LogLevel.ERROR,
+              BAD_REQUEST: LogLevel.WARN,
+              UNAUTHORIZED: LogLevel.WARN,
+              FORBIDDEN: LogLevel.WARN,
+              NOT_FOUND: LogLevel.WARN,
+            };
+            return new GlobalExceptionFilter(loggerService, errorToLogLevelMap);
+          },                    // ← factory function closes here
+          inject: [LoggerService],
         },
       ],
       exports: [
         InfrastructureModule,
         AuthenticationModule,
         TypedClientModule,
-        MikroOrmModule,
+        // MikroOrmModule,
       ],
     };
   }
