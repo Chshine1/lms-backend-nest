@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { UserStatus } from '@/user-service/src/domain/enums/user-status.enum';
+import { UserStatus } from '../enums/user-status.enum';
 
 export const UserSchema = z.object({
   id: z.bigint(),

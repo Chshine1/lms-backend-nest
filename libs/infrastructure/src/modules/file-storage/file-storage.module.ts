@@ -12,7 +12,8 @@ import { StorageConfig } from '@app/contracts';
     {
       provide: StorageConfig,
       useFactory: (configService: ConfigurationService): StorageConfig => {
-        return configService.get(StorageConfig);
+        // return configService.get(StorageConfig);
+        return configService.getByKey('storage',StorageConfig);
       },
       inject: [ConfigurationService],
     },

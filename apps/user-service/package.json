@@ -10,6 +10,7 @@
     "@app/typed-client": "workspace:*",
     "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@mikro-orm/core": "^7.0.10",
+    "@mikro-orm/postgresql": "7.0.10",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",

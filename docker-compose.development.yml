@@ -36,7 +36,9 @@ services:
       - ./package.json:/app/package.json:ro
       - ./yarn.lock:/app/yarn.lock:ro
       - ./tsconfig.json:/app/tsconfig.json:ro
-    command: sh -c "yarn run migration:run"
+      - ./mikro-orm.config.ts:/app/mikro-orm.config.ts:ro
+    # command: sh -c "yarn run migration:run"
+    command: sh -c "node_modules/.bin/ts-node -r tsconfig-paths/register node_modules/.bin/mikro-orm migration:up --config mikro-orm.config.ts"
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,7 +76,7 @@ services:
     volumes:
       - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     tmpfs:
-      - /tmp/loki:rw,noexec,nosuid,size=256M
+      - /tmp/loki:rw,noexec,nosuid,size=256M,uid=10001
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - loki-net
@@ -129,6 +131,7 @@ services:
       - '3000:3000'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -156,6 +159,7 @@ services:
       - '3001:3001'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -181,6 +185,7 @@ services:
       - '3002:3002'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -206,6 +211,7 @@ services:
       - '3003:3003'
     volumes:
       - ./config:/app/config:ro
+      - storage-data:/tmp/storage
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -221,3 +227,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+volumes:
+  storage-data:
