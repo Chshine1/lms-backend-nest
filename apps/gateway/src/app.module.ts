@@ -9,7 +9,10 @@ import {
   InfrastructureModule,
 } from '@app/infrastructure';
 import {
+  AiTypedClient,
   AssessmentTypedClient,
+  ChatAttachmentTypedClient,
+  ChatTypedClient,
   CourseTypedClient,
   TypedClientModule,
   UserTypedClient,
@@ -39,6 +42,18 @@ import { CoreModule } from '@app/core';
         {
           name: 'assessment-service',
           type: 'topic',
+        },
+        {
+          name: 'ai-service',
+          type: 'topic'
+        },
+        {
+          name: 'chatAttachment-service',
+          type: 'topic'
+        },        
+        {
+          name: 'chat-service',
+          type: 'topic'
         },
       ],
     }),
@@ -74,6 +89,25 @@ import { CoreModule } from '@app/core';
           exchange: 'assessment-service',
         },
         client: AssessmentTypedClient,
+      },
+
+      {
+        mqOptions: {
+          exchange: 'ai-service',
+        },
+        client: AiTypedClient,
+      },
+      {
+        mqOptions: {
+          exchange: 'chat-service',
+        },
+        client: ChatTypedClient,
+      },
+      {
+        mqOptions: {
+          exchange: 'chatAttachment-service',
+        },
+        client: ChatAttachmentTypedClient,
       },
     ]),
   ],
